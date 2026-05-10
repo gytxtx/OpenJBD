@@ -879,7 +879,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     }
 
     private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     private int dp(int value) {
