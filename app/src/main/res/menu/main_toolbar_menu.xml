@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_dashboard"
+        android:icon="@drawable/ic_dashboard_24"
+        android:title="@string/action_dashboard"
+        android:visible="false"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_disconnect"
+        android:icon="@drawable/ic_close_24"
+        android:title="@string/action_disconnect"
+        android:visible="false"
+        app:showAsAction="always" />
+</menu>

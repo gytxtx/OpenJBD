@@ -1,0 +1,13 @@
+<resources>
+    <color name="app_bg">#F7F8FA</color>
+    <color name="primary">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="accent">#00A676</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_secondary">#000000</color>
+    <color name="danger">#D32F2F</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card_stroke">#E1E5EB</color>
+    <color name="text_primary">#17202A</color>
+    <color name="text_secondary">#5C6570</color>
+</resources>

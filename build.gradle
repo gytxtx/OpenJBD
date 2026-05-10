@@ -1,0 +1,9 @@
+plugins {
+    id "com.android.application" version "9.0.1" apply false
+}
+
+tasks.register("deployDebug") {
+    group = "deployment"
+    description = "Build the debug APK and install it on a connected Android device."
+    dependsOn(":app:installDebug")
+}

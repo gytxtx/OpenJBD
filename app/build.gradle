@@ -1,0 +1,20 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.gytxtx.openjbd"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.gytxtx.openjbd"
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName "0.1.0"
+    }
+}
+
+dependencies {
+    implementation "com.google.android.material:material:1.10.0"
+}
