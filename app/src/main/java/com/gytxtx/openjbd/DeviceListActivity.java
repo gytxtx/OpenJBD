@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -59,6 +60,7 @@ public final class DeviceListActivity extends AppCompatActivity {
     private TextView placeholderSubtitle;
     private TextView statusText;
     private MaterialToolbar toolbar;
+    private SwipeRefreshLayout swipeRefresh;
 
     private final Runnable stopScanRunnable = new Runnable() {
         @Override
@@ -83,6 +85,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         @Override
         public void onScanFailed(int errorCode) {
             scanning = false;
+            setRefreshing(false);
             setStatus(getString(R.string.status_scan_failed, errorCode));
         }
     };
@@ -97,6 +100,15 @@ public final class DeviceListActivity extends AppCompatActivity {
         SystemBars.applyAppBars(this);
         toolbar = findViewById(R.id.device_top_app_bar);
         toolbar.setNavigationIconTint(getColorCompat(R.color.text_primary));
+        swipeRefresh = findViewById(R.id.device_swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.primary, R.color.accent);
+        swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.surface);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                startScanWithPermissions();
+            }
+        });
         statusText = findViewById(R.id.txt_device_status);
         deviceList = findViewById(R.id.list_devices);
         placeholderDevices = findViewById(R.id.placeholder_devices);
@@ -134,12 +146,14 @@ public final class DeviceListActivity extends AppCompatActivity {
 
     private void startScanWithPermissions() {
         if (adapter == null || !adapter.isEnabled()) {
+            setRefreshing(false);
             toast(getString(R.string.toast_bluetooth_off));
             setStatus(getString(R.string.status_bluetooth_off));
             showPlaceholder(getString(R.string.device_placeholder_bluetooth_off_title), getString(R.string.device_placeholder_bluetooth_off_subtitle));
             return;
         }
         if (!hasBlePermissions()) {
+            setRefreshing(false);
             setStatus(getString(R.string.status_requesting_permissions));
             requestPermissions(requiredPermissions(), REQUEST_BLE_PERMISSIONS);
             return;
@@ -156,6 +170,7 @@ public final class DeviceListActivity extends AppCompatActivity {
             scanner = adapter.getBluetoothLeScanner();
         }
         if (scanner == null) {
+            setRefreshing(false);
             setStatus(getString(R.string.status_ble_scanner_unavailable));
             showPlaceholder(getString(R.string.device_placeholder_scanner_unavailable_title), getString(R.string.device_placeholder_scanner_unavailable_subtitle));
             return;
@@ -165,6 +180,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         scanCallbackCount = 0;
         showPlaceholder(getString(R.string.device_placeholder_scanning_title), getString(R.string.device_placeholder_scanning_subtitle));
         scanning = true;
+        setRefreshing(true);
         setStatus(getString(R.string.status_scanning));
         ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -191,6 +207,7 @@ public final class DeviceListActivity extends AppCompatActivity {
             }
         }
         scanning = false;
+        setRefreshing(false);
     }
 
     @SuppressLint("MissingPermission")
@@ -321,6 +338,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         if (hasBlePermissions()) {
             startScan();
         } else {
+            setRefreshing(false);
             toast(getString(R.string.toast_ble_permission_denied));
             setStatus(getString(R.string.status_ble_permission_denied));
         }
@@ -347,6 +365,12 @@ public final class DeviceListActivity extends AppCompatActivity {
 
     private void toast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setRefreshing(boolean refreshing) {
+        if (swipeRefresh != null) {
+            swipeRefresh.setRefreshing(refreshing);
+        }
     }
 
     private int dp(int value) {
