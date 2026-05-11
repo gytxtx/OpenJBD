@@ -26,6 +26,7 @@ import com.gytxtx.openjbd.protocol.JbdFrameAssembler;
 import com.gytxtx.openjbd.protocol.JbdParseException;
 import com.gytxtx.openjbd.protocol.JbdParser;
 
+import java.util.ArrayDeque;
 import java.util.List;
 
 final class BmsConnectionManager {
@@ -34,6 +35,7 @@ final class BmsConnectionManager {
     private final Context context;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final JbdFrameAssembler frameAssembler = new JbdFrameAssembler();
+    private final ArrayDeque<byte[]> commandQueue = new ArrayDeque<>();
 
     private BluetoothAdapter adapter;
     private BluetoothGatt gatt;
@@ -73,6 +75,7 @@ final class BmsConnectionManager {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 writeInFlight = false;
+                commandQueue.clear();
                 writeCharacteristic = null;
                 handler.removeCallbacks(pollRunnable);
                 frameAssembler.reset();
@@ -112,6 +115,9 @@ final class BmsConnectionManager {
         @Override
         public void onCharacteristicWrite(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, int status) {
             writeInFlight = false;
+            if (!commandQueue.isEmpty() && connected) {
+                sendCommand(commandQueue.removeFirst());
+            }
         }
     };
 
@@ -179,6 +185,7 @@ final class BmsConnectionManager {
         handler.removeCallbacks(pollRunnable);
         connected = false;
         writeInFlight = false;
+        commandQueue.clear();
         writeCharacteristic = null;
         frameAssembler.reset();
         if (gatt != null) {
@@ -213,6 +220,9 @@ final class BmsConnectionManager {
     @SuppressLint("MissingPermission")
     private void sendCommand(byte[] command) {
         if (gatt == null || writeCharacteristic == null || writeInFlight) {
+            if (connected && writeInFlight && commandQueue.size() < 4) {
+                commandQueue.addLast(command);
+            }
             return;
         }
         writeInFlight = true;
