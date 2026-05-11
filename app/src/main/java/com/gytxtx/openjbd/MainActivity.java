@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -65,9 +66,11 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     private static final String VALUE_REFRESH_2S = "2000";
     private static final String VALUE_REFRESH_5S = "5000";
     private static final String VALUE_REFRESH_10S = "10000";
+    private static final long PAGE_TRANSITION_MS = 160L;
 
     private boolean connected;
     private String connectedDeviceName;
+    private int currentPage = -1;
 
     private LinearLayout cellList;
     private TextView statusText;
@@ -410,11 +413,17 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     }
 
     private void showPage(int page) {
+        if (page == currentPage) {
+            return;
+        }
+        int previousPage = currentPage;
+        currentPage = page;
         boolean overview = page == PAGE_OVERVIEW;
         boolean parameters = page == PAGE_PARAMETERS;
-        overviewPage.setVisibility(overview ? View.VISIBLE : View.GONE);
-        parametersPage.setVisibility(parameters ? View.VISIBLE : View.GONE);
-        settingsPage.setVisibility(page == PAGE_SETTINGS ? View.VISIBLE : View.GONE);
+        boolean settings = page == PAGE_SETTINGS;
+        showPageView(overviewPage, overview);
+        showPageView(parametersPage, parameters);
+        showPageView(settingsPage, settings);
         if (overview) {
             toolbar.setTitle(getString(R.string.overview_title));
         } else if (parameters) {
@@ -422,7 +431,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         } else {
             toolbar.setTitle(getString(R.string.settings_title));
         }
-        toolbar.setNavigationIcon(R.drawable.ic_view_list_24);
+        toolbar.setNavigationIcon(R.drawable.ic_list_24);
         toolbar.setNavigationIconTint(getColorCompat(R.color.text_primary));
         MenuItem disconnectItem = toolbar.getMenu().findItem(R.id.action_disconnect);
         if (disconnectItem != null) {
@@ -433,6 +442,47 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             dashboardItem.setVisible(overview && connected);
         }
         mainScroll.scrollTo(0, 0);
+        if (previousPage >= 0) {
+            animateSelectedNavItem(page);
+        }
+    }
+
+    private void showPageView(View view, boolean visible) {
+        view.animate().cancel();
+        if (!visible) {
+            view.setVisibility(View.GONE);
+            view.setAlpha(1f);
+            view.setTranslationY(0f);
+            return;
+        }
+        view.setVisibility(View.VISIBLE);
+        view.setAlpha(0f);
+        view.setTranslationY(dp(12));
+        view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(PAGE_TRANSITION_MS)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+    }
+
+    private void animateSelectedNavItem(int page) {
+        int selectedItemId = page == PAGE_OVERVIEW ? R.id.nav_overview
+                : page == PAGE_PARAMETERS ? R.id.nav_parameters
+                : R.id.nav_settings;
+        View itemView = bottomNavigationView.findViewById(selectedItemId);
+        if (itemView == null) {
+            return;
+        }
+        itemView.animate().cancel();
+        itemView.setScaleX(0.96f);
+        itemView.setScaleY(0.96f);
+        itemView.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(PAGE_TRANSITION_MS)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
     }
 
     private void bindParameterList() {
@@ -690,6 +740,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             TextView title = row.findViewById(R.id.txt_setting_title);
             TextView subtitle = row.findViewById(R.id.txt_setting_subtitle);
             icon.setImageResource(parameterIcon(position));
+            icon.setColorFilter(getColorCompat(R.color.text_secondary));
             title.setText(parameterTitle(position));
             subtitle.setText(parameterValue(position));
             return row;
@@ -700,10 +751,10 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 return R.drawable.ic_bluetooth_searching_24;
             }
             if (position == 8 || position == 9) {
-                return R.drawable.ic_battery_5_bar_24;
+                return R.drawable.ic_battery_4_bar_24;
             }
             if (position == 10 || position == 11) {
-                return R.drawable.ic_electric_bolt_24;
+                return R.drawable.ic_bolt_24;
             }
             if (position == 12 || position == 13 || position == 14) {
                 return R.drawable.ic_dashboard_24;
@@ -841,7 +892,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 title.setText(R.string.setting_temperature_unit);
                 subtitle.setText(tempUnitLabel(prefs.getString(PREF_TEMP_UNIT, VALUE_C)));
             } else {
-                icon.setImageResource(R.drawable.ic_loop_24);
+                icon.setImageResource(R.drawable.baseline_loop_24);
                 title.setText(R.string.setting_refresh_interval);
                 subtitle.setText(refreshIntervalLabel(prefs.getString(PREF_REFRESH_INTERVAL_MS, VALUE_REFRESH_2S)));
                 if (position == 4) {
@@ -850,6 +901,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                     subtitle.setText(autoConnectLabel(prefs.getString(PREF_AUTO_CONNECT, VALUE_OFF)));
                 }
             }
+            icon.setColorFilter(getColorCompat(R.color.text_secondary));
             return row;
         }
     }

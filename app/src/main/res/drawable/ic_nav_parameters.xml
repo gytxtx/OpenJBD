@@ -1,6 +1,4 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:enterFadeDuration="120"
-    android:exitFadeDuration="120">
-    <item android:state_checked="true" android:drawable="@drawable/ic_info_filled_24" />
-    <item android:drawable="@drawable/ic_info_24" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:drawable="@drawable/ic_view_list_24" />
+    <item android:drawable="@drawable/ic_view_list_outline_24" />
 </selector>

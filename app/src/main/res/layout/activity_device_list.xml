@@ -64,7 +64,8 @@
                         android:id="@+id/img_device_placeholder"
                         android:layout_width="88dp"
                         android:layout_height="88dp"
-                        android:src="@drawable/ic_bluetooth_searching_24" />
+                        android:src="@drawable/ic_bluetooth_searching_24"
+                        app:tint="@color/text_secondary" />
 
                     <TextView
                         android:id="@+id/txt_device_placeholder_title"
