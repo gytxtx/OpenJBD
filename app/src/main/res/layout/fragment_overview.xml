@@ -27,7 +27,7 @@
                 android:layout_width="88dp"
                 android:layout_height="88dp"
                 android:src="@drawable/ic_bluetooth_searching_24"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/icon_default" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -175,7 +175,7 @@
                             android:layout_height="18dp"
                             android:layout_marginEnd="6dp"
                             android:src="@drawable/ic_widgets_outline_24"
-                            app:tint="@color/text_secondary" />
+                            app:tint="@color/icon_default" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -221,7 +221,7 @@
                             android:layout_height="18dp"
                             android:layout_marginEnd="6dp"
                             android:src="@drawable/ic_thermostat_24"
-                            app:tint="@color/text_secondary" />
+                            app:tint="@color/icon_default" />
 
                         <TextView
                             android:layout_width="wrap_content"

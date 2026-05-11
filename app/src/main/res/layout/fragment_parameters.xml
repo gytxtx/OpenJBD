@@ -26,7 +26,7 @@
                 android:layout_width="88dp"
                 android:layout_height="88dp"
                 android:src="@drawable/ic_info_24"
-                app:tint="@color/text_secondary" />
+                app:tint="@color/icon_default" />
 
             <TextView
                 android:layout_width="match_parent"

@@ -272,7 +272,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                     settingSwitch.setVisibility(View.VISIBLE);
                 }
             }
-            icon.setColorFilter(requireContext().getColor(R.color.text_secondary));
+            icon.setColorFilter(requireContext().getColor(R.color.icon_default));
             return row;
         }
     }

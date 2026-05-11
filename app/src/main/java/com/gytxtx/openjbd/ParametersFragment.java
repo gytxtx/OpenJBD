@@ -117,7 +117,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             View settingSwitch = row.findViewById(R.id.switch_setting_action);
             settingSwitch.setVisibility(View.GONE);
             icon.setImageResource(parameterIcon(position));
-            icon.setColorFilter(requireContext().getColor(R.color.text_secondary));
+            icon.setColorFilter(requireContext().getColor(R.color.icon_default));
             title.setText(parameterTitle(position));
             subtitle.setText(parameterValue(position));
             return row;

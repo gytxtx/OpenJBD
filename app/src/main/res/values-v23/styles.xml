@@ -11,6 +11,7 @@
         <item name="colorOnSecondary">@color/on_secondary</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorControlNormal">@color/icon_default</item>
         <item name="android:windowBackground">@color/app_bg</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
