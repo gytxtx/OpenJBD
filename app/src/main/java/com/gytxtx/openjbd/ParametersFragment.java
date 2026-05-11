@@ -24,6 +24,10 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     private LinearLayout parametersList;
     private ParametersAdapter parametersAdapter;
     private BmsStateStore.Snapshot snapshot;
+    private boolean lastRenderedHasData;
+    private JbdBasicInfo lastRenderedBasicInfo;
+    private String lastRenderedDeviceName;
+    private String lastRenderedDeviceAddress;
 
     @Nullable
     @Override
@@ -77,16 +81,37 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             return;
         }
         boolean hasData = snapshot != null && snapshot.basicInfo != null;
+        String deviceName = snapshot == null ? null : snapshot.deviceName;
+        String deviceAddress = snapshot == null ? null : snapshot.deviceAddress;
+        if (hasData == lastRenderedHasData
+                && same(lastRenderedBasicInfo, snapshot == null ? null : snapshot.basicInfo)
+                && same(lastRenderedDeviceName, deviceName)
+                && same(lastRenderedDeviceAddress, deviceAddress)) {
+            return;
+        }
+        lastRenderedHasData = hasData;
+        lastRenderedBasicInfo = snapshot == null ? null : snapshot.basicInfo;
+        lastRenderedDeviceName = deviceName;
+        lastRenderedDeviceAddress = deviceAddress;
         placeholderParameters.setVisibility(hasData ? View.GONE : View.VISIBLE);
         parametersCard.setVisibility(hasData ? View.VISIBLE : View.GONE);
         renderParameterRows();
     }
 
     private void renderParameterRows() {
-        parametersList.removeAllViews();
-        for (int i = 0; i < parametersAdapter.getCount(); i++) {
-            parametersList.addView(parametersAdapter.getView(i, null, parametersList));
+        while (parametersList.getChildCount() < parametersAdapter.getCount()) {
+            parametersList.addView(parametersAdapter.getView(parametersList.getChildCount(), null, parametersList));
         }
+        while (parametersList.getChildCount() > parametersAdapter.getCount()) {
+            parametersList.removeViewAt(parametersList.getChildCount() - 1);
+        }
+        for (int i = 0; i < parametersAdapter.getCount(); i++) {
+            parametersAdapter.getView(i, parametersList.getChildAt(i), parametersList);
+        }
+    }
+
+    private boolean same(Object first, Object second) {
+        return first == second || (first != null && first.equals(second));
     }
 
     private final class ParametersAdapter extends BaseAdapter {
@@ -119,7 +144,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             icon.setImageResource(parameterIcon(position));
             icon.setColorFilter(requireContext().getColor(R.color.icon_default));
             title.setText(parameterTitle(position));
-            subtitle.setText(parameterValue(position));
+            setTextIfChanged(subtitle, parameterValue(position));
             return row;
         }
 
@@ -231,5 +256,11 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
 
     private String onOff(boolean value) {
         return value ? getString(R.string.label_on) : getString(R.string.label_off);
+    }
+
+    private void setTextIfChanged(TextView view, String value) {
+        if (!value.contentEquals(view.getText())) {
+            view.setText(value);
+        }
     }
 }
