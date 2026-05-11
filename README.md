@@ -14,8 +14,17 @@ OpenJBD MVP 是一个面向 JBD / 小象 BMS 的本地 Android BLE 监控应用�
 - 支持横屏 Dashboard：黑色背景、大字号显示 SOC、电压、电流、功率，适合平板或车载屏常亮查看。
 - 支持简体中文和 English。
 - 支持 App 主题切换：自动 / Light / Dark。
-- 支持温度单位切换。
-- 支持自动重连上一次设备。
+- 支持温度单位切换和状态刷新频率切换。
+- 支持启动时连接上一次设备；开启后，意外断开也会自动重连。
+
+## 界面与交互
+
+- 主界面使用 Material Components，底部导航为“总览 / 参数 / 设置”三页结构。
+- 底部导航图标采用 Material Icons 的 outline / filled 状态：未选中为 outline，选中为 filled，并带有轻量过渡动画。
+- 顶部栏左侧使用列表图标进入设备列表，右侧在已连接时显示断开连接和 Dashboard 入口。
+- 总览卡片按语义使用图标：电压 / 电流 / 功率使用 bolt，循环次数使用 loop，MOS 使用 widgets outline，温度使用 thermostat。
+- 参数页和设置页使用卡片内静态行列表，由页面整体滚动承载，避免嵌套 `ListView` 导致最后一项显示不完整或边框高度异常。
+- 导入的 Material Vector Drawable 统一由布局或主题着色，避免图标保持 Vector Asset Studio 默认黑色。
 
 ## 参数页
 
@@ -48,6 +57,8 @@ MVP 当前稳定显示这些从基础帧或连接状态可读出的字段：
 6. 连接后可点击顶部栏右侧 Dashboard 图标进入横屏大字模式。
 7. 点击顶部栏右侧关闭图标可断开连接。
 
+开启“启动时自动连接”后，App 会记住最近一次手动选择的 BMS。启动时会尝试连接该设备；如果连接后 BLE 意外断开，App 会从 5 秒开始自动重连，重试间隔最多增加到 30 秒。手动点击“断开连接”会停止本轮重连。
+
 ## 权限说明
 
 App 需要蓝牙相关权限用于 BLE 扫描和连接：
@@ -59,10 +70,10 @@ OpenJBD MVP 不使用账号登录，不上传电池数据，不依赖云端服�
 
 ## 构建与安装
 
-项目位于 `OpenJbdMvp` 目录。
+在仓库根目录执行：
 
 ```powershell
-.\gradlew.bat assembleDebug
+.\gradlew assembleDebug
 ```
 
 Debug APK 输出位置：
@@ -74,7 +85,7 @@ app/build/outputs/apk/debug/app-debug.apk
 连接 Android 设备后可以直接安装：
 
 ```powershell
-.\gradlew.bat installDebug
+.\gradlew installDebug
 ```
 
 仓库中也提供了一个本地部署脚本：
@@ -84,6 +95,14 @@ app/build/outputs/apk/debug/app-debug.apk
 ```
 
 这个脚本依赖本机已有的 Gradle wrapper runtime，并以 offline 方式执行 `deployDebug`。
+
+仓库还包含 GitHub Actions debug 构建 workflow：
+
+```text
+.github/workflows/android-debug.yml
+```
+
+该 workflow 会在 push / pull request 时执行 `./gradlew assembleDebug` 并上传 debug APK 构建产物。
 
 ## 与原版软件对比
 
@@ -112,6 +131,7 @@ app/build/outputs/apk/debug/app-debug.apk
 - 暂不支持写入 BMS 参数。
 - 暂不支持 OTA、校准、保护阈值配置。
 - 参数页的厂商扩展字段仍需补充读取命令。
+- 自动重连依赖 Android BLE 栈回调；如果系统关闭蓝牙、权限被撤销或设备长时间休眠，需要恢复环境后才能继续重连。
 - BLE 协议兼容性主要围绕已测试的 JBD BMS，其他兼容设备可能需要调整 UUID 或解析逻辑。
 
 ## 参考
