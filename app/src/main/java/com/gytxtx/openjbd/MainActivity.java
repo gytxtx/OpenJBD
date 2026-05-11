@@ -18,7 +18,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -100,9 +99,9 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     private LinearLayout connectedOverviewContent;
     private LinearLayout cellStatsGrid;
     private MaterialCardView parametersCard;
-    private ListView parametersList;
+    private LinearLayout parametersList;
     private ParametersAdapter parametersAdapter;
-    private ListView settingsList;
+    private LinearLayout settingsList;
     private SettingsAdapter settingsAdapter;
     private JbdBasicInfo lastBasicInfo;
     private BmsConnectionManager connectionManager;
@@ -487,7 +486,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
 
     private void bindParameterList() {
         parametersAdapter = new ParametersAdapter();
-        parametersList.setAdapter(parametersAdapter);
+        renderParameterRows();
     }
 
     private void updateParametersPage() {
@@ -497,13 +496,35 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         boolean hasData = lastBasicInfo != null;
         placeholderParameters.setVisibility(hasData ? View.GONE : View.VISIBLE);
         parametersCard.setVisibility(hasData ? View.VISIBLE : View.GONE);
-        parametersAdapter.notifyDataSetChanged();
+        renderParameterRows();
     }
 
     private void bindSettingsControls() {
         settingsAdapter = new SettingsAdapter();
-        settingsList.setAdapter(settingsAdapter);
-        settingsList.setOnItemClickListener((parent, view, position, id) -> showSettingMenu(view, position));
+        renderSettingsRows();
+    }
+
+    private void renderParameterRows() {
+        renderAdapterRows(parametersList, parametersAdapter, false);
+    }
+
+    private void renderSettingsRows() {
+        renderAdapterRows(settingsList, settingsAdapter, true);
+    }
+
+    private void renderAdapterRows(LinearLayout container, BaseAdapter adapter, boolean clickable) {
+        if (container == null || adapter == null) {
+            return;
+        }
+        container.removeAllViews();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            final int position = i;
+            View row = adapter.getView(position, null, container);
+            if (clickable) {
+                row.setOnClickListener(view -> showSettingMenu(view, position));
+            }
+            container.addView(row);
+        }
     }
 
     private void showSettingMenu(View anchor, int position) {
@@ -530,7 +551,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                     new String[]{VALUE_C, VALUE_F},
                     value -> {
                         settings().edit().putString(PREF_TEMP_UNIT, value).apply();
-                        settingsAdapter.notifyDataSetChanged();
+                        renderSettingsRows();
                         if (lastBasicInfo != null) {
                             renderBasicInfo(lastBasicInfo);
                         }
@@ -541,7 +562,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                     new String[]{VALUE_REFRESH_1S, VALUE_REFRESH_2S, VALUE_REFRESH_5S, VALUE_REFRESH_10S},
                     value -> {
                         settings().edit().putString(PREF_REFRESH_INTERVAL_MS, value).apply();
-                        settingsAdapter.notifyDataSetChanged();
+                        renderSettingsRows();
                         if (connected) {
                             connectionManager.setRefreshInterval(refreshIntervalMs());
                         }
@@ -552,7 +573,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                     new String[]{VALUE_ON, VALUE_OFF},
                     value -> {
                         settings().edit().putString(PREF_AUTO_CONNECT, value).apply();
-                        settingsAdapter.notifyDataSetChanged();
+                        renderSettingsRows();
                         if (VALUE_ON.equals(value) && !connected) {
                             maybeAutoConnect();
                         }

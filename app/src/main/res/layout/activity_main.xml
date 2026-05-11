@@ -506,16 +506,13 @@
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp">
 
-                        <ListView
+                        <LinearLayout
                             android:id="@+id/list_parameters"
                             android:layout_width="match_parent"
-                            android:layout_height="960dp"
-                            android:divider="@color/card_stroke"
-                            android:dividerHeight="1dp"
-                            android:footerDividersEnabled="false"
-                            android:headerDividersEnabled="false"
-                            android:overScrollMode="never"
-                            android:scrollbars="none" />
+                            android:layout_height="wrap_content"
+                            android:divider="@drawable/divider_card_stroke"
+                            android:orientation="vertical"
+                            android:showDividers="middle" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -540,16 +537,13 @@
                         android:paddingTop="6dp"
                         android:paddingBottom="6dp">
 
-                        <ListView
+                        <LinearLayout
                             android:id="@+id/list_settings"
                             android:layout_width="match_parent"
-                            android:layout_height="320dp"
-                            android:divider="@color/card_stroke"
-                            android:dividerHeight="1dp"
-                            android:footerDividersEnabled="false"
-                            android:headerDividersEnabled="false"
-                            android:overScrollMode="never"
-                            android:scrollbars="none" />
+                            android:layout_height="wrap_content"
+                            android:divider="@drawable/divider_card_stroke"
+                            android:orientation="vertical"
+                            android:showDividers="middle" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
