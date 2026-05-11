@@ -59,6 +59,8 @@
     <string name="status_auto_connect_bluetooth_off">Auto-connect is on. Turn on Bluetooth to reconnect.</string>
     <string name="status_auto_connect_permission_required">Auto-connect is on. Bluetooth permission is required before reconnecting.</string>
     <string name="status_auto_connect_invalid_device">Auto-connect failed: saved device address is invalid.</string>
+    <string name="status_connection_lost">Connection lost.</string>
+    <string name="status_reconnecting">%1$s Reconnecting in %2$d seconds...</string>
     <string name="status_connected_discovering">Connected. Discovering services...</string>
     <string name="status_ready_reading">Ready. Reading BMS data...</string>
     <string name="status_connecting">Connecting to %1$s...</string>

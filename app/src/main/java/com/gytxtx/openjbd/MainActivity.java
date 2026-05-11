@@ -117,6 +117,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         super.onCreate(savedInstanceState);
         connectionManager = BmsConnectionManager.getInstance(this);
         connectionManager.setRefreshInterval(refreshIntervalMs());
+        configureAutoReconnect();
         buildUi();
         updateToolbar();
         clearDeviceData();
@@ -335,6 +336,15 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 .putString(PREF_LAST_DEVICE_ADDRESS, address)
                 .putString(PREF_LAST_DEVICE_NAME, name == null ? address : name)
                 .apply();
+        configureAutoReconnect();
+    }
+
+    private void configureAutoReconnect() {
+        SharedPreferences prefs = settings();
+        boolean enabled = VALUE_ON.equals(prefs.getString(PREF_AUTO_CONNECT, VALUE_OFF));
+        String address = prefs.getString(PREF_LAST_DEVICE_ADDRESS, "");
+        String name = prefs.getString(PREF_LAST_DEVICE_NAME, address);
+        connectionManager.setAutoReconnect(enabled, address, name);
     }
 
     private void renderBasicInfo(JbdBasicInfo info) {
@@ -573,6 +583,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                     new String[]{VALUE_ON, VALUE_OFF},
                     value -> {
                         settings().edit().putString(PREF_AUTO_CONNECT, value).apply();
+                        configureAutoReconnect();
                         renderSettingsRows();
                         if (VALUE_ON.equals(value) && !connected) {
                             maybeAutoConnect();

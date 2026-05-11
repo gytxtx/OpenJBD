@@ -31,6 +31,8 @@ import java.util.List;
 
 final class BmsConnectionManager {
     private static BmsConnectionManager instance;
+    private static final long AUTO_RECONNECT_BASE_DELAY_MS = 5000L;
+    private static final long AUTO_RECONNECT_MAX_DELAY_MS = 30000L;
 
     private final Context context;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -44,6 +46,12 @@ final class BmsConnectionManager {
     private boolean writeInFlight;
     private String connectedDeviceName;
     private String connectedDeviceAddress;
+    private boolean autoReconnectEnabled;
+    private boolean intentionalDisconnect;
+    private boolean reconnectScheduled;
+    private String autoReconnectAddress;
+    private String autoReconnectName;
+    private int reconnectAttempts;
     private long refreshIntervalMs = 2000L;
 
     private final Runnable pollRunnable = new Runnable() {
@@ -65,11 +73,27 @@ final class BmsConnectionManager {
         }
     };
 
+    private final Runnable reconnectRunnable = new Runnable() {
+        @Override
+        public void run() {
+            reconnectScheduled = false;
+            if (!shouldAutoReconnect() || connected) {
+                return;
+            }
+            connectInternal(autoReconnectAddress, autoReconnectName, true);
+        }
+    };
+
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt bluetoothGatt, int status, int newState) {
+            if (gatt != bluetoothGatt) {
+                bluetoothGatt.close();
+                return;
+            }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connected = true;
+                reconnectAttempts = 0;
                 updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_connected_discovering)));
                 bluetoothGatt.discoverServices();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -79,7 +103,13 @@ final class BmsConnectionManager {
                 writeCharacteristic = null;
                 handler.removeCallbacks(pollRunnable);
                 frameAssembler.reset();
-                updateState(BmsStateStore.Snapshot.disconnected(null, null, context.getString(R.string.status_select_bms)));
+                gatt = null;
+                bluetoothGatt.close();
+                if (!intentionalDisconnect && shouldAutoReconnect()) {
+                    scheduleReconnect(context.getString(R.string.status_connection_lost));
+                } else {
+                    publishDisconnected(context.getString(R.string.status_select_bms));
+                }
             }
         }
 
@@ -150,18 +180,40 @@ final class BmsConnectionManager {
         }
     }
 
+    void setAutoReconnect(boolean enabled, String address, String name) {
+        autoReconnectEnabled = enabled;
+        autoReconnectAddress = address;
+        autoReconnectName = name == null || name.length() == 0 ? address : name;
+        if (!enabled) {
+            handler.removeCallbacks(reconnectRunnable);
+            reconnectScheduled = false;
+            reconnectAttempts = 0;
+        }
+    }
+
     @SuppressLint("MissingPermission")
     void connect(String address, String name) {
+        connectInternal(address, name, false);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void connectInternal(String address, String name, boolean reconnect) {
+        handler.removeCallbacks(reconnectRunnable);
+        reconnectScheduled = false;
+        intentionalDisconnect = false;
+        if (!reconnect) {
+            reconnectAttempts = 0;
+        }
         if (adapter == null) {
-            publishDisconnected(context.getString(R.string.status_bluetooth_unavailable));
+            handleConnectPrecheckFailure(context.getString(R.string.status_bluetooth_unavailable), reconnect);
             return;
         }
         if (!adapter.isEnabled()) {
-            publishDisconnected(context.getString(R.string.status_bluetooth_off));
+            handleConnectPrecheckFailure(context.getString(reconnect ? R.string.status_auto_connect_bluetooth_off : R.string.status_bluetooth_off), reconnect);
             return;
         }
         if (!hasConnectPermission()) {
-            publishDisconnected(context.getString(R.string.status_auto_connect_permission_required));
+            handleConnectPrecheckFailure(context.getString(R.string.status_auto_connect_permission_required), reconnect);
             return;
         }
         disconnect(false);
@@ -182,6 +234,11 @@ final class BmsConnectionManager {
 
     @SuppressLint("MissingPermission")
     private void disconnect(boolean publishState) {
+        if (publishState) {
+            intentionalDisconnect = true;
+        }
+        handler.removeCallbacks(reconnectRunnable);
+        reconnectScheduled = false;
         handler.removeCallbacks(pollRunnable);
         connected = false;
         writeInFlight = false;
@@ -269,7 +326,11 @@ final class BmsConnectionManager {
 
     private void failConnection(String message) {
         disconnect(false);
-        publishDisconnected(message);
+        if (shouldAutoReconnect()) {
+            scheduleReconnect(message);
+        } else {
+            publishDisconnected(message);
+        }
     }
 
     private void publishDisconnected(String status) {
@@ -277,6 +338,35 @@ final class BmsConnectionManager {
         connectedDeviceAddress = null;
         BmsDashboardStore.update(null);
         updateState(BmsStateStore.Snapshot.disconnected(null, null, status));
+    }
+
+    private void handleConnectPrecheckFailure(String status, boolean reconnect) {
+        if (reconnect && shouldAutoReconnect()) {
+            scheduleReconnect(status);
+        } else {
+            publishDisconnected(status);
+        }
+    }
+
+    private boolean shouldAutoReconnect() {
+        return autoReconnectEnabled && autoReconnectAddress != null && autoReconnectAddress.length() > 0;
+    }
+
+    private void scheduleReconnect(String reason) {
+        if (reconnectScheduled) {
+            return;
+        }
+        reconnectAttempts++;
+        long delayMs = Math.min(AUTO_RECONNECT_MAX_DELAY_MS, AUTO_RECONNECT_BASE_DELAY_MS * reconnectAttempts);
+        reconnectScheduled = true;
+        connectedDeviceAddress = autoReconnectAddress;
+        connectedDeviceName = autoReconnectName == null || autoReconnectName.length() == 0 ? autoReconnectAddress : autoReconnectName;
+        BmsDashboardStore.update(null);
+        updateState(BmsStateStore.Snapshot.disconnected(
+                connectedDeviceName,
+                connectedDeviceAddress,
+                context.getString(R.string.status_reconnecting, reason, delayMs / 1000L)));
+        handler.postDelayed(reconnectRunnable, delayMs);
     }
 
     private void updateState(BmsStateStore.Snapshot snapshot) {

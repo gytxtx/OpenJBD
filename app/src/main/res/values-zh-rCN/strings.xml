@@ -59,6 +59,8 @@
     <string name="status_auto_connect_bluetooth_off">已开启自动连接。打开蓝牙后可重新连接。</string>
     <string name="status_auto_connect_permission_required">已开启自动连接。需要蓝牙权限后才能重新连接。</string>
     <string name="status_auto_connect_invalid_device">自动连接失败：保存的设备地址无效。</string>
+    <string name="status_connection_lost">连接已断开。</string>
+    <string name="status_reconnecting">%1$s %2$d 秒后自动重连...</string>
     <string name="status_connected_discovering">已连接，正在发现服务...</string>
     <string name="status_ready_reading">已就绪，正在读取 BMS 数据...</string>
     <string name="status_connecting">正在连接 %1$s...</string>
