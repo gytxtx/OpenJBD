@@ -32,6 +32,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.List;
 import java.util.Locale;
@@ -531,7 +532,14 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             final int position = i;
             View row = adapter.getView(position, null, container);
             if (clickable) {
-                row.setOnClickListener(view -> showSettingMenu(view, position));
+                row.setOnClickListener(view -> {
+                    SwitchMaterial settingSwitch = view.findViewById(R.id.switch_setting_action);
+                    if (settingSwitch != null && settingSwitch.getVisibility() == View.VISIBLE) {
+                        settingSwitch.performClick();
+                    } else {
+                        showSettingMenu(view, position);
+                    }
+                });
             }
             container.addView(row);
         }
@@ -578,17 +586,19 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                         }
                     });
         } else if (position == 4) {
-            showRadioDialog(R.string.setting_auto_connect, PREF_AUTO_CONNECT,
-                    new String[]{getString(R.string.setting_auto_connect_on), getString(R.string.setting_auto_connect_off)},
-                    new String[]{VALUE_ON, VALUE_OFF},
-                    value -> {
-                        settings().edit().putString(PREF_AUTO_CONNECT, value).apply();
-                        configureAutoReconnect();
-                        renderSettingsRows();
-                        if (VALUE_ON.equals(value) && !connected) {
-                            maybeAutoConnect();
-                        }
-                    });
+            boolean enabled = VALUE_ON.equals(settings().getString(PREF_AUTO_CONNECT, VALUE_OFF));
+            setAutoConnectEnabled(!enabled, true);
+        }
+    }
+
+    private void setAutoConnectEnabled(boolean enabled, boolean refreshRows) {
+        settings().edit().putString(PREF_AUTO_CONNECT, enabled ? VALUE_ON : VALUE_OFF).apply();
+        configureAutoReconnect();
+        if (refreshRows) {
+            renderSettingsRows();
+        }
+        if (enabled && !connected) {
+            maybeAutoConnect();
         }
     }
 
@@ -910,6 +920,8 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             ImageView icon = row.findViewById(R.id.img_setting_icon);
             TextView title = row.findViewById(R.id.txt_setting_title);
             TextView subtitle = row.findViewById(R.id.txt_setting_subtitle);
+            SwitchMaterial settingSwitch = row.findViewById(R.id.switch_setting_action);
+            settingSwitch.setVisibility(View.GONE);
             SharedPreferences prefs = settings();
             if (position == 0) {
                 icon.setImageResource(R.drawable.ic_palette_24);
@@ -928,9 +940,16 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 title.setText(R.string.setting_refresh_interval);
                 subtitle.setText(refreshIntervalLabel(prefs.getString(PREF_REFRESH_INTERVAL_MS, VALUE_REFRESH_2S)));
                 if (position == 4) {
+                    boolean autoConnectEnabled = VALUE_ON.equals(prefs.getString(PREF_AUTO_CONNECT, VALUE_OFF));
                     icon.setImageResource(R.drawable.ic_bluetooth_searching_24);
                     title.setText(R.string.setting_auto_connect);
-                    subtitle.setText(autoConnectLabel(prefs.getString(PREF_AUTO_CONNECT, VALUE_OFF)));
+                    subtitle.setText(autoConnectLabel(autoConnectEnabled ? VALUE_ON : VALUE_OFF));
+                    settingSwitch.setChecked(autoConnectEnabled);
+                    settingSwitch.setOnCheckedChangeListener((buttonView, checked) -> {
+                        subtitle.setText(autoConnectLabel(checked ? VALUE_ON : VALUE_OFF));
+                        setAutoConnectEnabled(checked, false);
+                    });
+                    settingSwitch.setVisibility(View.VISIBLE);
                 }
             }
             icon.setColorFilter(getColorCompat(R.color.text_secondary));
