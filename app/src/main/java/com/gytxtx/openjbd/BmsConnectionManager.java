@@ -91,11 +91,17 @@ final class BmsConnectionManager {
                 bluetoothGatt.close();
                 return;
             }
+            if (status != BluetoothGatt.GATT_SUCCESS && newState != BluetoothProfile.STATE_DISCONNECTED) {
+                failConnection(context.getString(R.string.status_connection_failed, status));
+                return;
+            }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connected = true;
                 reconnectAttempts = 0;
                 updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_connected_discovering)));
-                bluetoothGatt.discoverServices();
+                if (!bluetoothGatt.discoverServices()) {
+                    failConnection(context.getString(R.string.status_service_discovery_start_failed));
+                }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 writeInFlight = false;
@@ -115,6 +121,10 @@ final class BmsConnectionManager {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt bluetoothGatt, int status) {
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                failConnection(context.getString(R.string.status_service_discovery_failed, status));
+                return;
+            }
             BluetoothGattService service = bluetoothGatt.getService(BleConstants.SERVICE_UUID);
             if (service == null) {
                 failConnection(context.getString(R.string.status_jbd_service_not_found));
@@ -126,10 +136,10 @@ final class BmsConnectionManager {
                 failConnection(context.getString(R.string.status_jbd_characteristics_not_found));
                 return;
             }
-            enableNotifications(bluetoothGatt, notifyCharacteristic);
-            updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_ready_reading)));
-            handler.removeCallbacks(pollRunnable);
-            handler.postDelayed(pollRunnable, 500L);
+            updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_enabling_notifications)));
+            if (!enableNotifications(bluetoothGatt, notifyCharacteristic)) {
+                failConnection(context.getString(R.string.status_notifications_failed));
+            }
         }
 
         @Override
@@ -147,6 +157,19 @@ final class BmsConnectionManager {
             writeInFlight = false;
             if (!commandQueue.isEmpty() && connected) {
                 sendCommand(commandQueue.removeFirst());
+            }
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt bluetoothGatt, BluetoothGattDescriptor descriptor, int status) {
+            if (gatt != bluetoothGatt) {
+                bluetoothGatt.close();
+                return;
+            }
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                startReading();
+            } else {
+                failConnection(context.getString(R.string.status_notifications_failed));
             }
         }
     };
@@ -260,18 +283,25 @@ final class BmsConnectionManager {
     }
 
     @SuppressLint("MissingPermission")
-    private void enableNotifications(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic) {
-        bluetoothGatt.setCharacteristicNotification(characteristic, true);
+    private boolean enableNotifications(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic) {
+        if (!bluetoothGatt.setCharacteristicNotification(characteristic, true)) {
+            return false;
+        }
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BleConstants.CLIENT_CONFIG_UUID);
         if (descriptor == null) {
-            return;
+            return false;
         }
         if (Build.VERSION.SDK_INT >= 33) {
-            bluetoothGatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        } else {
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            bluetoothGatt.writeDescriptor(descriptor);
+            return bluetoothGatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) == BluetoothGatt.GATT_SUCCESS;
         }
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        return bluetoothGatt.writeDescriptor(descriptor);
+    }
+
+    private void startReading() {
+        updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_ready_reading)));
+        handler.removeCallbacks(pollRunnable);
+        handler.postDelayed(pollRunnable, 500L);
     }
 
     @SuppressLint("MissingPermission")

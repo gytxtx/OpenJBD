@@ -1,5 +1,8 @@
 package com.gytxtx.openjbd;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
 import com.gytxtx.openjbd.protocol.JbdCellVoltages;
 
@@ -8,6 +11,7 @@ import java.util.List;
 
 final class BmsStateStore {
     private static final List<Listener> LISTENERS = new ArrayList<>();
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static Snapshot snapshot = Snapshot.disconnected(null, null, "");
 
     private BmsStateStore() {
@@ -23,6 +27,19 @@ final class BmsStateStore {
             snapshot = value;
             listeners = new ArrayList<>(LISTENERS);
         }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            notifyListeners(listeners, value);
+        } else {
+            MAIN_HANDLER.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyListeners(listeners, value);
+                }
+            });
+        }
+    }
+
+    private static void notifyListeners(List<Listener> listeners, Snapshot value) {
         for (Listener listener : listeners) {
             listener.onBmsStateChanged(value);
         }

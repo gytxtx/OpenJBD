@@ -62,6 +62,11 @@
     <string name="status_connection_lost">连接已断开。</string>
     <string name="status_reconnecting">%1$s %2$d 秒后自动重连...</string>
     <string name="status_connected_discovering">已连接，正在发现服务...</string>
+    <string name="status_service_discovery_start_failed">无法启动服务发现</string>
+    <string name="status_service_discovery_failed">服务发现失败：%1$d</string>
+    <string name="status_connection_failed">连接失败：%1$d</string>
+    <string name="status_enabling_notifications">已连接，正在启用通知...</string>
+    <string name="status_notifications_failed">启用 BMS 通知失败</string>
     <string name="status_ready_reading">已就绪，正在读取 BMS 数据...</string>
     <string name="status_connecting">正在连接 %1$s...</string>
     <string name="status_bluetooth_unavailable">蓝牙设备不可用</string>
