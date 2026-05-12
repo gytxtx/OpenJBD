@@ -256,7 +256,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 title.setText(R.string.setting_temperature_unit);
                 subtitle.setText(tempUnitLabel(prefs.getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C)));
             } else {
-                icon.setImageResource(R.drawable.baseline_loop_24);
+                icon.setImageResource(R.drawable.ic_loop_24);
                 title.setText(R.string.setting_refresh_interval);
                 subtitle.setText(refreshIntervalLabel(prefs.getString(AppSettings.PREF_REFRESH_INTERVAL_MS, AppSettings.VALUE_REFRESH_2S)));
                 if (position == 4) {
