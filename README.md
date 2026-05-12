@@ -63,7 +63,7 @@ MVP 当前稳定显示这些从基础帧或连接状态可读出的字段：
 
 App 需要蓝牙相关权限用于 BLE 扫描和连接：
 
-- Android 12 及以上：`BLUETOOTH_SCAN`、`BLUETOOTH_CONNECT`
+- Android 12 及以上：`BLUETOOTH_SCAN`、`BLUETOOTH_CONNECT`。`BLUETOOTH_SCAN` 声明为不用于定位，因此运行时不请求定位权限。
 - Android 6 到 Android 11：系统 BLE 扫描机制仍可能要求定位权限和定位服务开启
 
 OpenJBD MVP 不使用账号登录，不上传电池数据，不依赖云端服务。定位权限只用于兼容 Android BLE 扫描限制，不用于获取或上传位置。

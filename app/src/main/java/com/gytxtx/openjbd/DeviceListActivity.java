@@ -328,7 +328,6 @@ public final class DeviceListActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 31) {
             permissions.add(Manifest.permission.BLUETOOTH_SCAN);
             permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         } else {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
