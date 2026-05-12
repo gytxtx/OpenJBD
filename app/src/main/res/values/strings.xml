@@ -48,7 +48,6 @@
     <string name="metric_pack">Pack</string>
     <string name="metric_cycles">Cycles</string>
     <string name="metric_mos">MOS</string>
-    <string name="metric_time_estimate">Time estimate</string>
     <string name="metric_temperature">Temperature</string>
     <string name="cell_voltages_title">Cell Voltages</string>
     <string name="cell_min_voltage">Min voltage</string>
@@ -85,6 +84,8 @@
     <string name="pack_stats">Cells %1$d  NTC %2$d\nFW %3$s</string>
     <string name="estimate_charging">Charging, full in %1$s</string>
     <string name="estimate_discharging">Discharging, empty in %1$s</string>
+    <string name="estimate_duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="estimate_duration_zero">0 min</string>
     <string name="estimate_idle">Idle. No time estimate.</string>
     <string name="temperature_none">No temperature probes reported.</string>
     <string name="cell_summary">Min %1$.3f V   Max %2$.3f V   Delta %3$.3f V   Avg %4$.3f V</string>

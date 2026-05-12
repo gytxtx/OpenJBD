@@ -48,7 +48,6 @@
     <string name="metric_pack">电池组</string>
     <string name="metric_cycles">循环次数</string>
     <string name="metric_mos">MOS</string>
-    <string name="metric_time_estimate">时间估算</string>
     <string name="metric_temperature">温度</string>
     <string name="cell_voltages_title">单体电压</string>
     <string name="cell_min_voltage">最低电压</string>
@@ -83,8 +82,10 @@
     <string name="label_on">开</string>
     <string name="label_off">关</string>
     <string name="pack_stats">单体 %1$d  NTC %2$d\n固件 %3$s</string>
-    <string name="estimate_charging">正在充电，预计 %1$s 充满</string>
-    <string name="estimate_discharging">正在放电，预计 %1$s 放空</string>
+    <string name="estimate_charging">正在充电，预计 %1$s 后充满</string>
+    <string name="estimate_discharging">正在放电，预计 %1$s 后放空</string>
+    <string name="estimate_duration_hours_minutes">%1$d 小时 %2$d 分钟</string>
+    <string name="estimate_duration_zero">0 分钟</string>
     <string name="estimate_idle">当前静置，暂无时间估算。</string>
     <string name="temperature_none">未上报温度探头。</string>
     <string name="cell_summary">最低 %1$.3f V   最高 %2$.3f V   压差 %3$.3f V   平均 %4$.3f V</string>

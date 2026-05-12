@@ -35,7 +35,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private TextView capacityText;
     private TextView cyclesText;
     private TextView mosText;
-    private TextView timeEstimateText;
+    private TextView socNoteText;
     private TextView statsText;
     private TextView temperaturesText;
     private ChipGroup temperaturesChipGroup;
@@ -67,7 +67,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         cyclesText = view.findViewById(R.id.txt_cycles);
         statsText = view.findViewById(R.id.txt_stats);
         mosText = view.findViewById(R.id.txt_mos);
-        timeEstimateText = view.findViewById(R.id.txt_time_estimate);
+        socNoteText = view.findViewById(R.id.txt_soc_note);
         temperaturesText = view.findViewById(R.id.txt_temperatures);
         temperaturesChipGroup = view.findViewById(R.id.chips_temperatures);
         cellStatsGrid = view.findViewById(R.id.cell_stats_grid);
@@ -139,7 +139,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         setTextIfChanged(capacityText, String.format(Locale.US, "%.2f / %.2f Ah", info.remainingAh, info.learnedOrNominalAh()));
         setTextIfChanged(cyclesText, String.format(Locale.US, "%d", info.cycleCount));
         setTextIfChanged(mosText, getString(R.string.label_charge) + " " + onOff(info.chargeEnabled) + "  /  " + getString(R.string.label_discharge) + " " + onOff(info.dischargeEnabled));
-        setTextIfChanged(timeEstimateText, timeEstimate(info));
+        setTextIfChanged(socNoteText, socNote(info));
         setTextIfChanged(statsText, getString(R.string.pack_stats, info.cellCount, info.ntcCount, info.softwareVersion));
         String temperatureSignature = temperatureSignature(info);
         if (temperatureSignature.equals(lastTemperatureSignature)) {
@@ -223,8 +223,8 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         capacityText.setText("--");
         cyclesText.setText("--");
         mosText.setText("--");
-        timeEstimateText.setText("--");
         statsText.setText("--");
+        socNoteText.setText(R.string.local_ble_note);
         temperaturesText.setText("--");
         temperaturesText.setVisibility(View.VISIBLE);
         temperaturesChipGroup.removeAllViews();
@@ -282,10 +282,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         return value ? getString(R.string.label_on) : getString(R.string.label_off);
     }
 
-    private String timeEstimate(JbdBasicInfo info) {
+    private String socNote(JbdBasicInfo info) {
         float absCurrent = Math.abs(info.current);
         if (absCurrent < 0.05f) {
-            return getString(R.string.estimate_idle);
+            return getString(R.string.local_ble_note);
         }
         if (info.current < 0f) {
             return getString(R.string.estimate_discharging, formatDurationHours(info.remainingAh / absCurrent));
@@ -296,10 +296,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
 
     private String formatDurationHours(float hours) {
         if (Float.isNaN(hours) || Float.isInfinite(hours) || hours <= 0f) {
-            return "0:00";
+            return getString(R.string.estimate_duration_zero);
         }
         long totalMinutes = Math.round(hours * 60f);
-        return String.format(Locale.US, "%d:%02d", totalMinutes / 60, totalMinutes % 60);
+        return getString(R.string.estimate_duration_hours_minutes, totalMinutes / 60, totalMinutes % 60);
     }
 
     private void setStatus(String status) {
