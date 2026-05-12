@@ -18,6 +18,8 @@ public final class JbdBasicInfo {
     public final int ntcCount;
     public final String softwareVersion;
     public final List<Float> temperaturesC;
+    public final boolean hasLearnCapacity;
+    public final float learnCapacityAh;
 
     JbdBasicInfo(
             float totalVoltage,
@@ -32,7 +34,9 @@ public final class JbdBasicInfo {
             int cellCount,
             int ntcCount,
             String softwareVersion,
-            List<Float> temperaturesC
+            List<Float> temperaturesC,
+            boolean hasLearnCapacity,
+            float learnCapacityAh
     ) {
         this.totalVoltage = totalVoltage;
         this.current = current;
@@ -47,5 +51,11 @@ public final class JbdBasicInfo {
         this.ntcCount = ntcCount;
         this.softwareVersion = softwareVersion;
         this.temperaturesC = Collections.unmodifiableList(new ArrayList<>(temperaturesC));
+        this.hasLearnCapacity = hasLearnCapacity;
+        this.learnCapacityAh = learnCapacityAh;
+    }
+
+    public float learnedOrNominalAh() {
+        return hasLearnCapacity && learnCapacityAh > 0f ? learnCapacityAh : nominalAh;
     }
 }

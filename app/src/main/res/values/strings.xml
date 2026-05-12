@@ -22,6 +22,7 @@
     <string name="param_bms_version">BMS version</string>
     <string name="param_manufacturing_date">Manufacturing date</string>
     <string name="param_nominal_capacity">Nominal capacity</string>
+    <string name="param_learn_capacity">Learned capacity</string>
     <string name="param_remaining_capacity">Remaining capacity</string>
     <string name="param_soc">State of charge</string>
     <string name="param_cycle_count">Cycle count</string>
@@ -47,6 +48,7 @@
     <string name="metric_pack">Pack</string>
     <string name="metric_cycles">Cycles</string>
     <string name="metric_mos">MOS</string>
+    <string name="metric_time_estimate">Time estimate</string>
     <string name="metric_temperature">Temperature</string>
     <string name="cell_voltages_title">Cell Voltages</string>
     <string name="cell_min_voltage">Min voltage</string>
@@ -81,6 +83,9 @@
     <string name="label_on">on</string>
     <string name="label_off">off</string>
     <string name="pack_stats">Cells %1$d  NTC %2$d\nFW %3$s</string>
+    <string name="estimate_charging">Charging, full in %1$s</string>
+    <string name="estimate_discharging">Discharging, empty in %1$s</string>
+    <string name="estimate_idle">Idle. No time estimate.</string>
     <string name="temperature_none">No temperature probes reported.</string>
     <string name="cell_summary">Min %1$.3f V   Max %2$.3f V   Delta %3$.3f V   Avg %4$.3f V</string>
     <string name="cell_label">Cell %1$02d</string>

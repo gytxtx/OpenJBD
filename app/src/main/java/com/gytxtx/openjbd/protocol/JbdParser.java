@@ -40,6 +40,19 @@ public final class JbdParser {
             temps.add((u16(p, offset) - 2731) / 10f);
         }
 
+        boolean hasLearnCapacity = false;
+        float learnCapacityAh = 0f;
+        int extraStart = 23 + ntcCount * 2;
+        if (extraStart + 4 < p.length) {
+            int humidity = p[extraStart] & 0xFF;
+            learnCapacityAh = u16(p, extraStart + 3) / 100f;
+            hasLearnCapacity = learnCapacityAh > 0f;
+            if (humidity == 136) {
+                current = s16(p, 2) / 10f;
+                remainingAh = u16(p, 4) / 10f;
+            }
+        }
+
         return new JbdBasicInfo(
                 totalVoltage,
                 current,
@@ -53,7 +66,9 @@ public final class JbdParser {
                 cellCount,
                 ntcCount,
                 version,
-                temps
+                temps,
+                hasLearnCapacity,
+                learnCapacityAh
         );
     }
 

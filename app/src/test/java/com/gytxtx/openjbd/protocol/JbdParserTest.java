@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 public final class JbdParserTest {
     @Test
     public void parseBasicInfo_decodesCoreFields() throws Exception {
-        byte[] payload = new byte[25];
+        byte[] payload = new byte[30];
         putU16(payload, 0, 5234);
         putU16(payload, 2, 0xFB2E);
         putU16(payload, 4, 1000);
@@ -22,6 +22,8 @@ public final class JbdParserTest {
         payload[21] = 4;
         payload[22] = 1;
         putU16(payload, 23, 2981);
+        payload[25] = 60;
+        putU16(payload, 28, 1900);
 
         JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
 
@@ -38,6 +40,37 @@ public final class JbdParserTest {
         assertEquals(4, info.cellCount);
         assertEquals(1, info.ntcCount);
         assertEquals(25.0f, info.temperaturesC.get(0), 0.001f);
+        assertTrue(info.hasLearnCapacity);
+        assertEquals(19.0f, info.learnCapacityAh, 0.001f);
+    }
+
+    @Test
+    public void parseBasicInfo_withoutExtensionHasNoLearnCapacity() throws Exception {
+        byte[] payload = new byte[25];
+        payload[22] = 1;
+        putU16(payload, 23, 2981);
+
+        JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
+
+        assertFalse(info.hasLearnCapacity);
+        assertEquals(0.0f, info.learnCapacityAh, 0.001f);
+    }
+
+    @Test
+    public void parseBasicInfo_humidityMarkerUsesTenthsForCurrentAndRemainingCapacity() throws Exception {
+        byte[] payload = new byte[30];
+        putU16(payload, 2, 0xFF9C);
+        putU16(payload, 4, 123);
+        payload[22] = 1;
+        putU16(payload, 23, 2981);
+        payload[25] = (byte) 136;
+        putU16(payload, 28, 1900);
+
+        JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
+
+        assertEquals(-10.0f, info.current, 0.001f);
+        assertEquals(12.3f, info.remainingAh, 0.001f);
+        assertEquals(19.0f, info.learnCapacityAh, 0.001f);
     }
 
     @Test

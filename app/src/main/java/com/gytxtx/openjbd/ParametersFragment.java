@@ -117,7 +117,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     private final class ParametersAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return 20;
+            return 21;
         }
 
         @Override
@@ -152,7 +152,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             if (position == 0 || position == 1) {
                 return R.drawable.ic_bluetooth_searching_24;
             }
-            if (position == 8 || position == 9) {
+            if (position == 4 || position == 8 || position == 9 || position == 20) {
                 return R.drawable.ic_battery_4_bar_24;
             }
             if (position == 10 || position == 11) {
@@ -204,6 +204,8 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return R.string.param_battery_model;
                 case 18:
                     return R.string.param_manufacturer;
+                case 20:
+                    return R.string.param_learn_capacity;
                 default:
                     return R.string.param_bms_model;
             }
@@ -248,6 +250,8 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return String.format(Locale.US, "%.2f A", info.current);
                 case 14:
                     return String.format(Locale.US, "%.1f W", info.totalVoltage * info.current);
+                case 20:
+                    return info.hasLearnCapacity ? String.format(Locale.US, "%.2f Ah", info.learnCapacityAh) : unread;
                 default:
                     return unread;
             }
