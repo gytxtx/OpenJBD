@@ -91,7 +91,13 @@ public final class DeviceListActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppSettings.preferredContext(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppSettings.applyThemePreference(this);
         super.onCreate(savedInstanceState);
         BluetoothManager manager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         adapter = manager == null ? null : manager.getAdapter();

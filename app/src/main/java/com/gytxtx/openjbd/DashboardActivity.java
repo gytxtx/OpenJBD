@@ -1,5 +1,6 @@
 package com.gytxtx.openjbd;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,7 +19,13 @@ public final class DashboardActivity extends AppCompatActivity implements BmsSta
     private TextView statusValue;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(AppSettings.preferredContext(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppSettings.applyThemePreference(this);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_dashboard);
