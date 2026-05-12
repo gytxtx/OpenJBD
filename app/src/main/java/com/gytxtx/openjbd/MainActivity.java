@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -23,9 +25,13 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     private static final int PAGE_PARAMETERS = 1;
     private static final int PAGE_SETTINGS = 2;
     private static final long PAGE_TRANSITION_MS = 160L;
+    private static final String TAG_OVERVIEW = "overview";
+    private static final String TAG_PARAMETERS = "parameters";
+    private static final String TAG_SETTINGS = "settings";
 
     private boolean connected;
     private String connectedDeviceName;
+    private BmsStateStore.ConnectionState connectionState = BmsStateStore.ConnectionState.DISCONNECTED;
     private int currentPage = -1;
 
     private MaterialToolbar toolbar;
@@ -77,12 +83,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
 
     @Override
     public void onBmsStateChanged(final BmsStateStore.Snapshot snapshot) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                renderState(snapshot);
-            }
-        });
+        renderState(snapshot);
     }
 
     @Override
@@ -159,18 +160,52 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         }
         int previousPage = currentPage;
         currentPage = page;
-        Fragment fragment = page == PAGE_OVERVIEW ? new OverviewFragment()
-                : page == PAGE_PARAMETERS ? new ParametersFragment()
-                : new SettingsFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .setCustomAnimations(R.anim.fragment_material_enter, R.anim.fragment_material_exit)
-                .replace(R.id.main_fragment_container, fragment)
-                .commit();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fragment_material_enter, R.anim.fragment_material_exit);
+        Fragment target = fragmentManager.findFragmentByTag(pageTag(page));
+        if (target == null) {
+            target = createPageFragment(page);
+            transaction.add(R.id.main_fragment_container, target, pageTag(page));
+        }
+        hidePage(transaction, fragmentManager, PAGE_OVERVIEW, page);
+        hidePage(transaction, fragmentManager, PAGE_PARAMETERS, page);
+        hidePage(transaction, fragmentManager, PAGE_SETTINGS, page);
+        transaction.show(target).commit();
         updateToolbar();
         if (previousPage >= 0) {
             animateSelectedNavItem(page);
         }
+    }
+
+    private Fragment createPageFragment(int page) {
+        if (page == PAGE_PARAMETERS) {
+            return new ParametersFragment();
+        }
+        if (page == PAGE_SETTINGS) {
+            return new SettingsFragment();
+        }
+        return new OverviewFragment();
+    }
+
+    private void hidePage(FragmentTransaction transaction, FragmentManager fragmentManager, int page, int visiblePage) {
+        if (page == visiblePage) {
+            return;
+        }
+        Fragment fragment = fragmentManager.findFragmentByTag(pageTag(page));
+        if (fragment != null) {
+            transaction.hide(fragment);
+        }
+    }
+
+    private String pageTag(int page) {
+        if (page == PAGE_PARAMETERS) {
+            return TAG_PARAMETERS;
+        }
+        if (page == PAGE_SETTINGS) {
+            return TAG_SETTINGS;
+        }
+        return TAG_OVERVIEW;
     }
 
     private void animateSelectedNavItem(int page) {
@@ -202,6 +237,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     private void renderState(BmsStateStore.Snapshot snapshot) {
         connected = snapshot.connected;
         connectedDeviceName = snapshot.deviceName;
+        connectionState = snapshot.connectionState;
         updateToolbar();
     }
 
@@ -210,7 +246,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             return;
         }
         toolbar.setTitle(pageTitle());
-        toolbar.setSubtitle(connected && connectedDeviceName != null ? connectedDeviceName : getString(R.string.toolbar_subtitle_local));
+        toolbar.setSubtitle(shouldShowDeviceSubtitle() ? connectedDeviceName : getString(R.string.toolbar_subtitle_local));
         toolbar.setNavigationIcon(R.drawable.ic_list_24);
         toolbar.setNavigationIconTint(getColor(R.color.text_primary));
         Menu menu = toolbar.getMenu();
@@ -222,6 +258,17 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         if (dashboardItem != null) {
             dashboardItem.setVisible(currentPage == PAGE_OVERVIEW && connected);
         }
+    }
+
+    private boolean shouldShowDeviceSubtitle() {
+        if (connectedDeviceName == null || connectedDeviceName.length() == 0) {
+            return false;
+        }
+        return connected
+                || connectionState == BmsStateStore.ConnectionState.CONNECTING
+                || connectionState == BmsStateStore.ConnectionState.DISCOVERING_SERVICES
+                || connectionState == BmsStateStore.ConnectionState.ENABLING_NOTIFICATIONS
+                || connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT;
     }
 
     private String pageTitle() {
@@ -245,7 +292,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         }
         String address = prefs.getString(AppSettings.PREF_LAST_DEVICE_ADDRESS, "");
         if (address.length() == 0) {
-            BmsStateStore.update(BmsStateStore.Snapshot.disconnected(null, null, getString(R.string.status_auto_connect_no_device)));
+            BmsStateStore.update(BmsStateStore.Snapshot.withConnectionState(BmsStateStore.ConnectionState.INVALID_DEVICE, false, null, null, getString(R.string.status_auto_connect_no_device), null, null));
             return;
         }
         String name = prefs.getString(AppSettings.PREF_LAST_DEVICE_NAME, address);

@@ -92,15 +92,15 @@ final class BmsConnectionManager {
                 return;
             }
             if (status != BluetoothGatt.GATT_SUCCESS && newState != BluetoothProfile.STATE_DISCONNECTED) {
-                failConnection(context.getString(R.string.status_connection_failed, status));
+                failConnection(BmsStateStore.ConnectionState.CONNECTION_FAILED, context.getString(R.string.status_connection_failed, status));
                 return;
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connected = true;
                 reconnectAttempts = 0;
-                updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_connected_discovering)));
+                updateState(BmsStateStore.getSnapshot().withConnectionState(BmsStateStore.ConnectionState.DISCOVERING_SERVICES, true, context.getString(R.string.status_connected_discovering)));
                 if (!bluetoothGatt.discoverServices()) {
-                    failConnection(context.getString(R.string.status_service_discovery_start_failed));
+                    failConnection(BmsStateStore.ConnectionState.SERVICE_DISCOVERY_FAILED, context.getString(R.string.status_service_discovery_start_failed));
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
@@ -114,7 +114,7 @@ final class BmsConnectionManager {
                 if (!intentionalDisconnect && shouldAutoReconnect()) {
                     scheduleReconnect(context.getString(R.string.status_connection_lost));
                 } else {
-                    publishDisconnected(context.getString(R.string.status_select_bms));
+                    publishDisconnected(BmsStateStore.ConnectionState.DISCONNECTED, context.getString(R.string.status_select_bms));
                 }
             }
         }
@@ -122,23 +122,23 @@ final class BmsConnectionManager {
         @Override
         public void onServicesDiscovered(BluetoothGatt bluetoothGatt, int status) {
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                failConnection(context.getString(R.string.status_service_discovery_failed, status));
+                failConnection(BmsStateStore.ConnectionState.SERVICE_DISCOVERY_FAILED, context.getString(R.string.status_service_discovery_failed, status));
                 return;
             }
             BluetoothGattService service = bluetoothGatt.getService(BleConstants.SERVICE_UUID);
             if (service == null) {
-                failConnection(context.getString(R.string.status_jbd_service_not_found));
+                failConnection(BmsStateStore.ConnectionState.SERVICE_NOT_FOUND, context.getString(R.string.status_jbd_service_not_found));
                 return;
             }
             writeCharacteristic = service.getCharacteristic(BleConstants.WRITE_UUID);
             BluetoothGattCharacteristic notifyCharacteristic = service.getCharacteristic(BleConstants.NOTIFY_UUID);
             if (writeCharacteristic == null || notifyCharacteristic == null) {
-                failConnection(context.getString(R.string.status_jbd_characteristics_not_found));
+                failConnection(BmsStateStore.ConnectionState.CHARACTERISTICS_NOT_FOUND, context.getString(R.string.status_jbd_characteristics_not_found));
                 return;
             }
-            updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_enabling_notifications)));
+            updateState(BmsStateStore.getSnapshot().withConnectionState(BmsStateStore.ConnectionState.ENABLING_NOTIFICATIONS, true, context.getString(R.string.status_enabling_notifications)));
             if (!enableNotifications(bluetoothGatt, notifyCharacteristic)) {
-                failConnection(context.getString(R.string.status_notifications_failed));
+                failConnection(BmsStateStore.ConnectionState.NOTIFICATIONS_FAILED, context.getString(R.string.status_notifications_failed));
             }
         }
 
@@ -169,7 +169,7 @@ final class BmsConnectionManager {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 startReading();
             } else {
-                failConnection(context.getString(R.string.status_notifications_failed));
+                failConnection(BmsStateStore.ConnectionState.NOTIFICATIONS_FAILED, context.getString(R.string.status_notifications_failed));
             }
         }
     };
@@ -228,26 +228,26 @@ final class BmsConnectionManager {
             reconnectAttempts = 0;
         }
         if (adapter == null) {
-            handleConnectPrecheckFailure(context.getString(R.string.status_bluetooth_unavailable), reconnect);
+            handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_UNAVAILABLE, context.getString(R.string.status_bluetooth_unavailable), reconnect);
             return;
         }
         if (!adapter.isEnabled()) {
-            handleConnectPrecheckFailure(context.getString(reconnect ? R.string.status_auto_connect_bluetooth_off : R.string.status_bluetooth_off), reconnect);
+            handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_OFF, context.getString(reconnect ? R.string.status_auto_connect_bluetooth_off : R.string.status_bluetooth_off), reconnect);
             return;
         }
         if (!hasConnectPermission()) {
-            handleConnectPrecheckFailure(context.getString(R.string.status_auto_connect_permission_required), reconnect);
+            handleConnectPrecheckFailure(BmsStateStore.ConnectionState.PERMISSION_REQUIRED, context.getString(R.string.status_auto_connect_permission_required), reconnect);
             return;
         }
         disconnect(false);
         connectedDeviceAddress = address;
         connectedDeviceName = name == null || name.length() == 0 ? address : name;
-        updateState(new BmsStateStore.Snapshot(false, connectedDeviceName, connectedDeviceAddress, context.getString(R.string.status_connecting, connectedDeviceName), null, null, System.currentTimeMillis()));
+        updateState(BmsStateStore.Snapshot.withConnectionState(BmsStateStore.ConnectionState.CONNECTING, false, connectedDeviceName, connectedDeviceAddress, context.getString(R.string.status_connecting, connectedDeviceName), null, null));
         try {
             BluetoothDevice device = adapter.getRemoteDevice(address);
             gatt = device.connectGatt(context, false, gattCallback);
         } catch (IllegalArgumentException ignored) {
-            publishDisconnected(context.getString(R.string.status_auto_connect_invalid_device));
+            publishDisconnected(BmsStateStore.ConnectionState.INVALID_DEVICE, context.getString(R.string.status_auto_connect_invalid_device));
         }
     }
 
@@ -274,7 +274,7 @@ final class BmsConnectionManager {
             gatt = null;
         }
         if (publishState) {
-            publishDisconnected(context.getString(R.string.status_select_bms));
+            publishDisconnected(BmsStateStore.ConnectionState.DISCONNECTED, context.getString(R.string.status_select_bms));
         }
     }
 
@@ -299,7 +299,7 @@ final class BmsConnectionManager {
     }
 
     private void startReading() {
-        updateState(BmsStateStore.getSnapshot().withStatus(true, context.getString(R.string.status_ready_reading)));
+        updateState(BmsStateStore.getSnapshot().withConnectionState(BmsStateStore.ConnectionState.READY, true, context.getString(R.string.status_ready_reading)));
         handler.removeCallbacks(pollRunnable);
         handler.postDelayed(pollRunnable, 500L);
     }
@@ -347,34 +347,34 @@ final class BmsConnectionManager {
                         }
                     } catch (JbdParseException e) {
                         BmsStateStore.Snapshot current = BmsStateStore.getSnapshot();
-                        updateState(current.withStatus(connected, context.getString(R.string.status_parse_error, e.getMessage())));
+                        updateState(current.withConnectionState(BmsStateStore.ConnectionState.PARSE_ERROR, connected, context.getString(R.string.status_parse_error, e.getMessage())));
                     }
                 }
             }
         });
     }
 
-    private void failConnection(String message) {
+    private void failConnection(BmsStateStore.ConnectionState state, String message) {
         disconnect(false);
         if (shouldAutoReconnect()) {
             scheduleReconnect(message);
         } else {
-            publishDisconnected(message);
+            publishDisconnected(state, message);
         }
     }
 
-    private void publishDisconnected(String status) {
+    private void publishDisconnected(BmsStateStore.ConnectionState state, String status) {
         connectedDeviceName = null;
         connectedDeviceAddress = null;
         BmsDashboardStore.update(null);
-        updateState(BmsStateStore.Snapshot.disconnected(null, null, status));
+        updateState(BmsStateStore.Snapshot.withConnectionState(state, false, null, null, status, null, null));
     }
 
-    private void handleConnectPrecheckFailure(String status, boolean reconnect) {
+    private void handleConnectPrecheckFailure(BmsStateStore.ConnectionState state, String status, boolean reconnect) {
         if (reconnect && shouldAutoReconnect()) {
             scheduleReconnect(status);
         } else {
-            publishDisconnected(status);
+            publishDisconnected(state, status);
         }
     }
 
@@ -392,10 +392,14 @@ final class BmsConnectionManager {
         connectedDeviceAddress = autoReconnectAddress;
         connectedDeviceName = autoReconnectName == null || autoReconnectName.length() == 0 ? autoReconnectAddress : autoReconnectName;
         BmsDashboardStore.update(null);
-        updateState(BmsStateStore.Snapshot.disconnected(
+        updateState(BmsStateStore.Snapshot.withConnectionState(
+                BmsStateStore.ConnectionState.WAITING_RECONNECT,
+                false,
                 connectedDeviceName,
                 connectedDeviceAddress,
-                context.getString(R.string.status_reconnecting, reason, delayMs / 1000L)));
+                context.getString(R.string.status_reconnecting, reason, delayMs / 1000L),
+                null,
+                null));
         handler.postDelayed(reconnectRunnable, delayMs);
     }
 

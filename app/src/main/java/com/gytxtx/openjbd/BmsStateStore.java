@@ -61,6 +61,7 @@ final class BmsStateStore {
 
     static final class Snapshot {
         final boolean connected;
+        final ConnectionState connectionState;
         final String deviceName;
         final String deviceAddress;
         final String status;
@@ -69,7 +70,12 @@ final class BmsStateStore {
         final long updatedAtMillis;
 
         Snapshot(boolean connected, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages, long updatedAtMillis) {
+            this(connected, connected ? ConnectionState.READY : ConnectionState.DISCONNECTED, deviceName, deviceAddress, status, basicInfo, cellVoltages, updatedAtMillis);
+        }
+
+        Snapshot(boolean connected, ConnectionState connectionState, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages, long updatedAtMillis) {
             this.connected = connected;
+            this.connectionState = connectionState;
             this.deviceName = deviceName;
             this.deviceAddress = deviceAddress;
             this.status = status;
@@ -79,19 +85,48 @@ final class BmsStateStore {
         }
 
         static Snapshot disconnected(String deviceName, String deviceAddress, String status) {
-            return new Snapshot(false, deviceName, deviceAddress, status, null, null, System.currentTimeMillis());
+            return withConnectionState(ConnectionState.DISCONNECTED, false, deviceName, deviceAddress, status, null, null);
+        }
+
+        static Snapshot withConnectionState(ConnectionState connectionState, boolean connected, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages) {
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, System.currentTimeMillis());
         }
 
         Snapshot withStatus(boolean connected, String status) {
-            return new Snapshot(connected, deviceName, deviceAddress, status, basicInfo, cellVoltages, System.currentTimeMillis());
+            return withConnectionState(connected ? ConnectionState.READY : ConnectionState.DISCONNECTED, connected, status);
+        }
+
+        Snapshot withConnectionState(ConnectionState connectionState, boolean connected, String status) {
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, System.currentTimeMillis());
         }
 
         Snapshot withBasicInfo(JbdBasicInfo info, String status) {
-            return new Snapshot(connected, deviceName, deviceAddress, status, info, cellVoltages, System.currentTimeMillis());
+            return new Snapshot(connected, ConnectionState.READING, deviceName, deviceAddress, status, info, cellVoltages, System.currentTimeMillis());
         }
 
         Snapshot withCellVoltages(JbdCellVoltages voltages, String status) {
-            return new Snapshot(connected, deviceName, deviceAddress, status, basicInfo, voltages, System.currentTimeMillis());
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, voltages, System.currentTimeMillis());
         }
+    }
+
+    enum ConnectionState {
+        DISCONNECTED,
+        CONNECTING,
+        DISCOVERING_SERVICES,
+        ENABLING_NOTIFICATIONS,
+        READING,
+        WAITING_RECONNECT,
+        BLUETOOTH_UNAVAILABLE,
+        BLUETOOTH_OFF,
+        PERMISSION_REQUIRED,
+        INVALID_DEVICE,
+        CONNECTION_FAILED,
+        SERVICE_DISCOVERY_FAILED,
+        SERVICE_NOT_FOUND,
+        CHARACTERISTICS_NOT_FOUND,
+        NOTIFICATIONS_FAILED,
+        ERROR,
+        PARSE_ERROR,
+        READY
     }
 }
