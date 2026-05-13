@@ -331,7 +331,7 @@ final class BmsConnectionManager {
             commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_BARCODE, CommandKind.BARCODE));
             commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_MANUFACTURER, CommandKind.MANUFACTURER));
             commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_BATTERY_MODEL, CommandKind.BATTERY_MODEL));
-            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_RATINGS, JbdCommands.readExtendedParams(EXT_RATINGS_START, 4)));
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_RATINGS, JbdCommands.readExtendedParams(EXT_RATINGS_START, 8)));
             commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_BMS_ADDRESS, JbdCommands.readExtendedParams(EXT_BMS_ADDRESS_START, 6)));
             commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_BMS_MODEL, JbdCommands.readExtendedParams(EXT_BMS_MODEL_START, 8)));
             commandQueue.addLast(new CommandRequest(JbdCommands.CMD_CLOSE_FACTORY_MODE, CommandKind.CLOSE_FACTORY_MODE, JbdCommands.closeFactoryMode()));

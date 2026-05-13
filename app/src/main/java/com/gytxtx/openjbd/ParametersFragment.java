@@ -121,7 +121,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     private final class ParametersAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return 24;
+            return 26;
         }
 
         @Override
@@ -156,13 +156,16 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             if (position == 0 || position == 1) {
                 return R.drawable.ic_bluetooth_searching_24;
             }
-            if (position == 4 || position == 8 || position == 9 || position == 20 || position == 23) {
+            if (position == 4 || position == 8 || position == 9 || position == 20 || position == 23 || position == 24) {
                 return R.drawable.ic_battery_4_bar_24;
+            }
+            if (position == 25) {
+                return R.drawable.ic_widgets_outline_24;
             }
             if (position == 10 || position == 11) {
                 return R.drawable.ic_bolt_24;
             }
-            if (position == 12 || position == 13 || position == 14) {
+            if (position == 12 || position == 13 || position == 14 || position == 25) {
                 return R.drawable.ic_dashboard_24;
             }
             return R.drawable.ic_info_24;
@@ -216,6 +219,10 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return R.string.param_alter;
                 case 23:
                     return R.string.param_balance_current;
+                case 24:
+                    return R.string.param_balance_state;
+                case 25:
+                    return R.string.param_protection_state;
                 default:
                     return R.string.param_bms_model;
             }
@@ -279,6 +286,10 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return info.hasExtendedInfo ? String.format(Locale.US, "%d", info.alter) : unread;
                 case 23:
                     return info.hasBalanceCurrent ? String.format(Locale.US, "%.2f A", info.balanceCurrentA) : unread;
+                case 24:
+                    return balanceSummary(info);
+                case 25:
+                    return protectionSummary(info);
                 default:
                     return unread;
             }
@@ -291,6 +302,53 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
 
     private String onOff(boolean value) {
         return value ? getString(R.string.label_on) : getString(R.string.label_off);
+    }
+
+    private String balanceSummary(JbdBasicInfo info) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < info.balanceStates.length; i++) {
+            if (!info.balanceStates[i]) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(i + 1);
+        }
+        return builder.length() == 0 ? getString(R.string.balance_none) : getString(R.string.balance_cells, builder.toString());
+    }
+
+    private String protectionSummary(JbdBasicInfo info) {
+        int[] labels = protectionLabelIds();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < info.protectionStates.length && i < labels.length; i++) {
+            if (!info.protectionStates[i]) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(" / ");
+            }
+            builder.append(getString(labels[i]));
+        }
+        return builder.length() == 0 ? getString(R.string.protection_none) : builder.toString();
+    }
+
+    private int[] protectionLabelIds() {
+        return new int[]{
+                R.string.protection_cell_over_voltage,
+                R.string.protection_cell_under_voltage,
+                R.string.protection_pack_over_voltage,
+                R.string.protection_pack_under_voltage,
+                R.string.protection_charge_over_temp,
+                R.string.protection_charge_low_temp,
+                R.string.protection_discharge_over_temp,
+                R.string.protection_discharge_low_temp,
+                R.string.protection_charge_over_current,
+                R.string.protection_discharge_over_current,
+                R.string.protection_short_circuit,
+                R.string.protection_ic_error,
+                R.string.protection_software_lock_mos
+        };
     }
 
     private void setTextIfChanged(TextView view, String value) {

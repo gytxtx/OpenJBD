@@ -16,6 +16,9 @@ public final class JbdParserTest {
         putU16(payload, 6, 2000);
         putU16(payload, 8, 42);
         putU16(payload, 10, (24 << 9) | (5 << 5) | 12);
+        payload[13] = 0x01;
+        payload[16] = 0x01;
+        payload[17] = 0x02;
         payload[18] = 0x21;
         payload[19] = 88;
         payload[20] = 0x03;
@@ -35,6 +38,13 @@ public final class JbdParserTest {
         assertEquals(20.0f, info.nominalAh, 0.001f);
         assertEquals(42, info.cycleCount);
         assertEquals("2024-5-12", info.productionDate);
+        assertTrue(info.balanceStates[0]);
+        assertFalse(info.balanceStates[1]);
+        assertEquals(0x00010000, info.balanceState);
+        assertEquals(0x0102, info.protectionState);
+        assertTrue(info.protectionStates[1]);
+        assertTrue(info.protectionStates[8]);
+        assertFalse(info.protectionStates[0]);
         assertEquals("2.1", info.softwareVersion);
         assertEquals(88, info.soc);
         assertTrue(info.chargeEnabled);
@@ -152,6 +162,18 @@ public final class JbdParserTest {
         assertEquals(4, params.data.length);
         assertEquals(0x01, params.data[0]);
         assertEquals(0x04, params.data[3]);
+    }
+
+    @Test
+    public void parseExtendedParams_decodesRatingsPayload() throws Exception {
+        byte[] payload = new byte[]{0x00, 0x75, 0x08, 0x00, 0x00, 0x00, 0x64, 0x00, 0x32, 0x03, (byte) 0xE8};
+
+        JbdParser.ExtendedParams params = JbdParser.parseExtendedParams(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_EXTENDED_PARAMS, 0, payload)));
+
+        assertEquals(117, params.start);
+        assertEquals(8, params.data.length);
+        assertEquals(0x00, params.data[0]);
+        assertEquals(0xE8, params.data[7] & 0xFF);
     }
 
     @Test

@@ -28,6 +28,9 @@ public final class JbdParser {
         float nominalAh = u16(p, 6) / 100f;
         int cycleCount = u16(p, 8);
         String productionDate = productionDate(u16(p, 10));
+        byte[] balanceBytes = new byte[]{p[12], p[13], p[14], p[15]};
+        int balanceState = u16(p, 12) << 16 | u16(p, 14);
+        int protectionState = u16(p, 16);
         String version = softwareVersion(p[18] & 0xFF);
         int soc = p[19] & 0xFF;
         int fetState = p[20] & 0xFF;
@@ -79,6 +82,10 @@ public final class JbdParser {
                 cycleCount,
                 productionDate,
                 soc,
+                balanceState,
+                balanceStates(balanceBytes, cellCount),
+                protectionState,
+                protectionStates(protectionState),
                 (fetState & 0x01) != 0,
                 (fetState & 0x02) != 0,
                 cellCount,
@@ -188,6 +195,34 @@ public final class JbdParser {
             return hex;
         }
         return hex.substring(0, 1) + "." + hex.substring(1);
+    }
+
+    private static boolean[] protectionStates(int value) {
+        boolean[] states = new boolean[13];
+        for (int i = 0; i < states.length; i++) {
+            int bit = i < 8 ? i : i - 8;
+            int source = i < 8 ? value & 0xFF : (value >> 8) & 0xFF;
+            states[i] = ((source >> bit) & 0x01) == 1;
+        }
+        return states;
+    }
+
+    private static boolean[] balanceStates(byte[] state, int cellCount) {
+        boolean[] states = new boolean[Math.max(0, cellCount)];
+        for (int i = 0; i < states.length; i++) {
+            byte source;
+            if (i < 8) {
+                source = state[1];
+            } else if (i < 16) {
+                source = state[0];
+            } else if (i < 24) {
+                source = state[3];
+            } else {
+                source = state[2];
+            }
+            states[i] = (((source & 0xFF) >>> (i % 8)) & 0x01) == 1;
+        }
+        return states;
     }
 
     public static final class ExtendedParams {

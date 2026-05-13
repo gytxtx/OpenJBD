@@ -12,6 +12,10 @@ public final class JbdBasicInfo {
     public final int cycleCount;
     public final String productionDate;
     public final int soc;
+    public final int balanceState;
+    public final boolean[] balanceStates;
+    public final int protectionState;
+    public final boolean[] protectionStates;
     public final boolean chargeEnabled;
     public final boolean dischargeEnabled;
     public final int cellCount;
@@ -34,6 +38,10 @@ public final class JbdBasicInfo {
             int cycleCount,
             String productionDate,
             int soc,
+            int balanceState,
+            boolean[] balanceStates,
+            int protectionState,
+            boolean[] protectionStates,
             boolean chargeEnabled,
             boolean dischargeEnabled,
             int cellCount,
@@ -55,6 +63,10 @@ public final class JbdBasicInfo {
         this.cycleCount = cycleCount;
         this.productionDate = productionDate;
         this.soc = soc;
+        this.balanceState = balanceState;
+        this.balanceStates = balanceStates.clone();
+        this.protectionState = protectionState;
+        this.protectionStates = protectionStates.clone();
         this.chargeEnabled = chargeEnabled;
         this.dischargeEnabled = dischargeEnabled;
         this.cellCount = cellCount;
@@ -72,5 +84,23 @@ public final class JbdBasicInfo {
 
     public float learnedOrNominalAh() {
         return hasLearnCapacity && learnCapacityAh > 0f ? learnCapacityAh : nominalAh;
+    }
+
+    public boolean hasActiveProtection() {
+        for (boolean protectionState : protectionStates) {
+            if (protectionState) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasActiveBalance() {
+        for (boolean balanceState : balanceStates) {
+            if (balanceState) {
+                return true;
+            }
+        }
+        return false;
     }
 }

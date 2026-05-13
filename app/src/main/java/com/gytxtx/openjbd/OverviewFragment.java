@@ -38,6 +38,8 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private TextView socNoteText;
     private TextView statsText;
     private TextView temperaturesText;
+    private TextView protectionText;
+    private TextView balanceText;
     private ChipGroup temperaturesChipGroup;
     private TextView cellMinText;
     private TextView cellMaxText;
@@ -69,6 +71,8 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         mosText = view.findViewById(R.id.txt_mos);
         socNoteText = view.findViewById(R.id.txt_soc_note);
         temperaturesText = view.findViewById(R.id.txt_temperatures);
+        protectionText = view.findViewById(R.id.txt_protection);
+        balanceText = view.findViewById(R.id.txt_balance);
         temperaturesChipGroup = view.findViewById(R.id.chips_temperatures);
         cellStatsGrid = view.findViewById(R.id.cell_stats_grid);
         cellMinText = view.findViewById(R.id.txt_cell_min);
@@ -141,6 +145,8 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         setTextIfChanged(mosText, getString(R.string.label_charge) + " " + onOff(info.chargeEnabled) + "  /  " + getString(R.string.label_discharge) + " " + onOff(info.dischargeEnabled));
         setTextIfChanged(socNoteText, socNote(info));
         setTextIfChanged(statsText, getString(R.string.pack_stats, info.cellCount, info.ntcCount, info.softwareVersion));
+        setTextIfChanged(protectionText, protectionSummary(info));
+        setTextIfChanged(balanceText, balanceSummary(info));
         String temperatureSignature = temperatureSignature(info);
         if (temperatureSignature.equals(lastTemperatureSignature)) {
             return;
@@ -190,7 +196,12 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         TextView label = row.findViewById(R.id.txt_cell_label);
         TextView value = row.findViewById(R.id.txt_cell_value);
         LinearProgressIndicator progress = row.findViewById(R.id.progress_cell);
-        setTextIfChanged(label, String.format(Locale.US, getString(R.string.cell_label), index));
+        String labelText = String.format(Locale.US, getString(R.string.cell_label), index);
+        JbdBasicInfo basicInfo = lastRenderedBasicInfo;
+        if (basicInfo != null && index <= basicInfo.balanceStates.length && basicInfo.balanceStates[index - 1]) {
+            labelText += getString(R.string.cell_balancing_suffix);
+        }
+        setTextIfChanged(label, labelText);
         setTextIfChanged(value, String.format(Locale.US, "%.3f V", voltage));
         float span = Math.max(0.001f, max - min);
         int scaled = Math.max(80, Math.min(1000, (int) (1000f * ((voltage - min) / span))));
@@ -225,6 +236,8 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         mosText.setText("--");
         statsText.setText("--");
         socNoteText.setText(R.string.local_ble_note);
+        protectionText.setText("--");
+        balanceText.setText("--");
         temperaturesText.setText("--");
         temperaturesText.setVisibility(View.VISIBLE);
         temperaturesChipGroup.removeAllViews();
@@ -280,6 +293,53 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
 
     private String onOff(boolean value) {
         return value ? getString(R.string.label_on) : getString(R.string.label_off);
+    }
+
+    private String protectionSummary(JbdBasicInfo info) {
+        int[] labels = protectionLabelIds();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < info.protectionStates.length && i < labels.length; i++) {
+            if (!info.protectionStates[i]) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(" / ");
+            }
+            builder.append(getString(labels[i]));
+        }
+        return builder.length() == 0 ? getString(R.string.protection_none) : builder.toString();
+    }
+
+    private int[] protectionLabelIds() {
+        return new int[]{
+                R.string.protection_cell_over_voltage,
+                R.string.protection_cell_under_voltage,
+                R.string.protection_pack_over_voltage,
+                R.string.protection_pack_under_voltage,
+                R.string.protection_charge_over_temp,
+                R.string.protection_charge_low_temp,
+                R.string.protection_discharge_over_temp,
+                R.string.protection_discharge_low_temp,
+                R.string.protection_charge_over_current,
+                R.string.protection_discharge_over_current,
+                R.string.protection_short_circuit,
+                R.string.protection_ic_error,
+                R.string.protection_software_lock_mos
+        };
+    }
+
+    private String balanceSummary(JbdBasicInfo info) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < info.balanceStates.length; i++) {
+            if (!info.balanceStates[i]) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(i + 1);
+        }
+        return builder.length() == 0 ? getString(R.string.balance_none) : getString(R.string.balance_cells, builder.toString());
     }
 
     private String socNote(JbdBasicInfo info) {
