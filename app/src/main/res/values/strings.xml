@@ -156,6 +156,12 @@
     <string name="setting_auto_connect">Auto-connect on launch</string>
     <string name="setting_auto_connect_on">On</string>
     <string name="setting_auto_connect_off">Off</string>
+    <string name="setting_about">About</string>
+    <string name="setting_about_subtitle">App version and project repository</string>
+    <string name="about_title">About</string>
+    <string name="about_version">Version 0.1.0</string>
+    <string name="about_description">OpenJBD is a local, account-free Android BLE monitor for JBD / Xiaoxiang BMS devices. It focuses on safely reading battery status without cloud services.</string>
+    <string name="about_github">GitHub Repository</string>
     <string name="unit_celsius">°C</string>
     <string name="unit_fahrenheit">°F</string>
     <string name="dashboard_live">Live BMS data</string>

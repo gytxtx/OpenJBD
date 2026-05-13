@@ -1,5 +1,6 @@
 package com.gytxtx.openjbd;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -113,6 +114,8 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                     });
         } else if (position == 4) {
             setAutoConnectEnabled(!AppSettings.autoConnectEnabled(requireContext()), true);
+        } else if (position == 5) {
+            startActivity(new Intent(requireContext(), AboutActivity.class));
         }
     }
 
@@ -215,7 +218,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
     private final class SettingsAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -253,7 +256,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 icon.setImageResource(R.drawable.ic_thermostat_24);
                 title.setText(R.string.setting_temperature_unit);
                 subtitle.setText(tempUnitLabel(prefs.getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C)));
-            } else {
+            } else if (position == 3 || position == 4) {
                 icon.setImageResource(R.drawable.ic_loop_24);
                 title.setText(R.string.setting_refresh_interval);
                 subtitle.setText(refreshIntervalLabel(AppSettings.refreshIntervalValue(requireContext())));
@@ -269,6 +272,10 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                     });
                     settingSwitch.setVisibility(View.VISIBLE);
                 }
+            } else {
+                icon.setImageResource(R.drawable.ic_info_24);
+                title.setText(R.string.setting_about);
+                subtitle.setText(R.string.setting_about_subtitle);
             }
             icon.setColorFilter(requireContext().getColor(R.color.icon_default));
             return row;
