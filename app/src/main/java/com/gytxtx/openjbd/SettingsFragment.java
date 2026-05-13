@@ -75,7 +75,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private void showSettingMenu(int position) {
         if (position == 0) {
-            showRadioDialog(R.string.setting_theme, AppSettings.PREF_THEME,
+            showRadioDialog(R.string.setting_theme, settings().getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO),
                     new String[]{getString(R.string.setting_theme_auto), getString(R.string.setting_theme_light), getString(R.string.setting_theme_dark)},
                     new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_LIGHT, AppSettings.VALUE_DARK},
                     value -> {
@@ -84,7 +84,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         requireActivity().recreate();
                     });
         } else if (position == 1) {
-            showRadioDialog(R.string.setting_language, AppSettings.PREF_LANGUAGE,
+            showRadioDialog(R.string.setting_language, settings().getString(AppSettings.PREF_LANGUAGE, AppSettings.VALUE_AUTO),
                     new String[]{getString(R.string.setting_language_auto), getString(R.string.setting_language_zh), getString(R.string.setting_language_en)},
                     new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_ZH, AppSettings.VALUE_EN},
                     value -> {
@@ -92,7 +92,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         requireActivity().recreate();
                     });
         } else if (position == 2) {
-            showRadioDialog(R.string.setting_temperature_unit, AppSettings.PREF_TEMP_UNIT,
+            showRadioDialog(R.string.setting_temperature_unit, settings().getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C),
                     new String[]{getString(R.string.setting_temp_celsius), getString(R.string.setting_temp_fahrenheit)},
                     new String[]{AppSettings.VALUE_C, AppSettings.VALUE_F},
                     value -> {
@@ -101,24 +101,23 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         BmsStateStore.update(BmsStateStore.getSnapshot());
                     });
         } else if (position == 3) {
-            showRadioDialog(R.string.setting_refresh_interval, AppSettings.PREF_REFRESH_INTERVAL_MS,
+            showRadioDialog(R.string.setting_refresh_interval, AppSettings.refreshIntervalValue(requireContext()),
                     new String[]{getString(R.string.setting_refresh_1s), getString(R.string.setting_refresh_2s), getString(R.string.setting_refresh_5s), getString(R.string.setting_refresh_10s)},
                     new String[]{AppSettings.VALUE_REFRESH_1S, AppSettings.VALUE_REFRESH_2S, AppSettings.VALUE_REFRESH_5S, AppSettings.VALUE_REFRESH_10S},
                     value -> {
-                        settings().edit().putString(AppSettings.PREF_REFRESH_INTERVAL_MS, value).apply();
+                        AppSettings.setRefreshIntervalMs(requireContext(), Long.parseLong(value));
                         renderSettingsRows();
                         if (connected) {
                             connectionManager.setRefreshInterval(AppSettings.refreshIntervalMs(requireContext()));
                         }
                     });
         } else if (position == 4) {
-            boolean enabled = AppSettings.VALUE_ON.equals(settings().getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF));
-            setAutoConnectEnabled(!enabled, true);
+            setAutoConnectEnabled(!AppSettings.autoConnectEnabled(requireContext()), true);
         }
     }
 
     private void setAutoConnectEnabled(boolean enabled, boolean refreshRows) {
-        settings().edit().putString(AppSettings.PREF_AUTO_CONNECT, enabled ? AppSettings.VALUE_ON : AppSettings.VALUE_OFF).apply();
+        AppSettings.setAutoConnectEnabled(requireContext(), enabled);
         configureAutoReconnect();
         if (refreshRows) {
             renderSettingsRows();
@@ -130,14 +129,14 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private void configureAutoReconnect() {
         SharedPreferences prefs = settings();
-        boolean enabled = AppSettings.VALUE_ON.equals(prefs.getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF));
+        boolean enabled = AppSettings.autoConnectEnabled(requireContext());
         String address = prefs.getString(AppSettings.PREF_LAST_DEVICE_ADDRESS, "");
         String name = prefs.getString(AppSettings.PREF_LAST_DEVICE_NAME, address);
         connectionManager.setAutoReconnect(enabled, address, name);
     }
 
     private void maybeAutoConnect() {
-        if (!AppSettings.VALUE_ON.equals(settings().getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF))) {
+        if (!AppSettings.autoConnectEnabled(requireContext())) {
             return;
         }
         String address = settings().getString(AppSettings.PREF_LAST_DEVICE_ADDRESS, "");
@@ -148,8 +147,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         connectionManager.connect(address, name.length() == 0 ? address : name);
     }
 
-    private void showRadioDialog(int titleRes, String prefKey, String[] labels, String[] values, final ChoiceHandler handler) {
-        String current = settings().getString(prefKey, values[0]);
+    private void showRadioDialog(int titleRes, String current, String[] labels, String[] values, final ChoiceHandler handler) {
         int checked = 0;
         for (int i = 0; i < values.length; i++) {
             if (values[i].equals(current)) {
@@ -161,7 +159,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 .setTitle(titleRes)
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     String value = values[which];
-                    if (!value.equals(settings().getString(prefKey, ""))) {
+                    if (!value.equals(current)) {
                         handler.onChoice(value);
                     }
                     dialog.dismiss();
@@ -210,8 +208,8 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         return getString(R.string.setting_refresh_2s);
     }
 
-    private String autoConnectLabel(String value) {
-        return AppSettings.VALUE_ON.equals(value) ? getString(R.string.setting_auto_connect_on) : getString(R.string.setting_auto_connect_off);
+    private String autoConnectLabel(boolean value) {
+        return value ? getString(R.string.setting_auto_connect_on) : getString(R.string.setting_auto_connect_off);
     }
 
     private final class SettingsAdapter extends BaseAdapter {
@@ -258,15 +256,15 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             } else {
                 icon.setImageResource(R.drawable.ic_loop_24);
                 title.setText(R.string.setting_refresh_interval);
-                subtitle.setText(refreshIntervalLabel(prefs.getString(AppSettings.PREF_REFRESH_INTERVAL_MS, AppSettings.VALUE_REFRESH_2S)));
+                subtitle.setText(refreshIntervalLabel(AppSettings.refreshIntervalValue(requireContext())));
                 if (position == 4) {
-                    boolean autoConnectEnabled = AppSettings.VALUE_ON.equals(prefs.getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF));
+                    boolean autoConnectEnabled = AppSettings.autoConnectEnabled(requireContext());
                     icon.setImageResource(R.drawable.ic_bluetooth_searching_24);
                     title.setText(R.string.setting_auto_connect);
-                    subtitle.setText(autoConnectLabel(autoConnectEnabled ? AppSettings.VALUE_ON : AppSettings.VALUE_OFF));
+                    subtitle.setText(autoConnectLabel(autoConnectEnabled));
                     settingSwitch.setChecked(autoConnectEnabled);
                     settingSwitch.setOnCheckedChangeListener((buttonView, checked) -> {
-                        subtitle.setText(autoConnectLabel(checked ? AppSettings.VALUE_ON : AppSettings.VALUE_OFF));
+                        subtitle.setText(autoConnectLabel(checked));
                         setAutoConnectEnabled(checked, false);
                     });
                     settingSwitch.setVisibility(View.VISIBLE);

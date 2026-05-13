@@ -287,7 +287,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
 
     private void maybeAutoConnect() {
         SharedPreferences prefs = AppSettings.prefs(this);
-        if (!AppSettings.VALUE_ON.equals(prefs.getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF))) {
+        if (!AppSettings.autoConnectEnabled(this)) {
             return;
         }
         String address = prefs.getString(AppSettings.PREF_LAST_DEVICE_ADDRESS, "");
@@ -309,7 +309,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
 
     private void configureAutoReconnect() {
         SharedPreferences prefs = AppSettings.prefs(this);
-        boolean enabled = AppSettings.VALUE_ON.equals(prefs.getString(AppSettings.PREF_AUTO_CONNECT, AppSettings.VALUE_OFF));
+        boolean enabled = AppSettings.autoConnectEnabled(this);
         String address = prefs.getString(AppSettings.PREF_LAST_DEVICE_ADDRESS, "");
         String name = prefs.getString(AppSettings.PREF_LAST_DEVICE_NAME, address);
         connectionManager.setAutoReconnect(enabled, address, name);

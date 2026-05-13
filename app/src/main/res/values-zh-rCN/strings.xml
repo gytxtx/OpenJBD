@@ -74,7 +74,6 @@
     <string name="status_jbd_service_not_found">未找到 JBD 服务</string>
     <string name="status_jbd_characteristics_not_found">未找到 JBD 特征值</string>
     <string name="status_parse_error">解析错误：%1$s</string>
-    <string name="status_temps_prefix">温度：</string>
     <string name="temperature_mos_item">MOS %2$.1f%3$s</string>
     <string name="temperature_probe_item">温度 %1$d %2$.1f%3$s</string>
     <string name="label_charge">充电</string>
@@ -88,7 +87,6 @@
     <string name="estimate_duration_zero">0 分钟</string>
     <string name="estimate_idle">当前静置，暂无时间估算。</string>
     <string name="temperature_none">未上报温度探头。</string>
-    <string name="cell_summary">最低 %1$.3f V   最高 %2$.3f V   压差 %3$.3f V   平均 %4$.3f V</string>
     <string name="cell_label">单体 %1$02d</string>
 
     <string name="device_placeholder_scanning_title">正在扫描设备</string>

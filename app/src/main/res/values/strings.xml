@@ -74,7 +74,6 @@
     <string name="status_jbd_service_not_found">JBD service not found</string>
     <string name="status_jbd_characteristics_not_found">JBD characteristics not found</string>
     <string name="status_parse_error">Parse error: %1$s</string>
-    <string name="status_temps_prefix">Temps: </string>
     <string name="temperature_mos_item">MOS %2$.1f%3$s</string>
     <string name="temperature_probe_item">Temperature %1$d %2$.1f%3$s</string>
     <string name="label_charge">Charge</string>
@@ -88,7 +87,6 @@
     <string name="estimate_duration_zero">0 min</string>
     <string name="estimate_idle">Idle. No time estimate.</string>
     <string name="temperature_none">No temperature probes reported.</string>
-    <string name="cell_summary">Min %1$.3f V   Max %2$.3f V   Delta %3$.3f V   Avg %4$.3f V</string>
     <string name="cell_label">Cell %1$02d</string>
 
     <string name="device_placeholder_scanning_title">Scanning for devices</string>

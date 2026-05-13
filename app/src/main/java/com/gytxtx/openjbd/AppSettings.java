@@ -20,8 +20,7 @@ final class AppSettings {
     static final String PREF_LAST_DEVICE_ADDRESS = "last_device_address";
     static final String PREF_LAST_DEVICE_NAME = "last_device_name";
     static final String VALUE_AUTO = "auto";
-    static final String VALUE_ON = "on";
-    static final String VALUE_OFF = "off";
+    private static final String VALUE_ON = "on";
     static final String VALUE_LIGHT = "light";
     static final String VALUE_DARK = "dark";
     static final String VALUE_ZH = "zh";
@@ -32,6 +31,7 @@ final class AppSettings {
     static final String VALUE_REFRESH_2S = "2000";
     static final String VALUE_REFRESH_5S = "5000";
     static final String VALUE_REFRESH_10S = "10000";
+    private static final long DEFAULT_REFRESH_INTERVAL_MS = 2000L;
 
     private AppSettings() {
     }
@@ -59,12 +59,48 @@ final class AppSettings {
     }
 
     static long refreshIntervalMs(Context context) {
-        String value = prefs(context).getString(PREF_REFRESH_INTERVAL_MS, VALUE_REFRESH_2S);
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException ignored) {
-            return Long.parseLong(VALUE_REFRESH_2S);
+        SharedPreferences prefs = prefs(context);
+        Object value = prefs.getAll().get(PREF_REFRESH_INTERVAL_MS);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
         }
+        if (value instanceof String) {
+            try {
+                long parsed = Long.parseLong((String) value);
+                prefs.edit().putLong(PREF_REFRESH_INTERVAL_MS, parsed).apply();
+                return parsed;
+            } catch (NumberFormatException ignored) {
+                prefs.edit().putLong(PREF_REFRESH_INTERVAL_MS, DEFAULT_REFRESH_INTERVAL_MS).apply();
+                return DEFAULT_REFRESH_INTERVAL_MS;
+            }
+        }
+        return DEFAULT_REFRESH_INTERVAL_MS;
+    }
+
+    static String refreshIntervalValue(Context context) {
+        return Long.toString(refreshIntervalMs(context));
+    }
+
+    static void setRefreshIntervalMs(Context context, long value) {
+        prefs(context).edit().putLong(PREF_REFRESH_INTERVAL_MS, value).apply();
+    }
+
+    static boolean autoConnectEnabled(Context context) {
+        SharedPreferences prefs = prefs(context);
+        Object value = prefs.getAll().get(PREF_AUTO_CONNECT);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            boolean enabled = VALUE_ON.equals(value) || Boolean.parseBoolean((String) value);
+            prefs.edit().putBoolean(PREF_AUTO_CONNECT, enabled).apply();
+            return enabled;
+        }
+        return false;
+    }
+
+    static void setAutoConnectEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean(PREF_AUTO_CONNECT, enabled).apply();
     }
 
     static float displayTemperature(Context context, float celsius) {
