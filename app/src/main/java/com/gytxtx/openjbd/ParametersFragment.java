@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
+import com.gytxtx.openjbd.protocol.JbdDeviceInfo;
 
 import java.util.Locale;
 
@@ -26,6 +27,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     private BmsStateStore.Snapshot snapshot;
     private boolean lastRenderedHasData;
     private JbdBasicInfo lastRenderedBasicInfo;
+    private JbdDeviceInfo lastRenderedDeviceInfo;
     private String lastRenderedDeviceName;
     private String lastRenderedDeviceAddress;
 
@@ -85,12 +87,14 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
         String deviceAddress = snapshot == null ? null : snapshot.deviceAddress;
         if (hasData == lastRenderedHasData
                 && same(lastRenderedBasicInfo, snapshot == null ? null : snapshot.basicInfo)
+                && same(lastRenderedDeviceInfo, snapshot == null ? null : snapshot.deviceInfo)
                 && same(lastRenderedDeviceName, deviceName)
                 && same(lastRenderedDeviceAddress, deviceAddress)) {
             return;
         }
         lastRenderedHasData = hasData;
         lastRenderedBasicInfo = snapshot == null ? null : snapshot.basicInfo;
+        lastRenderedDeviceInfo = snapshot == null ? null : snapshot.deviceInfo;
         lastRenderedDeviceName = deviceName;
         lastRenderedDeviceAddress = deviceAddress;
         placeholderParameters.setVisibility(hasData ? View.GONE : View.VISIBLE);
@@ -117,7 +121,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     private final class ParametersAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return 21;
+            return 24;
         }
 
         @Override
@@ -152,7 +156,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             if (position == 0 || position == 1) {
                 return R.drawable.ic_bluetooth_searching_24;
             }
-            if (position == 4 || position == 8 || position == 9 || position == 20) {
+            if (position == 4 || position == 8 || position == 9 || position == 20 || position == 23) {
                 return R.drawable.ic_battery_4_bar_24;
             }
             if (position == 10 || position == 11) {
@@ -206,6 +210,12 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return R.string.param_manufacturer;
                 case 20:
                     return R.string.param_learn_capacity;
+                case 21:
+                    return R.string.param_extension_marker;
+                case 22:
+                    return R.string.param_alter;
+                case 23:
+                    return R.string.param_balance_current;
                 default:
                     return R.string.param_bms_model;
             }
@@ -220,6 +230,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                 return snapshot == null || snapshot.deviceAddress == null || snapshot.deviceAddress.length() == 0 ? unread : snapshot.deviceAddress;
             }
             JbdBasicInfo info = snapshot == null ? null : snapshot.basicInfo;
+            JbdDeviceInfo deviceInfo = snapshot == null ? null : snapshot.deviceInfo;
             if (info == null) {
                 return unread;
             }
@@ -250,11 +261,31 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                     return String.format(Locale.US, "%.2f A", info.current);
                 case 14:
                     return String.format(Locale.US, "%.1f W", info.totalVoltage * info.current);
+                case 15:
+                    return fieldOrUnread(deviceInfo == null ? null : deviceInfo.serialNumber, unread);
+                case 16:
+                    return fieldOrUnread(deviceInfo == null ? null : deviceInfo.barcode, unread);
+                case 17:
+                    return fieldOrUnread(deviceInfo == null ? null : deviceInfo.batteryModel, unread);
+                case 18:
+                    return fieldOrUnread(deviceInfo == null ? null : deviceInfo.manufacturer, unread);
+                case 19:
+                    return fieldOrUnread(deviceInfo == null ? null : deviceInfo.bmsModel, unread);
                 case 20:
                     return info.hasLearnCapacity ? String.format(Locale.US, "%.2f Ah", info.learnCapacityAh) : unread;
+                case 21:
+                    return info.hasExtendedInfo ? String.format(Locale.US, "%d", info.extensionMarker) : unread;
+                case 22:
+                    return info.hasExtendedInfo ? String.format(Locale.US, "%d", info.alter) : unread;
+                case 23:
+                    return info.hasBalanceCurrent ? String.format(Locale.US, "%.2f A", info.balanceCurrentA) : unread;
                 default:
                     return unread;
             }
+        }
+
+        private String fieldOrUnread(String value, String unread) {
+            return value == null || value.length() == 0 ? unread : value;
         }
     }
 

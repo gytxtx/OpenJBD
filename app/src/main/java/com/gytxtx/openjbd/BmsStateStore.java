@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
 import com.gytxtx.openjbd.protocol.JbdCellVoltages;
+import com.gytxtx.openjbd.protocol.JbdDeviceInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +68,14 @@ final class BmsStateStore {
         final String status;
         final JbdBasicInfo basicInfo;
         final JbdCellVoltages cellVoltages;
+        final JbdDeviceInfo deviceInfo;
         final long updatedAtMillis;
 
         Snapshot(boolean connected, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages, long updatedAtMillis) {
-            this(connected, connected ? ConnectionState.READY : ConnectionState.DISCONNECTED, deviceName, deviceAddress, status, basicInfo, cellVoltages, updatedAtMillis);
+            this(connected, connected ? ConnectionState.READY : ConnectionState.DISCONNECTED, deviceName, deviceAddress, status, basicInfo, cellVoltages, null, updatedAtMillis);
         }
 
-        Snapshot(boolean connected, ConnectionState connectionState, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages, long updatedAtMillis) {
+        Snapshot(boolean connected, ConnectionState connectionState, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages, JbdDeviceInfo deviceInfo, long updatedAtMillis) {
             this.connected = connected;
             this.connectionState = connectionState;
             this.deviceName = deviceName;
@@ -81,6 +83,7 @@ final class BmsStateStore {
             this.status = status;
             this.basicInfo = basicInfo;
             this.cellVoltages = cellVoltages;
+            this.deviceInfo = deviceInfo;
             this.updatedAtMillis = updatedAtMillis;
         }
 
@@ -89,7 +92,7 @@ final class BmsStateStore {
         }
 
         static Snapshot withConnectionState(ConnectionState connectionState, boolean connected, String deviceName, String deviceAddress, String status, JbdBasicInfo basicInfo, JbdCellVoltages cellVoltages) {
-            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, System.currentTimeMillis());
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, null, System.currentTimeMillis());
         }
 
         Snapshot withStatus(boolean connected, String status) {
@@ -97,15 +100,19 @@ final class BmsStateStore {
         }
 
         Snapshot withConnectionState(ConnectionState connectionState, boolean connected, String status) {
-            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, System.currentTimeMillis());
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, deviceInfo, System.currentTimeMillis());
         }
 
         Snapshot withBasicInfo(JbdBasicInfo info, String status) {
-            return new Snapshot(connected, ConnectionState.READING, deviceName, deviceAddress, status, info, cellVoltages, System.currentTimeMillis());
+            return new Snapshot(connected, ConnectionState.READING, deviceName, deviceAddress, status, info, cellVoltages, deviceInfo, System.currentTimeMillis());
         }
 
         Snapshot withCellVoltages(JbdCellVoltages voltages, String status) {
-            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, voltages, System.currentTimeMillis());
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, voltages, deviceInfo, System.currentTimeMillis());
+        }
+
+        Snapshot withDeviceInfo(JbdDeviceInfo info, String status) {
+            return new Snapshot(connected, connectionState, deviceName, deviceAddress, status, basicInfo, cellVoltages, info, System.currentTimeMillis());
         }
     }
 

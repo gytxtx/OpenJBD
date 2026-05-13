@@ -23,6 +23,9 @@
     <string name="param_manufacturing_date">Manufacturing date</string>
     <string name="param_nominal_capacity">Nominal capacity</string>
     <string name="param_learn_capacity">Learned capacity</string>
+    <string name="param_extension_marker">Extension marker</string>
+    <string name="param_alter">Alter value</string>
+    <string name="param_balance_current">Balance current</string>
     <string name="param_remaining_capacity">Remaining capacity</string>
     <string name="param_soc">State of charge</string>
     <string name="param_cycle_count">Cycle count</string>

@@ -32,6 +32,23 @@ public final class JbdFrameTest {
         JbdFrame.parse(frame);
     }
 
+    @Test
+    public void commands_buildFactoryModeFrames() {
+        assertArrayEquals(
+                new byte[]{(byte) 0xDD, 0x5A, 0x00, 0x02, 0x56, 0x78, (byte) 0xFF, 0x30, 0x77},
+                JbdCommands.openFactoryMode());
+        assertArrayEquals(
+                new byte[]{(byte) 0xDD, 0x5A, 0x01, 0x02, 0x00, 0x00, (byte) 0xFF, (byte) 0xFD, 0x77},
+                JbdCommands.closeFactoryMode());
+    }
+
+    @Test
+    public void commands_buildExtendedParamReadFrame() {
+        assertArrayEquals(
+                new byte[]{(byte) 0xDD, (byte) 0xA5, (byte) 0xFA, 0x03, 0x00, 0x75, 0x04, (byte) 0xFE, (byte) 0x8A, 0x77},
+                JbdCommands.readExtendedParams(117, 4));
+    }
+
     static byte[] responseFrame(byte command, int status, byte[] payload) {
         int length = payload.length;
         byte[] frame = new byte[length + 7];

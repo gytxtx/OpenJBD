@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 public final class JbdParserTest {
     @Test
     public void parseBasicInfo_decodesCoreFields() throws Exception {
-        byte[] payload = new byte[30];
+        byte[] payload = new byte[32];
         putU16(payload, 0, 5234);
         putU16(payload, 2, 0xFB2E);
         putU16(payload, 4, 1000);
@@ -23,7 +23,9 @@ public final class JbdParserTest {
         payload[22] = 1;
         putU16(payload, 23, 2981);
         payload[25] = 60;
+        putU16(payload, 26, 258);
         putU16(payload, 28, 1900);
+        putU16(payload, 30, 125);
 
         JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
 
@@ -40,8 +42,13 @@ public final class JbdParserTest {
         assertEquals(4, info.cellCount);
         assertEquals(1, info.ntcCount);
         assertEquals(25.0f, info.temperaturesC.get(0), 0.001f);
+        assertTrue(info.hasExtendedInfo);
+        assertEquals(60, info.extensionMarker);
+        assertEquals(258, info.alter);
         assertTrue(info.hasLearnCapacity);
         assertEquals(19.0f, info.learnCapacityAh, 0.001f);
+        assertTrue(info.hasBalanceCurrent);
+        assertEquals(1.25f, info.balanceCurrentA, 0.001f);
     }
 
     @Test
@@ -54,23 +61,50 @@ public final class JbdParserTest {
 
         assertFalse(info.hasLearnCapacity);
         assertEquals(0.0f, info.learnCapacityAh, 0.001f);
+        assertFalse(info.hasExtendedInfo);
+        assertFalse(info.hasBalanceCurrent);
+    }
+
+    @Test
+    public void parseBasicInfo_allowsExtendedInfoWithoutBalanceCurrent() throws Exception {
+        byte[] payload = new byte[30];
+        payload[22] = 1;
+        putU16(payload, 23, 2981);
+        payload[25] = 60;
+        putU16(payload, 26, 258);
+        putU16(payload, 28, 1900);
+
+        JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
+
+        assertTrue(info.hasExtendedInfo);
+        assertEquals(60, info.extensionMarker);
+        assertEquals(258, info.alter);
+        assertTrue(info.hasLearnCapacity);
+        assertEquals(19.0f, info.learnCapacityAh, 0.001f);
+        assertFalse(info.hasBalanceCurrent);
     }
 
     @Test
     public void parseBasicInfo_humidityMarkerUsesTenthsForCurrentAndRemainingCapacity() throws Exception {
-        byte[] payload = new byte[30];
+        byte[] payload = new byte[32];
         putU16(payload, 2, 0xFF9C);
         putU16(payload, 4, 123);
         payload[22] = 1;
         putU16(payload, 23, 2981);
         payload[25] = (byte) 136;
+        putU16(payload, 26, 1024);
         putU16(payload, 28, 1900);
+        putU16(payload, 30, 250);
 
         JbdBasicInfo info = JbdParser.parseBasicInfo(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_BASIC_INFO, 0, payload)));
 
         assertEquals(-10.0f, info.current, 0.001f);
         assertEquals(12.3f, info.remainingAh, 0.001f);
+        assertEquals(136, info.extensionMarker);
+        assertEquals(1024, info.alter);
         assertEquals(19.0f, info.learnCapacityAh, 0.001f);
+        assertTrue(info.hasBalanceCurrent);
+        assertEquals(2.5f, info.balanceCurrentA, 0.001f);
     }
 
     @Test
@@ -87,6 +121,42 @@ public final class JbdParserTest {
         assertEquals(3.31f, voltages.max, 0.001f);
         assertEquals(0.02f, voltages.delta, 0.001f);
         assertEquals(3.30f, voltages.average, 0.001f);
+    }
+
+    @Test
+    public void parseText_decodesGb2312AndTrimsPadding() throws Exception {
+        byte[] payload = new byte[]{'J', 'B', 'D', 0x00, 0x20};
+
+        String value = JbdParser.parseText(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_MANUFACTURER, 0, payload)));
+
+        assertEquals("JBD", value);
+    }
+
+    @Test
+    public void parseSerialNumber_decodesUnsignedValue() throws Exception {
+        byte[] payload = new byte[2];
+        putU16(payload, 0, 258);
+
+        String value = JbdParser.parseSerialNumber(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_SERIAL_NUMBER, 0, payload)));
+
+        assertEquals("258", value);
+    }
+
+    @Test
+    public void parseExtendedParams_decodesStartAndData() throws Exception {
+        byte[] payload = new byte[]{0x00, 0x75, 0x04, 0x01, 0x02, 0x03, 0x04};
+
+        JbdParser.ExtendedParams params = JbdParser.parseExtendedParams(JbdFrame.parse(JbdFrameTest.responseFrame(JbdCommands.CMD_EXTENDED_PARAMS, 0, payload)));
+
+        assertEquals(117, params.start);
+        assertEquals(4, params.data.length);
+        assertEquals(0x01, params.data[0]);
+        assertEquals(0x04, params.data[3]);
+    }
+
+    @Test
+    public void hexFromBytes_formatsSpaceSeparatedUppercaseBytes() {
+        assertEquals("00 0A FF", JbdParser.hexFromBytes(new byte[]{0x00, 0x0A, (byte) 0xFF}));
     }
 
     @Test(expected = JbdParseException.class)

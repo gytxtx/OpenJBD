@@ -23,6 +23,9 @@
     <string name="param_manufacturing_date">生产日期</string>
     <string name="param_nominal_capacity">标称容量</string>
     <string name="param_learn_capacity">学习容量</string>
+    <string name="param_extension_marker">扩展标记</string>
+    <string name="param_alter">Alter 值</string>
+    <string name="param_balance_current">均衡电流</string>
     <string name="param_remaining_capacity">剩余容量</string>
     <string name="param_soc">剩余电量</string>
     <string name="param_cycle_count">循环次数</string>

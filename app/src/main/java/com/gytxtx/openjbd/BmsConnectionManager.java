@@ -20,6 +20,7 @@ import android.os.Looper;
 import com.gytxtx.openjbd.ble.BleConstants;
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
 import com.gytxtx.openjbd.protocol.JbdCellVoltages;
+import com.gytxtx.openjbd.protocol.JbdDeviceInfo;
 import com.gytxtx.openjbd.protocol.JbdCommands;
 import com.gytxtx.openjbd.protocol.JbdFrame;
 import com.gytxtx.openjbd.protocol.JbdFrameAssembler;
@@ -33,17 +34,22 @@ final class BmsConnectionManager {
     private static BmsConnectionManager instance;
     private static final long AUTO_RECONNECT_BASE_DELAY_MS = 5000L;
     private static final long AUTO_RECONNECT_MAX_DELAY_MS = 30000L;
+    private static final long COMMAND_TIMEOUT_MS = 2200L;
+    private static final int EXT_RATINGS_START = 117;
+    private static final int EXT_BMS_ADDRESS_START = 170;
+    private static final int EXT_BMS_MODEL_START = 176;
 
     private final Context context;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final JbdFrameAssembler frameAssembler = new JbdFrameAssembler();
-    private final ArrayDeque<byte[]> commandQueue = new ArrayDeque<>();
+    private final ArrayDeque<CommandRequest> commandQueue = new ArrayDeque<>();
 
     private BluetoothAdapter adapter;
     private BluetoothGatt gatt;
     private BluetoothGattCharacteristic writeCharacteristic;
     private boolean connected;
     private boolean writeInFlight;
+    private CommandRequest currentCommand;
     private String connectedDeviceName;
     private String connectedDeviceAddress;
     private boolean autoReconnectEnabled;
@@ -53,23 +59,26 @@ final class BmsConnectionManager {
     private String autoReconnectName;
     private int reconnectAttempts;
     private long refreshIntervalMs = 2000L;
+    private boolean extendedInfoRequested;
 
     private final Runnable pollRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!connected) {
+            if (!connected || writeInFlight || currentCommand != null || !commandQueue.isEmpty()) {
                 return;
             }
-            sendCommand(JbdCommands.readBasicInfo());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (connected) {
-                        sendCommand(JbdCommands.readCellVoltage());
-                    }
-                }
-            }, 250L);
-            handler.postDelayed(this, refreshIntervalMs);
+            enqueuePollCycle();
+            drainCommandQueue();
+        }
+    };
+
+    private final Runnable commandTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (currentCommand == null) {
+                return;
+            }
+            completeCurrentCommand();
         }
     };
 
@@ -105,9 +114,11 @@ final class BmsConnectionManager {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connected = false;
                 writeInFlight = false;
+                currentCommand = null;
                 commandQueue.clear();
                 writeCharacteristic = null;
                 handler.removeCallbacks(pollRunnable);
+                handler.removeCallbacks(commandTimeoutRunnable);
                 frameAssembler.reset();
                 gatt = null;
                 bluetoothGatt.close();
@@ -155,8 +166,11 @@ final class BmsConnectionManager {
         @Override
         public void onCharacteristicWrite(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic, int status) {
             writeInFlight = false;
-            if (!commandQueue.isEmpty() && connected) {
-                sendCommand(commandQueue.removeFirst());
+            if (status == BluetoothGatt.GATT_SUCCESS && currentCommand != null) {
+                handler.removeCallbacks(commandTimeoutRunnable);
+                handler.postDelayed(commandTimeoutRunnable, COMMAND_TIMEOUT_MS);
+            } else {
+                completeCurrentCommand();
             }
         }
 
@@ -226,6 +240,7 @@ final class BmsConnectionManager {
         intentionalDisconnect = false;
         if (!reconnect) {
             reconnectAttempts = 0;
+            extendedInfoRequested = false;
         }
         if (adapter == null) {
             handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_UNAVAILABLE, context.getString(R.string.status_bluetooth_unavailable), reconnect);
@@ -265,8 +280,10 @@ final class BmsConnectionManager {
         handler.removeCallbacks(pollRunnable);
         connected = false;
         writeInFlight = false;
+        currentCommand = null;
         commandQueue.clear();
         writeCharacteristic = null;
+        handler.removeCallbacks(commandTimeoutRunnable);
         frameAssembler.reset();
         if (gatt != null) {
             gatt.disconnect();
@@ -304,25 +321,55 @@ final class BmsConnectionManager {
         handler.postDelayed(pollRunnable, 500L);
     }
 
-    @SuppressLint("MissingPermission")
-    private void sendCommand(byte[] command) {
-        if (gatt == null || writeCharacteristic == null || writeInFlight) {
-            if (connected && writeInFlight && commandQueue.size() < 4) {
-                commandQueue.addLast(command);
-            }
+    private void enqueuePollCycle() {
+        commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_BASIC_INFO, CommandKind.BASIC_INFO));
+        commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_CELL_VOLTAGE, CommandKind.CELL_VOLTAGES));
+        if (!extendedInfoRequested) {
+            extendedInfoRequested = true;
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_FACTORY_MODE, CommandKind.FACTORY_MODE, JbdCommands.openFactoryMode()));
+            commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_SERIAL_NUMBER, CommandKind.SERIAL_NUMBER));
+            commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_BARCODE, CommandKind.BARCODE));
+            commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_MANUFACTURER, CommandKind.MANUFACTURER));
+            commandQueue.addLast(CommandRequest.read(JbdCommands.CMD_BATTERY_MODEL, CommandKind.BATTERY_MODEL));
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_RATINGS, JbdCommands.readExtendedParams(EXT_RATINGS_START, 4)));
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_BMS_ADDRESS, JbdCommands.readExtendedParams(EXT_BMS_ADDRESS_START, 6)));
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_EXTENDED_PARAMS, CommandKind.EXT_BMS_MODEL, JbdCommands.readExtendedParams(EXT_BMS_MODEL_START, 8)));
+            commandQueue.addLast(new CommandRequest(JbdCommands.CMD_CLOSE_FACTORY_MODE, CommandKind.CLOSE_FACTORY_MODE, JbdCommands.closeFactoryMode()));
+        }
+    }
+
+    private void drainCommandQueue() {
+        if (!connected || writeInFlight || currentCommand != null) {
             return;
         }
+        CommandRequest request = commandQueue.pollFirst();
+        if (request == null) {
+            handler.removeCallbacks(pollRunnable);
+            handler.postDelayed(pollRunnable, refreshIntervalMs);
+            return;
+        }
+        sendCommand(request);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void sendCommand(CommandRequest request) {
+        if (gatt == null || writeCharacteristic == null || writeInFlight || currentCommand != null) {
+            return;
+        }
+        currentCommand = request;
         writeInFlight = true;
         boolean started;
         if (Build.VERSION.SDK_INT >= 33) {
-            started = gatt.writeCharacteristic(writeCharacteristic, command, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == BluetoothGatt.GATT_SUCCESS;
+            started = gatt.writeCharacteristic(writeCharacteristic, request.command, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == BluetoothGatt.GATT_SUCCESS;
         } else {
             writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            writeCharacteristic.setValue(command);
+            writeCharacteristic.setValue(request.command);
             started = gatt.writeCharacteristic(writeCharacteristic);
         }
         if (!started) {
             writeInFlight = false;
+            currentCommand = null;
+            drainCommandQueue();
         }
     }
 
@@ -344,14 +391,81 @@ final class BmsConnectionManager {
                             JbdCellVoltages voltages = JbdParser.parseCellVoltages(frame);
                             BmsStateStore.Snapshot current = BmsStateStore.getSnapshot();
                             updateState(current.withCellVoltages(voltages, current.status));
+                        } else {
+                            handleDeviceInfoFrame(frame);
+                        }
+                        if (currentCommand != null && frame.command == (currentCommand.responseCommand & 0xFF)) {
+                            completeCurrentCommand();
                         }
                     } catch (JbdParseException e) {
                         BmsStateStore.Snapshot current = BmsStateStore.getSnapshot();
                         updateState(current.withConnectionState(BmsStateStore.ConnectionState.PARSE_ERROR, connected, context.getString(R.string.status_parse_error, e.getMessage())));
+                        if (currentCommand != null && frame.command == (currentCommand.responseCommand & 0xFF)) {
+                            completeCurrentCommand();
+                        }
                     }
                 }
             }
         });
+    }
+
+    private void handleDeviceInfoFrame(JbdFrame frame) throws JbdParseException {
+        if (currentCommand == null || frame.command != (currentCommand.responseCommand & 0xFF)) {
+            return;
+        }
+        BmsStateStore.Snapshot snapshot = BmsStateStore.getSnapshot();
+        JbdDeviceInfo info = snapshot.deviceInfo == null ? JbdDeviceInfo.EMPTY : snapshot.deviceInfo;
+        switch (currentCommand.kind) {
+            case SERIAL_NUMBER:
+                info = info.withSerialNumber(JbdParser.parseSerialNumber(frame));
+                break;
+            case BARCODE:
+                info = info.withBarcode(JbdParser.parseText(frame));
+                break;
+            case MANUFACTURER:
+                info = info.withManufacturer(JbdParser.parseText(frame));
+                break;
+            case BATTERY_MODEL:
+                info = info.withBatteryModel(JbdParser.parseText(frame));
+                break;
+            case EXT_RATINGS:
+            case EXT_BMS_ADDRESS:
+            case EXT_BMS_MODEL:
+                info = applyExtendedParams(info, JbdParser.parseExtendedParams(frame));
+                break;
+            default:
+                break;
+        }
+        if (info.hasAnyField()) {
+            updateState(snapshot.withDeviceInfo(info, snapshot.status));
+        }
+    }
+
+    private JbdDeviceInfo applyExtendedParams(JbdDeviceInfo info, JbdParser.ExtendedParams params) {
+        if (params.start == EXT_RATINGS_START && params.data.length >= 8) {
+            float dischargeCurrent = u16(params.data, 2);
+            float chargeCurrent = u16(params.data, 4);
+            float dischargePower = u16(params.data, 6);
+            return info.withRatings(chargeCurrent, dischargeCurrent, dischargePower);
+        }
+        if (params.start == EXT_BMS_ADDRESS_START) {
+            return info.withBmsAddress(JbdParser.hexFromBytes(params.data));
+        }
+        if (params.start == EXT_BMS_MODEL_START) {
+            return info.withBmsModel(JbdParser.textFromBytes(params.data));
+        }
+        return info;
+    }
+
+    private int u16(byte[] data, int offset) {
+        return ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
+    }
+
+    private void completeCurrentCommand() {
+        handler.removeCallbacks(commandTimeoutRunnable);
+        currentCommand = null;
+        writeInFlight = false;
+        drainCommandQueue();
     }
 
     private void failConnection(BmsStateStore.ConnectionState state, String message) {
@@ -407,6 +521,36 @@ final class BmsConnectionManager {
         BmsStateStore.update(snapshot);
         if (snapshot.basicInfo != null) {
             BmsDashboardStore.update(new BmsDashboardStore.Snapshot(snapshot.basicInfo.soc, snapshot.basicInfo.totalVoltage, snapshot.basicInfo.current, snapshot.basicInfo.totalVoltage * snapshot.basicInfo.current));
+        }
+    }
+
+    private enum CommandKind {
+        BASIC_INFO,
+        CELL_VOLTAGES,
+        FACTORY_MODE,
+        CLOSE_FACTORY_MODE,
+        SERIAL_NUMBER,
+        BARCODE,
+        MANUFACTURER,
+        BATTERY_MODEL,
+        EXT_RATINGS,
+        EXT_BMS_ADDRESS,
+        EXT_BMS_MODEL
+    }
+
+    private static final class CommandRequest {
+        final byte responseCommand;
+        final CommandKind kind;
+        final byte[] command;
+
+        CommandRequest(byte responseCommand, CommandKind kind, byte[] command) {
+            this.responseCommand = responseCommand;
+            this.kind = kind;
+            this.command = command;
+        }
+
+        static CommandRequest read(byte command, CommandKind kind) {
+            return new CommandRequest(command, kind, JbdCommands.readCommand(command));
         }
     }
 }

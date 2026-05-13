@@ -20,6 +20,11 @@ public final class JbdBasicInfo {
     public final List<Float> temperaturesC;
     public final boolean hasLearnCapacity;
     public final float learnCapacityAh;
+    public final boolean hasExtendedInfo;
+    public final int extensionMarker;
+    public final int alter;
+    public final boolean hasBalanceCurrent;
+    public final float balanceCurrentA;
 
     JbdBasicInfo(
             float totalVoltage,
@@ -36,7 +41,12 @@ public final class JbdBasicInfo {
             String softwareVersion,
             List<Float> temperaturesC,
             boolean hasLearnCapacity,
-            float learnCapacityAh
+            float learnCapacityAh,
+            boolean hasExtendedInfo,
+            int extensionMarker,
+            int alter,
+            boolean hasBalanceCurrent,
+            float balanceCurrentA
     ) {
         this.totalVoltage = totalVoltage;
         this.current = current;
@@ -53,6 +63,11 @@ public final class JbdBasicInfo {
         this.temperaturesC = Collections.unmodifiableList(new ArrayList<>(temperaturesC));
         this.hasLearnCapacity = hasLearnCapacity;
         this.learnCapacityAh = learnCapacityAh;
+        this.hasExtendedInfo = hasExtendedInfo;
+        this.extensionMarker = extensionMarker;
+        this.alter = alter;
+        this.hasBalanceCurrent = hasBalanceCurrent;
+        this.balanceCurrentA = balanceCurrentA;
     }
 
     public float learnedOrNominalAh() {

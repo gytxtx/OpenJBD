@@ -1,9 +1,12 @@
 package com.gytxtx.openjbd.protocol;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class JbdParser {
+    private static final Charset GB2312 = Charset.forName("GB2312");
+
     private JbdParser() {
     }
 
@@ -42,15 +45,30 @@ public final class JbdParser {
 
         boolean hasLearnCapacity = false;
         float learnCapacityAh = 0f;
+        boolean hasExtendedInfo = false;
+        int extensionMarker = 0;
+        int alter = 0;
+        boolean hasBalanceCurrent = false;
+        float balanceCurrentA = 0f;
         int extraStart = 23 + ntcCount * 2;
+        if (extraStart < p.length) {
+            extensionMarker = p[extraStart] & 0xFF;
+        }
+        if (extraStart + 2 < p.length) {
+            alter = u16(p, extraStart + 1);
+        }
         if (extraStart + 4 < p.length) {
-            int humidity = p[extraStart] & 0xFF;
+            hasExtendedInfo = true;
             learnCapacityAh = u16(p, extraStart + 3) / 100f;
             hasLearnCapacity = learnCapacityAh > 0f;
-            if (humidity == 136) {
+            if (extensionMarker == 136) {
                 current = s16(p, 2) / 10f;
                 remainingAh = u16(p, 4) / 10f;
             }
+        }
+        if (extraStart + 6 < p.length) {
+            hasBalanceCurrent = true;
+            balanceCurrentA = u16(p, extraStart + 5) / 100f;
         }
 
         return new JbdBasicInfo(
@@ -68,7 +86,12 @@ public final class JbdParser {
                 version,
                 temps,
                 hasLearnCapacity,
-                learnCapacityAh
+                learnCapacityAh,
+                hasExtendedInfo,
+                extensionMarker,
+                alter,
+                hasBalanceCurrent,
+                balanceCurrentA
         );
     }
 
@@ -89,6 +112,36 @@ public final class JbdParser {
         return new JbdCellVoltages(cells);
     }
 
+    public static String parseText(JbdFrame frame) throws JbdParseException {
+        if (frame.status != 0) {
+            throw new JbdParseException("BMS returned status " + frame.status);
+        }
+        return new String(frame.payload, GB2312).replace('\u0000', ' ').trim();
+    }
+
+    public static String parseSerialNumber(JbdFrame frame) throws JbdParseException {
+        if (frame.status != 0) {
+            throw new JbdParseException("BMS returned status " + frame.status);
+        }
+        if (frame.payload.length < 2) {
+            throw new JbdParseException("Serial-number payload too short");
+        }
+        return Integer.toString(u16(frame.payload, 0));
+    }
+
+    public static ExtendedParams parseExtendedParams(JbdFrame frame) throws JbdParseException {
+        if (frame.command != (JbdCommands.CMD_EXTENDED_PARAMS & 0xFF)) {
+            throw new JbdParseException("Not an extended-params frame");
+        }
+        if (frame.status != 0) {
+            throw new JbdParseException("BMS returned status " + frame.status);
+        }
+        if (frame.payload.length < 3) {
+            throw new JbdParseException("Extended-params payload too short");
+        }
+        return new ExtendedParams(u16(frame.payload, 0), copyOfRange(frame.payload, 3, frame.payload.length));
+    }
+
     static int u16(byte[] data, int offset) {
         return ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
     }
@@ -96,6 +149,30 @@ public final class JbdParser {
     static int s16(byte[] data, int offset) {
         int value = u16(data, offset);
         return value >= 0x8000 ? value - 0x10000 : value;
+    }
+
+    public static String textFromBytes(byte[] data) {
+        return new String(data, GB2312).replace('\u0000', ' ').trim();
+    }
+
+    public static String hexFromBytes(byte[] data) {
+        char[] table = "0123456789ABCDEF".toCharArray();
+        StringBuilder builder = new StringBuilder(data.length * 3);
+        for (int i = 0; i < data.length; i++) {
+            if (i > 0) {
+                builder.append(' ');
+            }
+            int value = data[i] & 0xFF;
+            builder.append(table[value >>> 4]);
+            builder.append(table[value & 0x0F]);
+        }
+        return builder.toString();
+    }
+
+    private static byte[] copyOfRange(byte[] data, int start, int end) {
+        byte[] out = new byte[end - start];
+        System.arraycopy(data, start, out, 0, out.length);
+        return out;
     }
 
     private static String productionDate(int value) {
@@ -111,5 +188,15 @@ public final class JbdParser {
             return hex;
         }
         return hex.substring(0, 1) + "." + hex.substring(1);
+    }
+
+    public static final class ExtendedParams {
+        public final int start;
+        public final byte[] data;
+
+        ExtendedParams(int start, byte[] data) {
+            this.start = start;
+            this.data = data;
+        }
     }
 }
