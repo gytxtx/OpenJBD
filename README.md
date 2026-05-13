@@ -1,12 +1,12 @@
 # OpenJBD MVP
 
-OpenJBD MVP 是一个面向 JBD / 小象 BMS 的本地 Android BLE 监控应用。目标是做一个轻量、直接、无需账号的替代客户端：打开 App，连接电池，读取关键状态，不经过云端，也不把查看电池电压这种基础操作绑到登录流程上。
+OpenJBD MVP 是一个面向 嘉佰达(Jiabaida) / 小象 BMS 的本地 Android BLE 监控应用。目标是做一个轻量、直接、无需账号的替代客户端：打开 App，连接电池，读取关键状态，不经过云端，也不把查看电池电压这种基础操作绑到登录流程上。
 
 当前版本以只读监控为主，暂不提供写参数、校准、开关保护阈值等高风险操作。
 
 ## 功能
 
-- BLE 扫描并连接 JBD BMS 设备。
+- BLE 扫描并连接嘉佰达 BMS 设备。
 - 显示电池总览：SOC、总电压、电流、功率、剩余/学习容量、循环次数和充放电剩余时间估算。
 - 显示 MOS 状态、温度信息、单体电压列表。
 - 显示单体最高电压、最低电压、压差、平均电压。
@@ -109,7 +109,7 @@ app/build/outputs/apk/debug/app-debug.apk
 
 ## 与原版软件对比
 
-| 项目 | OpenJBD MVP | 原版小象 / JBD App |
+| 项目 | OpenJBD MVP | 原版小象 / 嘉佰达 App |
 | --- | --- | --- |
 | 基础查看 | 直接连接后查看 | 常见流程会先引导登录 |
 | 账号依赖 | 无账号、无云端 | 包含账号、绑定、云端相关逻辑 |
@@ -135,11 +135,11 @@ app/build/outputs/apk/debug/app-debug.apk
 - 暂不支持 OTA、校准、保护阈值配置。
 - 参数页的厂商扩展字段仍需补充读取命令。
 - 自动重连依赖 Android BLE 栈回调；如果系统关闭蓝牙、权限被撤销或设备长时间休眠，需要恢复环境后才能继续重连。
-- BLE 协议兼容性主要围绕已测试的 JBD BMS，其他兼容设备可能需要调整 UUID 或解析逻辑。
+- BLE 协议兼容性主要围绕已测试的嘉佰达 BMS，其他兼容设备可能需要调整 UUID 或解析逻辑。
 
 ## 参考
 
-- JBD BMS 通信协议资料：<https://shishir-dey.github.io/open_battery/>
+- 嘉佰达 BMS 通信协议资料：<https://shishir-dey.github.io/open_battery/>
 - 原版 APK 反编译工程：用于理解页面结构和 BLE 交互逻辑。
 
 ## 协议
