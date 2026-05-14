@@ -137,6 +137,9 @@
     <string name="device_row_subtitle">%1$s  /  %2$s  /  RSSI %3$d</string>
     <string name="device_unnamed">未命名设备</string>
     <string name="settings_title">设置</string>
+    <string name="settings_group_interface">界面</string>
+    <string name="settings_group_device">设备</string>
+    <string name="settings_group_other">其他</string>
     <string name="setting_theme">App 主题</string>
     <string name="setting_theme_auto">自动</string>
     <string name="setting_theme_light">Light</string>

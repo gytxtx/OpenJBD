@@ -137,6 +137,9 @@
     <string name="device_row_subtitle">%1$s  /  %2$s  /  RSSI %3$d</string>
     <string name="device_unnamed">Unnamed device</string>
     <string name="settings_title">Settings</string>
+    <string name="settings_group_interface">Interface</string>
+    <string name="settings_group_device">Device</string>
+    <string name="settings_group_other">Other</string>
     <string name="setting_theme">App theme</string>
     <string name="setting_theme_auto">Automatic</string>
     <string name="setting_theme_light">Light</string>

@@ -19,7 +19,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public final class SettingsFragment extends Fragment implements BmsStateStore.Listener {
-    private LinearLayout settingsList;
+    private LinearLayout interfaceSettingsList;
+    private LinearLayout deviceSettingsList;
+    private LinearLayout otherSettingsList;
     private SettingsAdapter settingsAdapter;
     private BmsConnectionManager connectionManager;
     private boolean connected;
@@ -33,7 +35,9 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         connectionManager = BmsConnectionManager.getInstance(requireContext());
-        settingsList = view.findViewById(R.id.list_settings);
+        interfaceSettingsList = view.findViewById(R.id.list_settings_interface);
+        deviceSettingsList = view.findViewById(R.id.list_settings_device);
+        otherSettingsList = view.findViewById(R.id.list_settings_other);
         settingsAdapter = new SettingsAdapter();
         connected = BmsStateStore.getSnapshot().connected;
         renderSettingsRows();
@@ -58,10 +62,13 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
     }
 
     private void renderSettingsRows() {
-        settingsList.removeAllViews();
+        interfaceSettingsList.removeAllViews();
+        deviceSettingsList.removeAllViews();
+        otherSettingsList.removeAllViews();
         for (int i = 0; i < settingsAdapter.getCount(); i++) {
             final int position = i;
-            View row = settingsAdapter.getView(position, null, settingsList);
+            LinearLayout parent = settingsGroupParent(position);
+            View row = settingsAdapter.getView(position, null, parent);
             row.setOnClickListener(view -> {
                 SwitchMaterial settingSwitch = view.findViewById(R.id.switch_setting_action);
                 if (settingSwitch != null && settingSwitch.getVisibility() == View.VISIBLE) {
@@ -70,8 +77,18 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                     showSettingMenu(position);
                 }
             });
-            settingsList.addView(row);
+            parent.addView(row);
         }
+    }
+
+    private LinearLayout settingsGroupParent(int position) {
+        if (position <= 3) {
+            return interfaceSettingsList;
+        }
+        if (position == 4) {
+            return deviceSettingsList;
+        }
+        return otherSettingsList;
     }
 
     private void showSettingMenu(int position) {
