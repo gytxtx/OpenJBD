@@ -29,8 +29,6 @@
                 android:layout_height="wrap_content"
                 android:divider="@drawable/divider_card_stroke"
                 android:orientation="vertical"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
                 android:showDividers="middle" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -50,8 +48,6 @@
                 android:layout_height="wrap_content"
                 android:divider="@drawable/divider_card_stroke"
                 android:orientation="vertical"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
                 android:showDividers="middle" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -71,8 +67,6 @@
                 android:layout_height="wrap_content"
                 android:divider="@drawable/divider_card_stroke"
                 android:orientation="vertical"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
                 android:showDividers="middle" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
