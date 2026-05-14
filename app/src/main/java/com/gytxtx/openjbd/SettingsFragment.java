@@ -93,9 +93,9 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private void showSettingMenu(int position) {
         if (position == 0) {
-            showRadioDialog(R.string.setting_theme, settings().getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO),
-                    new String[]{getString(R.string.setting_theme_auto), getString(R.string.setting_theme_light), getString(R.string.setting_theme_dark)},
-                    new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_LIGHT, AppSettings.VALUE_DARK},
+            showRadioDialog(R.string.setting_dark_theme, settings().getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO),
+                    new String[]{getString(R.string.setting_dark_theme_system), getString(R.string.setting_dark_theme_always_on), getString(R.string.setting_dark_theme_always_off)},
+                    new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_DARK, AppSettings.VALUE_LIGHT},
                     value -> {
                         settings().edit().putString(AppSettings.PREF_THEME, value).apply();
                         AppSettings.applyThemePreference(requireContext());
@@ -192,13 +192,13 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
     }
 
     private String themeLabel(String value) {
-        if (AppSettings.VALUE_LIGHT.equals(value)) {
-            return getString(R.string.setting_theme_light);
-        }
         if (AppSettings.VALUE_DARK.equals(value)) {
-            return getString(R.string.setting_theme_dark);
+            return getString(R.string.setting_dark_theme_always_on);
         }
-        return getString(R.string.setting_theme_auto);
+        if (AppSettings.VALUE_LIGHT.equals(value)) {
+            return getString(R.string.setting_dark_theme_always_off);
+        }
+        return getString(R.string.setting_dark_theme_system);
     }
 
     private String languageLabel(String value) {
@@ -262,8 +262,8 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             settingSwitch.setVisibility(View.GONE);
             SharedPreferences prefs = settings();
             if (position == 0) {
-                icon.setImageResource(R.drawable.ic_palette_24);
-                title.setText(R.string.setting_theme);
+                icon.setImageResource(R.drawable.ic_brightness_medium_24);
+                title.setText(R.string.setting_dark_theme);
                 subtitle.setText(themeLabel(prefs.getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO)));
             } else if (position == 1) {
                 icon.setImageResource(R.drawable.ic_language_24);

@@ -140,10 +140,10 @@
     <string name="settings_group_interface">界面</string>
     <string name="settings_group_device">设备</string>
     <string name="settings_group_other">其他</string>
-    <string name="setting_theme">App 主题</string>
-    <string name="setting_theme_auto">自动</string>
-    <string name="setting_theme_light">Light</string>
-    <string name="setting_theme_dark">Dark</string>
+    <string name="setting_dark_theme">深色主题</string>
+    <string name="setting_dark_theme_system">跟随系统</string>
+    <string name="setting_dark_theme_always_on">总是开启</string>
+    <string name="setting_dark_theme_always_off">总是关闭</string>
     <string name="setting_language">语言</string>
     <string name="setting_language_auto">自动</string>
     <string name="setting_language_zh">简体中文</string>

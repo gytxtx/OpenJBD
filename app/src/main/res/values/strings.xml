@@ -140,10 +140,10 @@
     <string name="settings_group_interface">Interface</string>
     <string name="settings_group_device">Device</string>
     <string name="settings_group_other">Other</string>
-    <string name="setting_theme">App theme</string>
-    <string name="setting_theme_auto">Automatic</string>
-    <string name="setting_theme_light">Light</string>
-    <string name="setting_theme_dark">Dark</string>
+    <string name="setting_dark_theme">Dark theme</string>
+    <string name="setting_dark_theme_system">Follow system</string>
+    <string name="setting_dark_theme_always_on">Always on</string>
+    <string name="setting_dark_theme_always_off">Always off</string>
     <string name="setting_language">Language</string>
     <string name="setting_language_auto">Automatic</string>
     <string name="setting_language_zh">Simplified Chinese</string>
