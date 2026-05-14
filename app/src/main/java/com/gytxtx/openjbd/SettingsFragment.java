@@ -258,8 +258,10 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             TextView title = row.findViewById(R.id.txt_setting_title);
             TextView subtitle = row.findViewById(R.id.txt_setting_subtitle);
             SwitchMaterial settingSwitch = row.findViewById(R.id.switch_setting_action);
+            ImageView chevron = row.findViewById(R.id.img_setting_chevron);
             settingSwitch.setOnCheckedChangeListener(null);
             settingSwitch.setVisibility(View.GONE);
+            chevron.setVisibility(View.GONE);
             SharedPreferences prefs = settings();
             if (position == 0) {
                 icon.setImageResource(R.drawable.ic_brightness_medium_24);
@@ -293,6 +295,9 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 icon.setImageResource(R.drawable.ic_info_24);
                 title.setText(R.string.setting_about);
                 subtitle.setText(R.string.setting_about_subtitle);
+                chevron.setImageResource(R.drawable.ic_chevron_right_24);
+                chevron.setColorFilter(requireContext().getColor(R.color.text_secondary));
+                chevron.setVisibility(View.VISIBLE);
             }
             icon.setColorFilter(requireContext().getColor(R.color.icon_default));
             return row;
