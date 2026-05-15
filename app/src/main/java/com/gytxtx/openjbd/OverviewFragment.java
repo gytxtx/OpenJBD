@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -29,7 +28,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private LinearLayout cellStatsGrid;
     private LinearLayout cellList;
     private TextView statusText;
-    private MaterialButton cancelReconnectButton;
+    private TextView cancelReconnectButton;
     private TextView voltageText;
     private TextView currentText;
     private TextView powerText;
