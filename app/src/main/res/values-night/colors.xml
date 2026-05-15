@@ -8,6 +8,7 @@
     <color name="danger">#FF8A80</color>
     <color name="surface">#1B2026</color>
     <color name="card_stroke">#2A313A</color>
+    <color name="progress_track">#303842</color>
     <color name="text_primary">#E8EAED</color>
     <color name="text_secondary">#A8B0BA</color>
     <color name="icon_default">#B8C1CC</color>

@@ -45,6 +45,6 @@
             android:layout_marginTop="9dp"
             android:max="1000"
             app:indicatorColor="@color/text_secondary"
-            app:trackColor="#E6EBF1" />
+            app:trackColor="@color/progress_track" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

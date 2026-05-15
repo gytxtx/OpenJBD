@@ -60,7 +60,7 @@
                 style="@style/OpenJbdMaterialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:id="@+id/txt_status"
@@ -76,7 +76,7 @@
                 style="@style/OpenJbdMaterialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -110,7 +110,7 @@
                         android:max="100"
                         android:progress="0"
                         app:indicatorColor="@color/accent"
-                        app:trackColor="#DEE4EB" />
+                        app:trackColor="@color/progress_track" />
 
                     <TextView
                         android:id="@+id/txt_soc_note"
