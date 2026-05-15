@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -28,6 +29,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private LinearLayout cellStatsGrid;
     private LinearLayout cellList;
     private TextView statusText;
+    private MaterialButton cancelReconnectButton;
     private TextView voltageText;
     private TextView currentText;
     private TextView powerText;
@@ -60,6 +62,13 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         placeholderConnect = view.findViewById(R.id.placeholder_connect);
         connectedOverviewContent = view.findViewById(R.id.content_connected_overview);
         statusText = view.findViewById(R.id.txt_status);
+        cancelReconnectButton = view.findViewById(R.id.btn_cancel_reconnect);
+        cancelReconnectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View button) {
+                BmsConnectionManager.getInstance(requireContext()).cancelReconnect();
+            }
+        });
         socText = view.findViewById(R.id.txt_soc);
         socProgress = view.findViewById(R.id.progress_soc);
         voltageText = view.findViewById(R.id.txt_voltage);
@@ -113,8 +122,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         if (statusText == null) {
             return;
         }
+        renderReconnectAction(snapshot);
         if (snapshot.basicInfo == null) {
             clearDeviceData();
+            renderReconnectAction(snapshot);
             if (snapshot.status != null && snapshot.status.length() > 0) {
                 setStatus(snapshot.status);
             }
@@ -226,6 +237,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     }
 
     private void clearDeviceData() {
+        cancelReconnectButton.setVisibility(View.GONE);
         voltageText.setText("--");
         currentText.setText("--");
         powerText.setText("--");
@@ -364,6 +376,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
 
     private void setStatus(String status) {
         setTextIfChanged(statusText, status);
+    }
+
+    private void renderReconnectAction(BmsStateStore.Snapshot snapshot) {
+        cancelReconnectButton.setVisibility(snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT ? View.VISIBLE : View.GONE);
     }
 
     private int dp(int value) {

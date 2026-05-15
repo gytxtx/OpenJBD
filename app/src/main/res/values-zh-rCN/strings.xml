@@ -4,6 +4,8 @@
     <string name="toolbar_devices_title">设备</string>
     <string name="toolbar_devices_subtitle">电池和显示屏设备</string>
     <string name="action_disconnect">断开连接</string>
+    <string name="action_cancel_reconnect">取消重连</string>
+    <string name="action_cancel">取消</string>
     <string name="action_back">返回</string>
     <string name="action_dashboard">仪表盘</string>
     <string name="action_refresh">刷新</string>
@@ -70,6 +72,7 @@
     <string name="status_auto_connect_invalid_device">自动连接失败：保存的设备地址无效。</string>
     <string name="status_connection_lost">连接已断开。</string>
     <string name="status_reconnecting">%1$s %2$d 秒后自动重连...</string>
+    <string name="status_reconnect_cancelled">已取消本次重连。可点击列表按钮重新连接。</string>
     <string name="status_connected_discovering">已连接，正在发现服务...</string>
     <string name="status_service_discovery_start_failed">无法启动服务发现</string>
     <string name="status_service_discovery_failed">服务发现失败：%1$d</string>

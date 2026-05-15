@@ -270,6 +270,17 @@ final class BmsConnectionManager {
         disconnect(true);
     }
 
+    void cancelReconnect() {
+        handler.removeCallbacks(reconnectRunnable);
+        if (!reconnectScheduled && BmsStateStore.getSnapshot().connectionState != BmsStateStore.ConnectionState.WAITING_RECONNECT) {
+            return;
+        }
+        intentionalDisconnect = true;
+        reconnectScheduled = false;
+        reconnectAttempts = 0;
+        publishDisconnected(BmsStateStore.ConnectionState.DISCONNECTED, context.getString(R.string.status_reconnect_cancelled));
+    }
+
     @SuppressLint("MissingPermission")
     private void disconnect(boolean publishState) {
         if (publishState) {
