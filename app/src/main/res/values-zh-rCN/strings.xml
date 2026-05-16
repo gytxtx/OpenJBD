@@ -73,6 +73,7 @@
     <string name="status_connection_lost">连接已断开。</string>
     <string name="status_reconnecting">%1$s %2$d 秒后自动重连...</string>
     <string name="status_reconnect_cancelled">已取消本次重连。可点击列表按钮重新连接。</string>
+    <string name="reconnect_banner_title">连接已中断</string>
     <string name="status_connected_discovering">已连接，正在发现服务...</string>
     <string name="status_service_discovery_start_failed">无法启动服务发现</string>
     <string name="status_service_discovery_failed">服务发现失败：%1$d</string>

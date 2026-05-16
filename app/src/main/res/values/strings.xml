@@ -73,6 +73,7 @@
     <string name="status_connection_lost">Connection lost.</string>
     <string name="status_reconnecting">%1$s Reconnecting in %2$d seconds...</string>
     <string name="status_reconnect_cancelled">Reconnect cancelled. Use the list button to connect again.</string>
+    <string name="reconnect_banner_title">Connection interrupted</string>
     <string name="status_connected_discovering">Connected. Discovering services...</string>
     <string name="status_service_discovery_start_failed">Could not start service discovery</string>
     <string name="status_service_discovery_failed">Service discovery failed: %1$d</string>

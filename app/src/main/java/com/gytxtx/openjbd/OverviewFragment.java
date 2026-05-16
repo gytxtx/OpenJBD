@@ -1,11 +1,14 @@
 package com.gytxtx.openjbd;
 
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,12 +26,19 @@ import com.gytxtx.openjbd.protocol.JbdCellVoltages;
 import java.util.Locale;
 
 public final class OverviewFragment extends Fragment implements BmsStateStore.Listener {
+    private static final long RECONNECT_BANNER_ENTER_MS = 180L;
+    private static final long RECONNECT_BANNER_EXIT_MS = 140L;
+
     private LinearLayout placeholderConnect;
     private LinearLayout connectedOverviewContent;
     private LinearLayout cellStatsGrid;
     private LinearLayout cellList;
+    private View reconnectBanner;
+    private TextView reconnectBannerBody;
     private TextView statusText;
-    private TextView cancelReconnectButton;
+    private ValueAnimator reconnectBannerAnimator;
+    private boolean reconnectBannerVisible;
+    private boolean hideOverviewAfterReconnectBanner;
     private TextView voltageText;
     private TextView currentText;
     private TextView powerText;
@@ -60,8 +70,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         placeholderConnect = view.findViewById(R.id.placeholder_connect);
         connectedOverviewContent = view.findViewById(R.id.content_connected_overview);
+        reconnectBanner = view.findViewById(R.id.banner_reconnect);
+        reconnectBannerBody = view.findViewById(R.id.txt_reconnect_banner_body);
         statusText = view.findViewById(R.id.txt_status);
-        cancelReconnectButton = view.findViewById(R.id.btn_cancel_reconnect);
+        View cancelReconnectButton = view.findViewById(R.id.btn_cancel_reconnect);
         cancelReconnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View button) {
@@ -121,19 +133,27 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         if (statusText == null) {
             return;
         }
-        renderReconnectAction(snapshot);
         if (snapshot.basicInfo == null) {
+            boolean showReconnectBanner = snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT;
+            boolean showOverview = showReconnectBanner || snapshot.connected || snapshot.deviceName != null;
+            boolean bannerVisibleOrExiting = reconnectBannerVisible || reconnectBanner.getVisibility() == View.VISIBLE;
+            boolean waitForBannerExit = bannerVisibleOrExiting && !showOverview;
             clearDeviceData();
+            if (showOverview || waitForBannerExit) {
+                showConnectedContent();
+            } else {
+                showEmptyContent();
+            }
+            hideOverviewAfterReconnectBanner = waitForBannerExit;
             renderReconnectAction(snapshot);
             if (snapshot.status != null && snapshot.status.length() > 0) {
                 setStatus(snapshot.status);
             }
-            if (snapshot.connected || snapshot.deviceName != null) {
-                showConnectedContent();
-            }
             return;
         }
+        hideOverviewAfterReconnectBanner = false;
         showConnectedContent();
+        renderReconnectAction(snapshot);
         setStatus(snapshot.status);
         if (snapshot.basicInfo != lastRenderedBasicInfo) {
             renderBasicInfo(snapshot.basicInfo);
@@ -236,7 +256,6 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     }
 
     private void clearDeviceData() {
-        cancelReconnectButton.setVisibility(View.GONE);
         voltageText.setText("--");
         currentText.setText("--");
         powerText.setText("--");
@@ -262,8 +281,6 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         lastTemperatureSignature = "";
         showEmptyCells();
         setStatus(getString(R.string.status_select_bms));
-        connectedOverviewContent.setVisibility(View.GONE);
-        placeholderConnect.setVisibility(View.VISIBLE);
     }
 
     private void showEmptyCells() {
@@ -276,6 +293,11 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private void showConnectedContent() {
         placeholderConnect.setVisibility(View.GONE);
         connectedOverviewContent.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyContent() {
+        connectedOverviewContent.setVisibility(View.GONE);
+        placeholderConnect.setVisibility(View.VISIBLE);
     }
 
     private TextView text(String value, int sp, int color, int style) {
@@ -378,7 +400,154 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     }
 
     private void renderReconnectAction(BmsStateStore.Snapshot snapshot) {
-        cancelReconnectButton.setVisibility(snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT ? View.VISIBLE : View.GONE);
+        showReconnectBanner(snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT, snapshot.status);
+    }
+
+    private void showReconnectBanner(boolean show, String status) {
+        if (show) {
+            setTextIfChanged(reconnectBannerBody, status == null ? "" : status);
+            if (reconnectBannerVisible && reconnectBanner.getVisibility() == View.VISIBLE) {
+                return;
+            }
+            cancelReconnectBannerAnimation();
+            reconnectBannerVisible = true;
+            animateReconnectBannerIn();
+            return;
+        }
+        if (!reconnectBannerVisible) {
+            if (reconnectBanner.getVisibility() != View.VISIBLE) {
+                reconnectBanner.setVisibility(View.GONE);
+            }
+            return;
+        }
+        cancelReconnectBannerAnimation();
+        reconnectBannerVisible = false;
+        animateReconnectBannerOut();
+    }
+
+    private void cancelReconnectBannerAnimation() {
+        if (reconnectBannerAnimator != null) {
+            reconnectBannerAnimator.cancel();
+            reconnectBannerAnimator = null;
+        }
+        reconnectBanner.animate().cancel();
+    }
+
+    private void animateReconnectBannerIn() {
+        reconnectBanner.setVisibility(View.VISIBLE);
+        int targetHeight = measureReconnectBannerHeight();
+        if (targetHeight <= 0) {
+            ViewGroup.LayoutParams params = reconnectBanner.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            reconnectBanner.setLayoutParams(params);
+            reconnectBanner.setAlpha(1f);
+            reconnectBanner.setTranslationY(0f);
+            return;
+        }
+
+        final ViewGroup.LayoutParams params = reconnectBanner.getLayoutParams();
+        int startHeight = Math.max(0, reconnectBanner.getHeight());
+        params.height = startHeight;
+        reconnectBanner.setLayoutParams(params);
+        reconnectBanner.setAlpha(startHeight > 0 ? reconnectBanner.getAlpha() : 0f);
+        reconnectBanner.setTranslationY(startHeight > 0 ? reconnectBanner.getTranslationY() : -dp(8));
+
+        reconnectBannerAnimator = ValueAnimator.ofInt(startHeight, targetHeight);
+        reconnectBannerAnimator.setDuration(RECONNECT_BANNER_ENTER_MS);
+        reconnectBannerAnimator.setInterpolator(new DecelerateInterpolator());
+        reconnectBannerAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                params.height = (Integer) animation.getAnimatedValue();
+                reconnectBanner.setLayoutParams(params);
+            }
+        });
+        reconnectBannerAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (reconnectBannerVisible) {
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    reconnectBanner.setLayoutParams(params);
+                }
+                reconnectBannerAnimator = null;
+            }
+        });
+        reconnectBanner.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(RECONNECT_BANNER_ENTER_MS)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+        reconnectBannerAnimator.start();
+    }
+
+    private void animateReconnectBannerOut() {
+        int startHeight = reconnectBanner.getHeight();
+        if (startHeight <= 0) {
+            hideReconnectBannerImmediately();
+            return;
+        }
+
+        final ViewGroup.LayoutParams params = reconnectBanner.getLayoutParams();
+        params.height = startHeight;
+        reconnectBanner.setLayoutParams(params);
+
+        reconnectBannerAnimator = ValueAnimator.ofInt(startHeight, 0);
+        reconnectBannerAnimator.setDuration(RECONNECT_BANNER_EXIT_MS);
+        reconnectBannerAnimator.setInterpolator(new DecelerateInterpolator());
+        reconnectBannerAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                params.height = (Integer) animation.getAnimatedValue();
+                reconnectBanner.setLayoutParams(params);
+            }
+        });
+        reconnectBannerAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (!reconnectBannerVisible) {
+                    hideReconnectBannerImmediately();
+                }
+                reconnectBannerAnimator = null;
+            }
+        });
+        reconnectBanner.animate()
+                .alpha(0f)
+                .translationY(-dp(8))
+                .setDuration(RECONNECT_BANNER_EXIT_MS)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+        reconnectBannerAnimator.start();
+    }
+
+    private int measureReconnectBannerHeight() {
+        View parent = (View) reconnectBanner.getParent();
+        int width = parent == null ? 0 : parent.getWidth();
+        if (width <= 0) {
+            width = getResources().getDisplayMetrics().widthPixels;
+        }
+
+        ViewGroup.LayoutParams params = reconnectBanner.getLayoutParams();
+        int previousHeight = params.height;
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        reconnectBanner.measure(widthSpec, heightSpec);
+        params.height = previousHeight;
+        return reconnectBanner.getMeasuredHeight();
+    }
+
+    private void hideReconnectBannerImmediately() {
+        ViewGroup.LayoutParams params = reconnectBanner.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        reconnectBanner.setLayoutParams(params);
+        reconnectBanner.setVisibility(View.GONE);
+        reconnectBanner.setAlpha(1f);
+        reconnectBanner.setTranslationY(0f);
+        if (hideOverviewAfterReconnectBanner) {
+            hideOverviewAfterReconnectBanner = false;
+            showEmptyContent();
+        }
     }
 
     private int dp(int value) {
