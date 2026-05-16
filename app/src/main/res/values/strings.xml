@@ -86,12 +86,25 @@
     <string name="status_jbd_service_not_found">JBD service not found</string>
     <string name="status_jbd_characteristics_not_found">JBD characteristics not found</string>
     <string name="status_parse_error">Parse error: %1$s</string>
-    <string name="temperature_mos_item">MOS %2$.1f%3$s</string>
+    <string name="temperature_mos_item">MOS %1$.1f%2$s</string>
     <string name="temperature_probe_item">Temperature %1$d %2$.1f%3$s</string>
     <string name="label_charge">Charge</string>
     <string name="label_discharge">Discharge</string>
     <string name="label_on">on</string>
     <string name="label_off">off</string>
+    <string name="format_value_percent">%1$d%%</string>
+    <string name="format_value_integer">%1$d</string>
+    <string name="format_value_voltage_2">%1$.2f V</string>
+    <string name="format_value_voltage_3">%1$.3f V</string>
+    <string name="format_value_current_2">%1$.2f A</string>
+    <string name="format_value_power_1">%1$.1f W</string>
+    <string name="format_value_capacity_2">%1$.2f Ah</string>
+    <string name="format_value_capacity_pair">%1$.2f / %2$.2f Ah</string>
+    <string name="format_mos_state">%1$s %2$s  /  %3$s %4$s</string>
+    <string name="placeholder_percent" formatted="false">--%</string>
+    <string name="placeholder_voltage">-- V</string>
+    <string name="placeholder_current">-- A</string>
+    <string name="placeholder_power">-- W</string>
     <string name="protection_none">No active protection</string>
     <string name="balance_none">No cells balancing</string>
     <string name="balance_cells">Cells balancing: %1$s</string>

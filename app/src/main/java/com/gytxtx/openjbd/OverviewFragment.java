@@ -165,14 +165,18 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     }
 
     private void renderBasicInfo(JbdBasicInfo info) {
-        setTextIfChanged(voltageText, String.format(Locale.US, "%.2f V", info.totalVoltage));
-        setTextIfChanged(currentText, String.format(Locale.US, "%.2f A", info.current));
-        setTextIfChanged(powerText, String.format(Locale.US, "%.1f W", info.totalVoltage * info.current));
-        setTextIfChanged(socText, info.soc + "%");
+        setTextIfChanged(voltageText, getString(R.string.format_value_voltage_2, info.totalVoltage));
+        setTextIfChanged(currentText, getString(R.string.format_value_current_2, info.current));
+        setTextIfChanged(powerText, getString(R.string.format_value_power_1, info.totalVoltage * info.current));
+        setTextIfChanged(socText, getString(R.string.format_value_percent, info.soc));
         socProgress.setProgressCompat(info.soc, false);
-        setTextIfChanged(capacityText, String.format(Locale.US, "%.2f / %.2f Ah", info.remainingAh, info.learnedOrNominalAh()));
-        setTextIfChanged(cyclesText, String.format(Locale.US, "%d", info.cycleCount));
-        setTextIfChanged(mosText, getString(R.string.label_charge) + " " + onOff(info.chargeEnabled) + "  /  " + getString(R.string.label_discharge) + " " + onOff(info.dischargeEnabled));
+        setTextIfChanged(capacityText, getString(R.string.format_value_capacity_pair, info.remainingAh, info.learnedOrNominalAh()));
+        setTextIfChanged(cyclesText, getString(R.string.format_value_integer, info.cycleCount));
+        setTextIfChanged(mosText, getString(R.string.format_mos_state,
+                getString(R.string.label_charge),
+                onOff(info.chargeEnabled),
+                getString(R.string.label_discharge),
+                onOff(info.dischargeEnabled)));
         setTextIfChanged(socNoteText, socNote(info));
         setTextIfChanged(statsText, getString(R.string.pack_stats, info.cellCount, info.ntcCount, info.softwareVersion));
         setTextIfChanged(protectionText, protectionSummary(info));
@@ -186,9 +190,14 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
             temperaturesText.setVisibility(View.GONE);
             temperaturesChipGroup.removeAllViews();
             temperaturesChipGroup.setVisibility(View.VISIBLE);
-            temperaturesChipGroup.addView(temperatureChip(String.format(Locale.US, getString(R.string.temperature_mos_item), 0, AppSettings.displayTemperature(requireContext(), info.temperaturesC.get(0)), AppSettings.temperatureUnitLabel(requireContext())), true));
+            temperaturesChipGroup.addView(temperatureChip(getString(R.string.temperature_mos_item,
+                    AppSettings.displayTemperature(requireContext(), info.temperaturesC.get(0)),
+                    AppSettings.temperatureUnitLabel(requireContext())), true));
             for (int i = 0; i < info.temperaturesC.size(); i++) {
-                temperaturesChipGroup.addView(temperatureChip(String.format(Locale.US, getString(R.string.temperature_probe_item), i + 1, AppSettings.displayTemperature(requireContext(), info.temperaturesC.get(i)), AppSettings.temperatureUnitLabel(requireContext())), false));
+                temperaturesChipGroup.addView(temperatureChip(getString(R.string.temperature_probe_item,
+                        i + 1,
+                        AppSettings.displayTemperature(requireContext(), info.temperaturesC.get(i)),
+                        AppSettings.temperatureUnitLabel(requireContext())), false));
             }
         } else {
             temperaturesChipGroup.removeAllViews();
@@ -200,10 +209,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
 
     private void renderCells(JbdCellVoltages voltages) {
         cellStatsGrid.setVisibility(View.VISIBLE);
-        setTextIfChanged(cellMinText, String.format(Locale.US, "%.3f V", voltages.min));
-        setTextIfChanged(cellMaxText, String.format(Locale.US, "%.3f V", voltages.max));
-        setTextIfChanged(cellDeltaText, String.format(Locale.US, "%.3f V", voltages.delta));
-        setTextIfChanged(cellAverageText, String.format(Locale.US, "%.3f V", voltages.average));
+        setTextIfChanged(cellMinText, getString(R.string.format_value_voltage_3, voltages.min));
+        setTextIfChanged(cellMaxText, getString(R.string.format_value_voltage_3, voltages.max));
+        setTextIfChanged(cellDeltaText, getString(R.string.format_value_voltage_3, voltages.delta));
+        setTextIfChanged(cellAverageText, getString(R.string.format_value_voltage_3, voltages.average));
         if (cellList.getChildCount() != voltages.cells.size()) {
             cellList.removeAllViews();
             for (int i = 0; i < voltages.cells.size(); i++) {
@@ -218,7 +227,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
     private View createCellVoltageRow(int index) {
         View row = LayoutInflater.from(requireContext()).inflate(R.layout.row_cell_voltage, cellList, false);
         TextView label = row.findViewById(R.id.txt_cell_label);
-        label.setText(String.format(Locale.US, getString(R.string.cell_label), index));
+        label.setText(getString(R.string.cell_label, index));
         return row;
     }
 
@@ -226,13 +235,13 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         TextView label = row.findViewById(R.id.txt_cell_label);
         TextView value = row.findViewById(R.id.txt_cell_value);
         LinearProgressIndicator progress = row.findViewById(R.id.progress_cell);
-        String labelText = String.format(Locale.US, getString(R.string.cell_label), index);
+        String labelText = getString(R.string.cell_label, index);
         JbdBasicInfo basicInfo = lastRenderedBasicInfo;
         if (basicInfo != null && index <= basicInfo.balanceStates.length && basicInfo.balanceStates[index - 1]) {
             labelText += getString(R.string.cell_balancing_suffix);
         }
         setTextIfChanged(label, labelText);
-        setTextIfChanged(value, String.format(Locale.US, "%.3f V", voltage));
+        setTextIfChanged(value, getString(R.string.format_value_voltage_3, voltage));
         float span = Math.max(0.001f, max - min);
         int scaled = Math.max(80, Math.min(1000, (int) (1000f * ((voltage - min) / span))));
         progress.setProgressCompat(scaled, false);
@@ -259,7 +268,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         voltageText.setText("--");
         currentText.setText("--");
         powerText.setText("--");
-        socText.setText("--%");
+        socText.setText(R.string.placeholder_percent);
         socProgress.setProgress(0);
         capacityText.setText("--");
         cyclesText.setText("--");

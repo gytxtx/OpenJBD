@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Locale;
-
 public final class DashboardActivity extends AppCompatActivity implements BmsStateStore.Listener {
     private TextView socValue;
     private TextView voltageValue;
@@ -79,17 +77,17 @@ public final class DashboardActivity extends AppCompatActivity implements BmsSta
 
     private void render(BmsStateStore.Snapshot snapshot) {
         if (snapshot == null || snapshot.basicInfo == null) {
-            socValue.setText("--%");
-            voltageValue.setText("-- V");
-            currentValue.setText("-- A");
-            powerValue.setText("-- W");
+            socValue.setText(R.string.placeholder_percent);
+            voltageValue.setText(R.string.placeholder_voltage);
+            currentValue.setText(R.string.placeholder_current);
+            powerValue.setText(R.string.placeholder_power);
             statusValue.setText(snapshot != null && snapshot.status != null && snapshot.status.length() > 0 ? snapshot.status : getString(R.string.dashboard_waiting_data));
             return;
         }
-        socValue.setText(snapshot.basicInfo.soc + "%");
-        voltageValue.setText(String.format(Locale.US, "%.2f V", snapshot.basicInfo.totalVoltage));
-        currentValue.setText(String.format(Locale.US, "%.2f A", snapshot.basicInfo.current));
-        powerValue.setText(String.format(Locale.US, "%.1f W", snapshot.basicInfo.totalVoltage * snapshot.basicInfo.current));
+        socValue.setText(getString(R.string.format_value_percent, snapshot.basicInfo.soc));
+        voltageValue.setText(getString(R.string.format_value_voltage_2, snapshot.basicInfo.totalVoltage));
+        currentValue.setText(getString(R.string.format_value_current_2, snapshot.basicInfo.current));
+        powerValue.setText(getString(R.string.format_value_power_1, snapshot.basicInfo.totalVoltage * snapshot.basicInfo.current));
         statusValue.setText(R.string.dashboard_live);
     }
 }

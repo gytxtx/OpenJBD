@@ -17,8 +17,6 @@ import com.google.android.material.card.MaterialCardView;
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
 import com.gytxtx.openjbd.protocol.JbdDeviceInfo;
 
-import java.util.Locale;
-
 public final class ParametersFragment extends Fragment implements BmsStateStore.Listener {
     private LinearLayout placeholderParameters;
     private MaterialCardView parametersCard;
@@ -247,27 +245,27 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                 case 3:
                     return info.productionDate;
                 case 4:
-                    return String.format(Locale.US, "%.2f Ah", info.nominalAh);
+                    return getString(R.string.format_value_capacity_2, info.nominalAh);
                 case 5:
-                    return String.format(Locale.US, "%.2f Ah", info.remainingAh);
+                    return getString(R.string.format_value_capacity_2, info.remainingAh);
                 case 6:
-                    return info.soc + "%";
+                    return getString(R.string.format_value_percent, info.soc);
                 case 7:
-                    return String.format(Locale.US, "%d", info.cycleCount);
+                    return getString(R.string.format_value_integer, info.cycleCount);
                 case 8:
-                    return String.format(Locale.US, "%d", info.cellCount);
+                    return getString(R.string.format_value_integer, info.cellCount);
                 case 9:
-                    return String.format(Locale.US, "%d", info.ntcCount);
+                    return getString(R.string.format_value_integer, info.ntcCount);
                 case 10:
                     return onOff(info.chargeEnabled);
                 case 11:
                     return onOff(info.dischargeEnabled);
                 case 12:
-                    return String.format(Locale.US, "%.2f V", info.totalVoltage);
+                    return getString(R.string.format_value_voltage_2, info.totalVoltage);
                 case 13:
-                    return String.format(Locale.US, "%.2f A", info.current);
+                    return getString(R.string.format_value_current_2, info.current);
                 case 14:
-                    return String.format(Locale.US, "%.1f W", info.totalVoltage * info.current);
+                    return getString(R.string.format_value_power_1, info.totalVoltage * info.current);
                 case 15:
                     return fieldOrUnread(deviceInfo == null ? null : deviceInfo.serialNumber, unread);
                 case 16:
@@ -279,13 +277,13 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
                 case 19:
                     return fieldOrUnread(deviceInfo == null ? null : deviceInfo.bmsModel, unread);
                 case 20:
-                    return info.hasLearnCapacity ? String.format(Locale.US, "%.2f Ah", info.learnCapacityAh) : unread;
+                    return info.hasLearnCapacity ? getString(R.string.format_value_capacity_2, info.learnCapacityAh) : unread;
                 case 21:
-                    return info.hasExtendedInfo ? String.format(Locale.US, "%d", info.extensionMarker) : unread;
+                    return info.hasExtendedInfo ? getString(R.string.format_value_integer, info.extensionMarker) : unread;
                 case 22:
-                    return info.hasExtendedInfo ? String.format(Locale.US, "%d", info.alter) : unread;
+                    return info.hasExtendedInfo ? getString(R.string.format_value_integer, info.alter) : unread;
                 case 23:
-                    return info.hasBalanceCurrent ? String.format(Locale.US, "%.2f A", info.balanceCurrentA) : unread;
+                    return info.hasBalanceCurrent ? getString(R.string.format_value_current_2, info.balanceCurrentA) : unread;
                 case 24:
                     return balanceSummary(info);
                 case 25:

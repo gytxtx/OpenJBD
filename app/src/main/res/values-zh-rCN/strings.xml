@@ -86,12 +86,25 @@
     <string name="status_jbd_service_not_found">未找到 JBD 服务</string>
     <string name="status_jbd_characteristics_not_found">未找到 JBD 特征值</string>
     <string name="status_parse_error">解析错误：%1$s</string>
-    <string name="temperature_mos_item">MOS %2$.1f%3$s</string>
+    <string name="temperature_mos_item">MOS %1$.1f%2$s</string>
     <string name="temperature_probe_item">温度 %1$d %2$.1f%3$s</string>
     <string name="label_charge">充电</string>
     <string name="label_discharge">放电</string>
     <string name="label_on">开</string>
     <string name="label_off">关</string>
+    <string name="format_value_percent">%1$d%%</string>
+    <string name="format_value_integer">%1$d</string>
+    <string name="format_value_voltage_2">%1$.2f V</string>
+    <string name="format_value_voltage_3">%1$.3f V</string>
+    <string name="format_value_current_2">%1$.2f A</string>
+    <string name="format_value_power_1">%1$.1f W</string>
+    <string name="format_value_capacity_2">%1$.2f Ah</string>
+    <string name="format_value_capacity_pair">%1$.2f / %2$.2f Ah</string>
+    <string name="format_mos_state">%1$s%2$s  /  %3$s%4$s</string>
+    <string name="placeholder_percent" formatted="false">--%</string>
+    <string name="placeholder_voltage">-- V</string>
+    <string name="placeholder_current">-- A</string>
+    <string name="placeholder_power">-- W</string>
     <string name="protection_none">无保护触发</string>
     <string name="balance_none">无单体均衡</string>
     <string name="balance_cells">均衡单体：%1$s</string>
@@ -110,8 +123,8 @@
     <string name="protection_ic_error">IC 错误</string>
     <string name="protection_software_lock_mos">软件锁 MOS</string>
     <string name="pack_stats">单体 %1$d  NTC %2$d\n固件 %3$s</string>
-    <string name="estimate_charging">正在充电，预计 %1$s 后充满</string>
-    <string name="estimate_discharging">正在放电，预计 %1$s 后放空</string>
+    <string name="estimate_charging">正在充电，预计 %1$s 后充满。</string>
+    <string name="estimate_discharging">正在放电，预计 %1$s 后放空。</string>
     <string name="estimate_duration_hours_minutes">%1$d 小时 %2$d 分钟</string>
     <string name="estimate_duration_zero">0 分钟</string>
     <string name="estimate_idle">当前静置，暂无时间估算。</string>
