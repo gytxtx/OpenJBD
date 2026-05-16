@@ -56,6 +56,7 @@ public final class DeviceListActivity extends AppCompatActivity {
     private int scanCallbackCount;
     private LinearLayout deviceList;
     private LinearLayout placeholderDevices;
+    private ImageView placeholderIcon;
     private TextView placeholderTitle;
     private TextView placeholderSubtitle;
     private TextView statusText;
@@ -118,6 +119,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         statusText = findViewById(R.id.txt_device_status);
         deviceList = findViewById(R.id.list_devices);
         placeholderDevices = findViewById(R.id.placeholder_devices);
+        placeholderIcon = findViewById(R.id.img_device_placeholder);
         placeholderTitle = findViewById(R.id.txt_device_placeholder_title);
         placeholderSubtitle = findViewById(R.id.txt_device_placeholder_subtitle);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -167,7 +169,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT < 31 && !isLocationEnabled()) {
             setRefreshing(false);
             setStatus(getString(R.string.status_location_off));
-            showPlaceholder(getString(R.string.device_placeholder_location_off_title), getString(R.string.device_placeholder_location_off_subtitle));
+            showPlaceholder(getString(R.string.device_placeholder_location_off_title), getString(R.string.device_placeholder_location_off_subtitle), R.drawable.ic_location_off_outline_24);
             return;
         }
         startScan();
@@ -258,6 +260,11 @@ public final class DeviceListActivity extends AppCompatActivity {
     }
 
     private void showPlaceholder(String title, String subtitle) {
+        showPlaceholder(title, subtitle, R.drawable.ic_bluetooth_searching_24);
+    }
+
+    private void showPlaceholder(String title, String subtitle, int iconRes) {
+        placeholderIcon.setImageResource(iconRes);
         placeholderTitle.setText(title);
         placeholderSubtitle.setText(subtitle);
         placeholderDevices.setVisibility(View.VISIBLE);
