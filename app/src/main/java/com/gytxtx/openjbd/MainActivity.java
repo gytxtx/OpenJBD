@@ -268,7 +268,19 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 || connectionState == BmsStateStore.ConnectionState.CONNECTING
                 || connectionState == BmsStateStore.ConnectionState.DISCOVERING_SERVICES
                 || connectionState == BmsStateStore.ConnectionState.ENABLING_NOTIFICATIONS
-                || connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT;
+                || connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT
+                || isDeviceScopedFailureState();
+    }
+
+    private boolean isDeviceScopedFailureState() {
+        return connectionState == BmsStateStore.ConnectionState.CONNECTION_FAILED
+                || connectionState == BmsStateStore.ConnectionState.SERVICE_DISCOVERY_FAILED
+                || connectionState == BmsStateStore.ConnectionState.SERVICE_NOT_FOUND
+                || connectionState == BmsStateStore.ConnectionState.CHARACTERISTICS_NOT_FOUND
+                || connectionState == BmsStateStore.ConnectionState.NOTIFICATIONS_FAILED
+                || connectionState == BmsStateStore.ConnectionState.INVALID_DEVICE
+                || connectionState == BmsStateStore.ConnectionState.ERROR
+                || connectionState == BmsStateStore.ConnectionState.PARSE_ERROR;
     }
 
     private String pageTitle() {

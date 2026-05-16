@@ -124,6 +124,8 @@ final class BmsConnectionManager {
                 bluetoothGatt.close();
                 if (!intentionalDisconnect && shouldAutoReconnect()) {
                     scheduleReconnect(context.getString(R.string.status_connection_lost));
+                } else if (!intentionalDisconnect) {
+                    publishDisconnected(BmsStateStore.ConnectionState.CONNECTION_FAILED, context.getString(R.string.status_connection_lost), true);
                 } else {
                     publishDisconnected(BmsStateStore.ConnectionState.DISCONNECTED, context.getString(R.string.status_select_bms));
                 }
@@ -262,7 +264,7 @@ final class BmsConnectionManager {
             BluetoothDevice device = adapter.getRemoteDevice(address);
             gatt = device.connectGatt(context, false, gattCallback);
         } catch (IllegalArgumentException ignored) {
-            publishDisconnected(BmsStateStore.ConnectionState.INVALID_DEVICE, context.getString(R.string.status_auto_connect_invalid_device));
+            publishDisconnected(BmsStateStore.ConnectionState.INVALID_DEVICE, context.getString(R.string.status_auto_connect_invalid_device), true);
         }
     }
 
@@ -484,15 +486,23 @@ final class BmsConnectionManager {
         if (shouldAutoReconnect()) {
             scheduleReconnect(message);
         } else {
-            publishDisconnected(state, message);
+            publishDisconnected(state, message, true);
         }
     }
 
     private void publishDisconnected(BmsStateStore.ConnectionState state, String status) {
-        connectedDeviceName = null;
-        connectedDeviceAddress = null;
+        publishDisconnected(state, status, false);
+    }
+
+    private void publishDisconnected(BmsStateStore.ConnectionState state, String status, boolean keepDevice) {
+        String deviceName = keepDevice ? connectedDeviceName : null;
+        String deviceAddress = keepDevice ? connectedDeviceAddress : null;
+        if (!keepDevice) {
+            connectedDeviceName = null;
+            connectedDeviceAddress = null;
+        }
         BmsDashboardStore.update(null);
-        updateState(BmsStateStore.Snapshot.withConnectionState(state, false, null, null, status, null, null));
+        updateState(BmsStateStore.Snapshot.withConnectionState(state, false, deviceName, deviceAddress, status, null, null));
     }
 
     private void handleConnectPrecheckFailure(BmsStateStore.ConnectionState state, String status, boolean reconnect) {
