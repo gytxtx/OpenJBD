@@ -140,7 +140,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         if (refreshIcon != null && refreshIcon.getIcon() != null) {
             refreshIcon.getIcon().setTint(getColorCompat(R.color.text_primary));
         }
-        showPlaceholder(getString(R.string.device_placeholder_scanning_title), getString(R.string.device_placeholder_scanning_subtitle));
+        showPlaceholder(getString(R.string.device_placeholder_scanning_title), scanningSubtitle());
         startScanWithPermissions();
     }
 
@@ -165,7 +165,10 @@ public final class DeviceListActivity extends AppCompatActivity {
             return;
         }
         if (Build.VERSION.SDK_INT < 31 && !isLocationEnabled()) {
+            setRefreshing(false);
             setStatus(getString(R.string.status_location_off));
+            showPlaceholder(getString(R.string.device_placeholder_location_off_title), getString(R.string.device_placeholder_location_off_subtitle));
+            return;
         }
         startScan();
     }
@@ -184,7 +187,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         stopScan();
         scanResults.clear();
         scanCallbackCount = 0;
-        showPlaceholder(getString(R.string.device_placeholder_scanning_title), getString(R.string.device_placeholder_scanning_subtitle));
+        showPlaceholder(getString(R.string.device_placeholder_scanning_title), scanningSubtitle());
         scanning = true;
         setRefreshing(true);
         setStatus(getString(R.string.status_scanning));
@@ -260,6 +263,13 @@ public final class DeviceListActivity extends AppCompatActivity {
         placeholderDevices.setVisibility(View.VISIBLE);
         deviceList.setVisibility(View.GONE);
         deviceList.removeAllViews();
+    }
+
+    private String scanningSubtitle() {
+        if (Build.VERSION.SDK_INT < 31) {
+            return getString(R.string.device_placeholder_scanning_subtitle_legacy_location);
+        }
+        return getString(R.string.device_placeholder_scanning_subtitle);
     }
 
     private boolean isDisplayDevice(ScanResult result) {

@@ -120,10 +120,13 @@
 
     <string name="device_placeholder_scanning_title">Scanning for devices</string>
     <string name="device_placeholder_scanning_subtitle">Keep the BMS nearby and make sure Bluetooth is enabled.</string>
+    <string name="device_placeholder_scanning_subtitle_legacy_location">Keep the BMS nearby and make sure Bluetooth and location are enabled.</string>
     <string name="device_placeholder_bluetooth_off_title">Bluetooth is off</string>
     <string name="device_placeholder_bluetooth_off_subtitle">Turn on Bluetooth, then tap refresh.</string>
     <string name="device_placeholder_scanner_unavailable_title">Scanner unavailable</string>
     <string name="device_placeholder_scanner_unavailable_subtitle">This device cannot start a BLE scan right now.</string>
+    <string name="device_placeholder_location_off_title">Location is off</string>
+    <string name="device_placeholder_location_off_subtitle">Android 6-11 requires location service for BLE scanning. Turn on location, then tap refresh.</string>
     <string name="device_placeholder_no_devices_title">No devices found</string>
     <string name="device_placeholder_no_devices_subtitle">Move closer to the battery, wake the BMS, then tap refresh.</string>
     <string name="status_scanning">Scanning...</string>
@@ -135,7 +138,7 @@
     <string name="toast_ble_permission_denied">BLE permission denied</string>
     <string name="status_bluetooth_off">Bluetooth is off.</string>
     <string name="toast_bluetooth_off">Bluetooth is off</string>
-    <string name="status_location_off">Location service is off. Android 6-11 may return zero BLE scan results.</string>
+    <string name="status_location_off">Location service is off. Turn it on to scan for BLE devices.</string>
     <string name="device_type_battery">Battery</string>
     <string name="device_type_display">Display</string>
     <string name="device_row_subtitle">%1$s  /  %2$s  /  RSSI %3$d</string>

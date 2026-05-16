@@ -120,10 +120,13 @@
 
     <string name="device_placeholder_scanning_title">正在扫描设备</string>
     <string name="device_placeholder_scanning_subtitle">请靠近 BMS，并确认蓝牙已开启。</string>
+    <string name="device_placeholder_scanning_subtitle_legacy_location">请靠近 BMS，并确认蓝牙和位置信息已开启。</string>
     <string name="device_placeholder_bluetooth_off_title">蓝牙已关闭</string>
     <string name="device_placeholder_bluetooth_off_subtitle">打开蓝牙后，点击刷新。</string>
     <string name="device_placeholder_scanner_unavailable_title">扫描器不可用</string>
     <string name="device_placeholder_scanner_unavailable_subtitle">当前设备暂时无法启动 BLE 扫描。</string>
+    <string name="device_placeholder_location_off_title">定位服务已关闭</string>
+    <string name="device_placeholder_location_off_subtitle">Android 6-11 需要开启定位服务才能扫描 BLE。打开定位后，再点击刷新。</string>
     <string name="device_placeholder_no_devices_title">未找到设备</string>
     <string name="device_placeholder_no_devices_subtitle">靠近电池、唤醒 BMS 后，再点击刷新。</string>
     <string name="status_scanning">正在扫描...</string>
@@ -135,7 +138,7 @@
     <string name="toast_ble_permission_denied">BLE 权限被拒绝</string>
     <string name="status_bluetooth_off">蓝牙已关闭。</string>
     <string name="toast_bluetooth_off">蓝牙已关闭</string>
-    <string name="status_location_off">定位服务已关闭。Android 6-11 可能会返回 0 个 BLE 扫描结果。</string>
+    <string name="status_location_off">定位服务已关闭。请打开定位服务后再扫描 BLE 设备。</string>
     <string name="device_type_battery">电池</string>
     <string name="device_type_display">显示屏</string>
     <string name="device_row_subtitle">%1$s  /  %2$s  /  RSSI %3$d</string>
