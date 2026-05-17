@@ -165,7 +165,7 @@
     <string name="setting_dark_theme_always_on">总是开启</string>
     <string name="setting_dark_theme_always_off">总是关闭</string>
     <string name="setting_language">语言</string>
-    <string name="setting_language_auto">自动</string>
+    <string name="setting_language_system">跟随系统</string>
     <string name="setting_language_zh">简体中文</string>
     <string name="setting_language_en">English</string>
     <string name="setting_temperature_unit">温度单位</string>

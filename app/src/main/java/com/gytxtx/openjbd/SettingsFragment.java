@@ -93,20 +93,21 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private void showSettingMenu(int position) {
         if (position == 0) {
-            showRadioDialog(R.string.setting_dark_theme, settings().getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO),
+            showRadioDialog(R.string.setting_dark_theme, AppSettings.themeValue(requireContext()),
                     new String[]{getString(R.string.setting_dark_theme_system), getString(R.string.setting_dark_theme_always_on), getString(R.string.setting_dark_theme_always_off)},
-                    new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_DARK, AppSettings.VALUE_LIGHT},
+                    new String[]{AppSettings.VALUE_SYSTEM, AppSettings.VALUE_DARK, AppSettings.VALUE_LIGHT},
                     value -> {
                         settings().edit().putString(AppSettings.PREF_THEME, value).apply();
                         AppSettings.applyThemePreference(requireContext());
                         requireActivity().recreate();
                     });
         } else if (position == 1) {
-            showRadioDialog(R.string.setting_language, settings().getString(AppSettings.PREF_LANGUAGE, AppSettings.VALUE_AUTO),
-                    new String[]{getString(R.string.setting_language_auto), getString(R.string.setting_language_zh), getString(R.string.setting_language_en)},
-                    new String[]{AppSettings.VALUE_AUTO, AppSettings.VALUE_ZH, AppSettings.VALUE_EN},
+            showRadioDialog(R.string.setting_language, AppSettings.languageValue(requireContext()),
+                    new String[]{getString(R.string.setting_language_system), getString(R.string.setting_language_zh), getString(R.string.setting_language_en)},
+                    new String[]{AppSettings.VALUE_SYSTEM, AppSettings.VALUE_ZH, AppSettings.VALUE_EN},
                     value -> {
                         settings().edit().putString(AppSettings.PREF_LANGUAGE, value).apply();
+                        connectionManager.refreshLocalizedStatus();
                         requireActivity().recreate();
                     });
         } else if (position == 2) {
@@ -208,7 +209,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         if (AppSettings.VALUE_EN.equals(value)) {
             return getString(R.string.setting_language_en);
         }
-        return getString(R.string.setting_language_auto);
+        return getString(R.string.setting_language_system);
     }
 
     private String tempUnitLabel(String value) {
@@ -266,11 +267,11 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             if (position == 0) {
                 icon.setImageResource(R.drawable.ic_brightness_medium_24);
                 title.setText(R.string.setting_dark_theme);
-                subtitle.setText(themeLabel(prefs.getString(AppSettings.PREF_THEME, AppSettings.VALUE_AUTO)));
+                subtitle.setText(themeLabel(AppSettings.themeValue(requireContext())));
             } else if (position == 1) {
                 icon.setImageResource(R.drawable.ic_language_24);
                 title.setText(R.string.setting_language);
-                subtitle.setText(languageLabel(prefs.getString(AppSettings.PREF_LANGUAGE, AppSettings.VALUE_AUTO)));
+                subtitle.setText(languageLabel(AppSettings.languageValue(requireContext())));
             } else if (position == 2) {
                 icon.setImageResource(R.drawable.ic_thermostat_24);
                 title.setText(R.string.setting_temperature_unit);

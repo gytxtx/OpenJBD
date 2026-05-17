@@ -48,6 +48,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         AppSettings.applyThemePreference(this);
         super.onCreate(savedInstanceState);
         connectionManager = BmsConnectionManager.getInstance(this);
+        connectionManager.refreshLocalizedStatus();
         connectionManager.setRefreshInterval(AppSettings.refreshIntervalMs(this));
         configureAutoReconnect();
         buildUi();

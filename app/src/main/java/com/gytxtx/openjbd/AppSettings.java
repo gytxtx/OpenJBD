@@ -20,6 +20,7 @@ final class AppSettings {
     static final String PREF_LAST_DEVICE_ADDRESS = "last_device_address";
     static final String PREF_LAST_DEVICE_NAME = "last_device_name";
     static final String VALUE_AUTO = "auto";
+    static final String VALUE_SYSTEM = "system";
     private static final String VALUE_ON = "on";
     static final String VALUE_LIGHT = "light";
     static final String VALUE_DARK = "dark";
@@ -48,7 +49,7 @@ final class AppSettings {
     }
 
     static void applyThemePreference(Context context) {
-        String theme = prefs(context).getString(PREF_THEME, VALUE_AUTO);
+        String theme = themeValue(context);
         if (VALUE_DARK.equals(theme)) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else if (VALUE_LIGHT.equals(theme)) {
@@ -103,6 +104,26 @@ final class AppSettings {
         prefs(context).edit().putBoolean(PREF_AUTO_CONNECT, enabled).apply();
     }
 
+    static String themeValue(Context context) {
+        SharedPreferences prefs = prefs(context);
+        String theme = prefs.getString(PREF_THEME, VALUE_SYSTEM);
+        if (VALUE_AUTO.equals(theme)) {
+            prefs.edit().putString(PREF_THEME, VALUE_SYSTEM).apply();
+            return VALUE_SYSTEM;
+        }
+        return theme;
+    }
+
+    static String languageValue(Context context) {
+        SharedPreferences prefs = prefs(context);
+        String language = prefs.getString(PREF_LANGUAGE, VALUE_SYSTEM);
+        if (VALUE_AUTO.equals(language)) {
+            prefs.edit().putString(PREF_LANGUAGE, VALUE_SYSTEM).apply();
+            return VALUE_SYSTEM;
+        }
+        return language;
+    }
+
     static float displayTemperature(Context context, float celsius) {
         if (VALUE_F.equals(prefs(context).getString(PREF_TEMP_UNIT, VALUE_C))) {
             return (celsius * 9.0f / 5.0f) + 32.0f;
@@ -117,8 +138,8 @@ final class AppSettings {
     }
 
     private static void applyLanguageConfiguration(Context context, Configuration configuration) {
-        String language = prefs(context).getString(PREF_LANGUAGE, VALUE_AUTO);
-        if (VALUE_AUTO.equals(language)) {
+        String language = languageValue(context);
+        if (VALUE_SYSTEM.equals(language)) {
             return;
         }
         Locale locale = VALUE_ZH.equals(language) ? Locale.SIMPLIFIED_CHINESE : Locale.ENGLISH;
@@ -131,7 +152,7 @@ final class AppSettings {
     }
 
     private static void applyNightConfiguration(Context context, Configuration configuration) {
-        String theme = prefs(context).getString(PREF_THEME, VALUE_AUTO);
+        String theme = themeValue(context);
         if (VALUE_DARK.equals(theme)) {
             configuration.uiMode = (configuration.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_YES;
         } else if (VALUE_LIGHT.equals(theme)) {

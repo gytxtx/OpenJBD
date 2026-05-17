@@ -165,7 +165,7 @@
     <string name="setting_dark_theme_always_on">Always on</string>
     <string name="setting_dark_theme_always_off">Always off</string>
     <string name="setting_language">Language</string>
-    <string name="setting_language_auto">Automatic</string>
+    <string name="setting_language_system">Follow system</string>
     <string name="setting_language_zh">Simplified Chinese</string>
     <string name="setting_language_en">English</string>
     <string name="setting_temperature_unit">Temperature unit</string>
