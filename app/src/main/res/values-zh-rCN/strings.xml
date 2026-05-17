@@ -7,6 +7,7 @@
     <string name="action_cancel_reconnect">取消重连</string>
     <string name="action_cancel">取消</string>
     <string name="action_back">返回</string>
+    <string name="action_open">打开</string>
     <string name="action_dashboard">仪表盘</string>
     <string name="action_refresh">刷新</string>
     <string name="nav_overview">总览</string>
@@ -183,8 +184,13 @@
     <string name="setting_about_subtitle">应用版本和项目仓库</string>
     <string name="about_title">关于</string>
     <string name="about_version">版本 0.1.0</string>
-    <string name="about_description">OpenJBD 是一个面向 JBD / 小象 BMS 的本地 Android BLE 监控应用。它专注于安全读取电池状态，不需要账号，也不依赖云端服务。</string>
+    <string name="about_description">一个适用于嘉佰达 BMS 的本地 Android BLE 监控应用。</string>
     <string name="about_github">GitHub 仓库</string>
+    <string name="about_item_app_version">App 版本</string>
+    <string name="about_item_source_code">源代码</string>
+    <string name="about_item_licenses">许可证</string>
+    <string name="about_licenses_placeholder">本项目和相关依赖的许可证详情将在这里展示。</string>
+    <string name="about_version_unknown">未知</string>
     <string name="unit_celsius">℃</string>
     <string name="unit_fahrenheit">℉</string>
     <string name="dashboard_live">实时 BMS 数据</string>

@@ -48,15 +48,6 @@
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="@string/about_version"
-                android:textColor="@color/text_secondary"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
-
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -66,18 +57,32 @@
                 android:textColor="@color/text_secondary"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_github_repository"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/about_material_list"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="@string/about_github"
-                android:textAllCaps="false"
-                app:icon="@drawable/ic_github_24"
-                app:iconGravity="textStart"
-                app:iconTint="@color/text_primary"
-                app:strokeColor="@color/card_stroke" />
+                android:background="@color/surface"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/item_app_version"
+                    layout="@layout/row_about_list_item" />
+
+                <include
+                    android:id="@+id/item_source_code"
+                    layout="@layout/row_about_list_item" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="56dp"
+                    android:background="@color/card_stroke" />
+
+                <include
+                    android:id="@+id/item_licenses"
+                    layout="@layout/row_about_list_item" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
