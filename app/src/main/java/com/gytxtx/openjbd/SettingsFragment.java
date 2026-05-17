@@ -2,6 +2,7 @@ package com.gytxtx.openjbd;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +10,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public final class SettingsFragment extends Fragment implements BmsStateStore.Listener {
@@ -93,7 +94,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private void showSettingMenu(int position) {
         if (position == 0) {
-            showRadioDialog(R.string.setting_dark_theme, AppSettings.themeValue(requireContext()),
+            showMenu(settingsRow(position), AppSettings.themeValue(requireContext()),
                     new String[]{getString(R.string.setting_dark_theme_system), getString(R.string.setting_dark_theme_always_on), getString(R.string.setting_dark_theme_always_off)},
                     new String[]{AppSettings.VALUE_SYSTEM, AppSettings.VALUE_DARK, AppSettings.VALUE_LIGHT},
                     value -> {
@@ -102,7 +103,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         requireActivity().recreate();
                     });
         } else if (position == 1) {
-            showRadioDialog(R.string.setting_language, AppSettings.languageValue(requireContext()),
+            showMenu(settingsRow(position), AppSettings.languageValue(requireContext()),
                     new String[]{getString(R.string.setting_language_system), getString(R.string.setting_language_zh), getString(R.string.setting_language_en)},
                     new String[]{AppSettings.VALUE_SYSTEM, AppSettings.VALUE_ZH, AppSettings.VALUE_EN},
                     value -> {
@@ -111,7 +112,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         requireActivity().recreate();
                     });
         } else if (position == 2) {
-            showRadioDialog(R.string.setting_temperature_unit, settings().getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C),
+            showMenu(settingsRow(position), settings().getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C),
                     new String[]{getString(R.string.setting_temp_celsius), getString(R.string.setting_temp_fahrenheit)},
                     new String[]{AppSettings.VALUE_C, AppSettings.VALUE_F},
                     value -> {
@@ -120,7 +121,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         BmsStateStore.update(BmsStateStore.getSnapshot());
                     });
         } else if (position == 3) {
-            showRadioDialog(R.string.setting_refresh_interval, AppSettings.refreshIntervalValue(requireContext()),
+            showMenu(settingsRow(position), AppSettings.refreshIntervalValue(requireContext()),
                     new String[]{getString(R.string.setting_refresh_1s), getString(R.string.setting_refresh_2s), getString(R.string.setting_refresh_5s), getString(R.string.setting_refresh_10s)},
                     new String[]{AppSettings.VALUE_REFRESH_1S, AppSettings.VALUE_REFRESH_2S, AppSettings.VALUE_REFRESH_5S, AppSettings.VALUE_REFRESH_10S},
                     value -> {
@@ -135,6 +136,18 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         } else if (position == 5) {
             startActivity(new Intent(requireContext(), AboutActivity.class));
         }
+    }
+
+    private View settingsRow(int position) {
+        LinearLayout parent = settingsGroupParent(position);
+        if (parent == null || position < 0) {
+            return requireView();
+        }
+        int childIndex = position <= 3 ? position : position == 4 ? 0 : 0;
+        if (childIndex >= parent.getChildCount()) {
+            return parent;
+        }
+        return parent.getChildAt(childIndex);
     }
 
     private void setAutoConnectEnabled(boolean enabled, boolean refreshRows) {
@@ -168,24 +181,29 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         connectionManager.connect(address, name.length() == 0 ? address : name);
     }
 
-    private void showRadioDialog(int titleRes, String current, String[] labels, String[] values, final ChoiceHandler handler) {
-        int checked = 0;
+    private void showMenu(View anchor, String current, String[] labels, String[] values, final ChoiceHandler handler) {
+        LinearLayout menuView = (LinearLayout) LayoutInflater.from(requireContext()).inflate(R.layout.popup_setting_menu, null, false);
+        PopupWindow popupWindow = new PopupWindow(menuView, dp(220), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(requireContext().getColor(R.color.surface)));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setElevation(dp(8));
         for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(current)) {
-                checked = i;
-                break;
+            String value = values[i];
+            TextView item = (TextView) LayoutInflater.from(requireContext()).inflate(R.layout.row_setting_menu_item, menuView, false);
+            item.setText(labels[i]);
+            if (value.equals(current)) {
+                item.setBackgroundResource(R.drawable.setting_menu_item_selected);
+                item.setTextColor(requireContext().getColor(R.color.primary));
             }
+            item.setOnClickListener(view -> {
+                popupWindow.dismiss();
+                if (!value.equals(current)) {
+                    handler.onChoice(value);
+                }
+            });
+            menuView.addView(item);
         }
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(titleRes)
-                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
-                    String value = values[which];
-                    if (!value.equals(current)) {
-                        handler.onChoice(value);
-                    }
-                    dialog.dismiss();
-                })
-                .show();
+        popupWindow.showAsDropDown(anchor, 0, -anchor.getHeight());
     }
 
     private SharedPreferences settings() {
@@ -231,6 +249,10 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
 
     private String autoConnectLabel(boolean value) {
         return value ? getString(R.string.setting_auto_connect_on) : getString(R.string.setting_auto_connect_off);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private final class SettingsAdapter extends BaseAdapter {
