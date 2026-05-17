@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public final class AboutActivity extends AppCompatActivity {
     private static final String REPOSITORY_URL = "https://github.com/gytxtx/OpenJBD";
@@ -54,11 +53,7 @@ public final class AboutActivity extends AppCompatActivity {
 
         View licensesItem = findViewById(R.id.item_licenses);
         bindListItem(licensesItem, R.drawable.ic_description_outline_24, getString(R.string.about_item_licenses), null, true);
-        licensesItem.setOnClickListener(view -> new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.about_item_licenses)
-                .setMessage(R.string.about_licenses_placeholder)
-                .setPositiveButton(android.R.string.ok, null)
-                .show());
+        licensesItem.setOnClickListener(view -> startActivity(new Intent(this, LicensesActivity.class)));
     }
 
     private void bindListItem(View item, int iconRes, String titleText, String subtitleText, boolean actionable) {

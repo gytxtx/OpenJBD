@@ -29,6 +29,9 @@
             android:name=".AboutActivity"
             android:exported="false" />
         <activity
+            android:name=".LicensesActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
