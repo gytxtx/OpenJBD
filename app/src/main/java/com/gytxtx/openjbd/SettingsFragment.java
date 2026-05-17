@@ -187,11 +187,13 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         popupWindow.setBackgroundDrawable(new ColorDrawable(requireContext().getColor(R.color.surface)));
         popupWindow.setOutsideTouchable(true);
         popupWindow.setElevation(dp(8));
+        int selectedIndex = 0;
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
             TextView item = (TextView) LayoutInflater.from(requireContext()).inflate(R.layout.row_setting_menu_item, menuView, false);
             item.setText(labels[i]);
             if (value.equals(current)) {
+                selectedIndex = i;
                 item.setBackgroundResource(R.drawable.setting_menu_item_selected);
                 item.setTextColor(requireContext().getColor(R.color.primary));
             }
@@ -203,7 +205,11 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             });
             menuView.addView(item);
         }
-        popupWindow.showAsDropDown(anchor, 0, -anchor.getHeight());
+        int verticalOffset = -anchor.getHeight()
+                - dp(8)
+                - (selectedIndex * dp(48))
+                + ((anchor.getHeight() - dp(48)) / 2);
+        popupWindow.showAsDropDown(anchor, 0, verticalOffset);
     }
 
     private SharedPreferences settings() {
