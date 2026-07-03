@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +135,61 @@ public final class Material2ResourceTest {
         }
     }
 
+    @Test
+    public void secondPassDefinesProjectDimensAndTextAppearances() throws Exception {
+        assertDimen("values/dimens.xml", "space_8", "8dp");
+        assertDimen("values/dimens.xml", "space_12", "12dp");
+        assertDimen("values/dimens.xml", "space_14", "14dp");
+        assertDimen("values/dimens.xml", "space_16", "16dp");
+        assertDimen("values/dimens.xml", "space_18", "18dp");
+        assertDimen("values/dimens.xml", "space_24", "24dp");
+        assertDimen("values/dimens.xml", "touch_target_min", "48dp");
+        assertDimen("values/dimens.xml", "top_app_bar_height", "56dp");
+        assertDimen("values/dimens.xml", "list_top_app_bar_height", "72dp");
+        assertDimen("values/dimens.xml", "placeholder_illustration_size", "88dp");
+
+        Element styles = style(parse("values/styles.xml"), "TextAppearance.OpenJbd.AboutTitle");
+        assertEquals("TextAppearance.MaterialComponents.Headline5", styles.getAttribute("parent"));
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.AboutBody", "TextAppearance.MaterialComponents.Body1");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.ListItemTitle", "TextAppearance.MaterialComponents.Subtitle1");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.ListItemSubtitle", "TextAppearance.MaterialComponents.Body2");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.DashboardStatus", "TextAppearance.MaterialComponents.Subtitle2");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.DashboardLabel", "TextAppearance.MaterialComponents.Subtitle2");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.DashboardPrimaryValue", "TextAppearance.MaterialComponents.Headline3");
+        assertStyleParent("values/styles.xml", "TextAppearance.OpenJbd.DashboardMetricValue", "TextAppearance.MaterialComponents.Headline4");
+        assertStyleParent("values/styles.xml", "Widget.OpenJbd.SecondaryPanel", "");
+    }
+
+    @Test
+    public void secondPassLayoutsUseProjectTokensInsteadOfDirectMaterialStyles() throws Exception {
+        assertFileContains("layout/activity_about.xml", "@style/TextAppearance.OpenJbd.AboutTitle");
+        assertFileContains("layout/activity_about.xml", "@style/TextAppearance.OpenJbd.AboutBody");
+        assertFileDoesNotContain("layout/activity_about.xml", "TextAppearance.MaterialComponents.Headline5");
+        assertFileDoesNotContain("layout/activity_about.xml", "TextAppearance.MaterialComponents.Body1");
+        assertFileContains("layout/row_about_list_item.xml", "@style/TextAppearance.OpenJbd.ListItemTitle");
+        assertFileContains("layout/row_about_list_item.xml", "@style/TextAppearance.OpenJbd.ListItemSubtitle");
+        assertFileDoesNotContain("layout/row_about_list_item.xml", "TextAppearance.MaterialComponents.Subtitle1");
+        assertFileDoesNotContain("layout/row_about_list_item.xml", "TextAppearance.MaterialComponents.Body2");
+        assertFileContains("layout/activity_device_list.xml", "@style/TextAppearance.OpenJbd.DeviceStatus");
+        assertFileContains("layout/activity_dashboard.xml", "@style/TextAppearance.OpenJbd.DashboardStatus");
+        assertFileContains("layout/activity_dashboard.xml", "@style/TextAppearance.OpenJbd.DashboardPrimaryValue");
+        assertFileContains("layout/activity_dashboard.xml", "@style/TextAppearance.OpenJbd.DashboardMetricValue");
+        assertFileContains("layout/activity_dashboard.xml", "@style/TextAppearance.OpenJbd.DashboardLabel");
+    }
+
+    @Test
+    public void secondPassAboutRowIconsRemainDecorative() throws Exception {
+        assertDecorativeImage("layout/row_about_list_item.xml", "img_about_item_icon");
+        assertDecorativeImage("layout/row_about_list_item.xml", "img_about_item_chevron");
+        assertFileDoesNotContain("layout/row_about_list_item.xml", "@string/action_open");
+    }
+
+    @Test
+    public void secondPassOverviewUsesSecondaryPanelStyleInsteadOfRawBackgroundBlocks() throws Exception {
+        assertFileContains("layout/fragment_overview.xml", "style=\"@style/Widget.OpenJbd.SecondaryPanel\"");
+        assertFileDoesNotContain("layout/fragment_overview.xml", "android:background=\"@color/app_bg\"");
+    }
+
     private static Document parse(String relativePath) throws Exception {
         File file = new File("src/main/res", relativePath);
         assertEquals("Resource file must exist", true, file.isFile());
@@ -169,6 +226,17 @@ public final class Material2ResourceTest {
 
     private static void assertColor(String relativePath, String name, String expectedValue) throws Exception {
         assertEquals("Unexpected value for color " + name, expectedValue, colorValue(relativePath, name));
+    }
+
+    private static void assertDimen(String relativePath, String name, String expectedValue) throws Exception {
+        Document document = parse(relativePath);
+        for (Element dimen : elements(document, "dimen")) {
+            if (name.equals(dimen.getAttribute("name"))) {
+                assertEquals("Unexpected value for dimen " + name, expectedValue, dimen.getTextContent().trim());
+                return;
+            }
+        }
+        throw new AssertionError("Missing dimen " + name + " in " + relativePath);
     }
 
     private static String colorValue(String relativePath, String name) throws Exception {
@@ -259,6 +327,32 @@ public final class Material2ResourceTest {
         }
         assertNotNull("Missing view: " + id, target);
         assertEquals("polite", target.getAttributeNS(ANDROID_NAMESPACE, "accessibilityLiveRegion"));
+    }
+
+    private static void assertStyleParent(String relativePath, String styleName, String expectedParent)
+            throws Exception {
+        Element style = style(parse(relativePath), styleName);
+        assertEquals(expectedParent, style.getAttribute("parent"));
+    }
+
+    private static void assertFileContains(String relativePath, String expectedText) throws Exception {
+        String content = readResourceFile(relativePath);
+        if (!content.contains(expectedText)) {
+            fail(relativePath + " does not contain expected text: " + expectedText);
+        }
+    }
+
+    private static void assertFileDoesNotContain(String relativePath, String unexpectedText) throws Exception {
+        String content = readResourceFile(relativePath);
+        if (content.contains(unexpectedText)) {
+            fail(relativePath + " contains unexpected text: " + unexpectedText);
+        }
+    }
+
+    private static String readResourceFile(String relativePath) throws Exception {
+        File file = new File("src/main/res", relativePath);
+        assertEquals("Resource file must exist", true, file.isFile());
+        return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
     }
 
     private static List<Element> elements(Document document, String tagName) {

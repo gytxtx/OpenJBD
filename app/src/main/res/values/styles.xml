@@ -61,38 +61,108 @@
         <item name="elevation">8dp</item>
     </style>
 
+    <style name="Widget" />
+
+    <style name="Widget.OpenJbd" />
+
     <style name="OpenJbdSectionTitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">24dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:paddingTop">@dimen/space_24</item>
+        <item name="android:paddingBottom">@dimen/space_8</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+        <item name="android:textColor">@color/text_primary</item>
     </style>
 
-    <style name="TextAppearance.OpenJbd.EmptyTitle" parent="TextAppearance.MaterialComponents.Headline5" />
+    <style name="TextAppearance.OpenJbd.EmptyTitle" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
 
-    <style name="TextAppearance.OpenJbd.EmptyBody" parent="TextAppearance.MaterialComponents.Body1" />
+    <style name="TextAppearance.OpenJbd.EmptyBody" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
 
     <style name="TextAppearance.OpenJbd.Status" parent="TextAppearance.MaterialComponents.Body2" />
 
+    <style name="TextAppearance.OpenJbd.DeviceStatus" parent="TextAppearance.OpenJbd.Status">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.StatusValue" parent="TextAppearance.OpenJbd.Status">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
     <style name="TextAppearance.OpenJbd.MetricLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.OpenJbd.MetricValue" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.OpenJbd.PrimaryMetricValue" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.OpenJbd.Supporting" parent="TextAppearance.MaterialComponents.Caption" />
+    <style name="TextAppearance.OpenJbd.Supporting" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
 
-    <style name="TextAppearance.OpenJbd.CellLabel" parent="TextAppearance.MaterialComponents.Subtitle2" />
+    <style name="TextAppearance.OpenJbd.CellLabel" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
 
     <style name="TextAppearance.OpenJbd.CellValue" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.AboutTitle" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.AboutBody" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.ListItemTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.ListItemSubtitle" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.DashboardStatus" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">@color/dashboard_status</item>
+        <item name="android:textSize">@dimen/dashboard_status_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.DashboardLabel" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/dashboard_text_secondary</item>
+        <item name="android:textSize">@dimen/dashboard_label_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.DashboardPrimaryValue" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:textColor">@color/dashboard_text_primary</item>
+        <item name="android:textSize">@dimen/dashboard_primary_value_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.OpenJbd.DashboardMetricValue" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">@color/dashboard_text_primary</item>
+        <item name="android:textSize">@dimen/dashboard_metric_value_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.OpenJbd.SecondaryPanel">
+        <item name="android:background">@color/app_bg</item>
+        <item name="android:padding">@dimen/space_12</item>
     </style>
 </resources>

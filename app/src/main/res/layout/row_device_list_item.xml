@@ -1,17 +1,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="@dimen/list_top_app_bar_height"
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingStart="@dimen/space_16"
+    android:paddingEnd="@dimen/space_16">
 
     <ImageView
         android:id="@+id/img_device_type"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="@dimen/icon_size_28"
+        android:layout_height="@dimen/icon_size_28"
+        android:layout_marginEnd="@dimen/space_16"
         android:contentDescription="@null"
         android:importantForAccessibility="no" />
 
@@ -27,8 +27,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textColor="@color/text_primary"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            android:textAppearance="@style/TextAppearance.OpenJbd.ListItemTitle" />
 
         <TextView
             android:id="@+id/txt_device_subtitle"
@@ -36,7 +35,6 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textColor="@color/text_secondary"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+            android:textAppearance="@style/TextAppearance.OpenJbd.ListItemSubtitle" />
     </LinearLayout>
 </LinearLayout>
