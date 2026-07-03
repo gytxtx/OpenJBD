@@ -1,9 +1,18 @@
 $ErrorActionPreference = "Stop"
 
-$gradle = "$env:USERPROFILE\.gradle\wrapper\dists\gradle-9.2.1-bin\2t0n5ozlw9xmuyvbp7dnzaxug\gradle-9.2.1\bin\gradle.bat"
+$gradle = Join-Path $PSScriptRoot "gradlew.bat"
 
-if (-not (Test-Path $gradle)) {
+if (-not (Test-Path -LiteralPath $gradle -PathType Leaf)) {
     throw "Gradle wrapper runtime not found: $gradle"
 }
 
-& $gradle deployDebug --offline
+Push-Location $PSScriptRoot
+try {
+    & $gradle deployDebug --offline
+    if ($LASTEXITCODE -ne 0) {
+        throw "Gradle deployDebug failed with exit code $LASTEXITCODE"
+    }
+}
+finally {
+    Pop-Location
+}
