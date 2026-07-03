@@ -1,6 +1,7 @@
 package com.gytxtx.openjbd.protocol;
 
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -190,7 +191,7 @@ public final class JbdParser {
     }
 
     private static String softwareVersion(int value) {
-        String hex = Integer.toHexString(value).toUpperCase();
+        String hex = Integer.toHexString(value).toUpperCase(Locale.ROOT);
         if (hex.length() == 1) {
             return hex;
         }

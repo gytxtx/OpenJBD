@@ -256,7 +256,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         chip.setClickable(false);
         chip.setTextColor(requireContext().getColor(primary ? R.color.primary : R.color.text_primary));
         chip.setChipBackgroundColorResource(R.color.surface);
-        chip.setChipStrokeColorResource(primary ? R.color.primary : R.color.card_stroke);
+        chip.setChipStrokeColorResource(primary ? R.color.primary : R.color.card_outline);
         chip.setChipStrokeWidth(dp(1));
         chip.setChipMinHeight(dp(36));
         chip.setTextSize(14);
@@ -322,7 +322,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         MaterialCardView card = new MaterialCardView(requireContext());
         card.setCardBackgroundColor(requireContext().getColor(R.color.surface));
         card.setRadius(dp(8));
-        card.setStrokeColor(requireContext().getColor(R.color.card_stroke));
+        card.setStrokeColor(requireContext().getColor(R.color.card_outline));
         card.setStrokeWidth(1);
         card.setCardElevation(dp(2));
         card.setUseCompatPadding(true);

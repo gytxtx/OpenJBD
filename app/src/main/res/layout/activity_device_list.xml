@@ -2,7 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_bg"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,17 +13,14 @@
         android:paddingBottom="6dp"
         app:menu="@menu/device_toolbar_menu"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="@color/text_primary"
         app:subtitle="@string/toolbar_devices_subtitle"
-        app:subtitleTextColor="@color/text_secondary"
-        app:title="@string/toolbar_devices_title"
-        app:titleTextColor="@color/text_primary"
-        app:itemIconTint="@color/text_primary" />
+        app:title="@string/toolbar_devices_title" />
 
     <TextView
         android:id="@+id/txt_device_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
@@ -64,6 +60,8 @@
                         android:id="@+id/img_device_placeholder"
                         android:layout_width="88dp"
                         android:layout_height="88dp"
+                        android:contentDescription="@null"
+                        android:importantForAccessibility="no"
                         android:src="@drawable/ic_bluetooth_searching_24"
                         app:tint="@color/icon_default" />
 
@@ -74,9 +72,9 @@
                         android:gravity="center"
                         android:paddingTop="18dp"
                         android:text="@string/device_placeholder_scanning_title"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.EmptyTitle"
                         android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+                        />
 
                     <TextView
                         android:id="@+id/txt_device_placeholder_subtitle"
@@ -85,8 +83,8 @@
                         android:gravity="center"
                         android:paddingTop="6dp"
                         android:text="@string/device_placeholder_scanning_subtitle"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="15sp" />
+                        android:textAppearance="@style/TextAppearance.OpenJbd.EmptyBody"
+                        android:textColor="@color/text_secondary" />
                 </LinearLayout>
 
                 <LinearLayout

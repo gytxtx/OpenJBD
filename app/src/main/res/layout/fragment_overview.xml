@@ -26,6 +26,8 @@
             <ImageView
                 android:layout_width="88dp"
                 android:layout_height="88dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_bluetooth_searching_24"
                 app:tint="@color/icon_default" />
 
@@ -35,9 +37,9 @@
                 android:gravity="center"
                 android:paddingTop="18dp"
                 android:text="@string/connect_placeholder_title"
+                android:textAppearance="@style/TextAppearance.OpenJbd.EmptyTitle"
                 android:textColor="@color/text_primary"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                />
 
             <TextView
                 android:layout_width="match_parent"
@@ -45,8 +47,8 @@
                 android:gravity="center"
                 android:paddingTop="6dp"
                 android:text="@string/connect_placeholder_subtitle"
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.EmptyBody"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
         <LinearLayout
@@ -87,9 +89,11 @@
                         android:id="@+id/txt_reconnect_banner_body"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:accessibilityLiveRegion="polite"
                         android:layout_marginTop="4dp"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.Status"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -133,10 +137,12 @@
                     android:id="@+id/txt_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:accessibilityLiveRegion="polite"
                     android:lineSpacingExtra="1dp"
                     android:padding="14dp"
+                    android:textAppearance="@style/TextAppearance.OpenJbd.Status"
                     android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
+                    />
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
@@ -155,8 +161,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/state_of_charge"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.Status"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -165,9 +171,9 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="4dp"
                         android:paddingBottom="8dp"
-                        android:text="--%"
+                        android:text="@string/placeholder_percent"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.PrimaryMetricValue"
                         android:textColor="@color/text_primary"
-                        android:textSize="44sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -185,8 +191,9 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="12dp"
                         android:text="@string/local_ble_note"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.Supporting"
                         android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
+                        />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -242,6 +249,8 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_marginEnd="6dp"
+                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             android:src="@drawable/ic_widgets_outline_24"
                             app:tint="@color/icon_default" />
 
@@ -249,8 +258,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/metric_status"
+                            android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -266,8 +275,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/metric_mos"
+                            android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -275,9 +284,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingTop="4dp"
-                            android:text="--"
+                            android:text="@string/placeholder_value"
+                            android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
                             android:textColor="@color/text_primary"
-                            android:textSize="18sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -285,6 +294,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:baselineAligned="false"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -300,8 +310,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/metric_balance"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -309,9 +319,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="4dp"
-                                android:text="--"
-                                android:textColor="@color/text_primary"
-                                android:textSize="15sp" />
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.Status"
+                                android:textColor="@color/text_primary" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -327,8 +337,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/metric_protection"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -336,9 +346,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="4dp"
-                                android:text="--"
-                                android:textColor="@color/text_primary"
-                                android:textSize="15sp" />
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.Status"
+                                android:textColor="@color/text_primary" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -366,6 +376,8 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_marginEnd="6dp"
+                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             android:src="@drawable/ic_thermostat_24"
                             app:tint="@color/icon_default" />
 
@@ -373,8 +385,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/metric_temperature"
+                            android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -383,9 +395,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="6dp"
-                        android:text="--"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:text="@string/placeholder_value"
+                        android:textAppearance="@style/TextAppearance.OpenJbd.Status"
+                        android:textColor="@color/text_primary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chips_temperatures"
@@ -433,8 +445,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cell_min_voltage"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -442,9 +454,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="6dp"
-                                android:text="--"
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
                                 android:textColor="@color/text_primary"
-                                android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -466,8 +478,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cell_max_voltage"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -475,9 +487,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="6dp"
-                                android:text="--"
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
                                 android:textColor="@color/text_primary"
-                                android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -506,8 +518,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cell_delta_voltage"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -515,9 +527,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="6dp"
-                                android:text="--"
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
                                 android:textColor="@color/text_primary"
-                                android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -539,8 +551,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/cell_average_voltage"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -548,9 +560,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingTop="6dp"
-                                android:text="--"
+                                android:text="@string/placeholder_value"
+                                android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
                                 android:textColor="@color/text_primary"
-                                android:textSize="20sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>

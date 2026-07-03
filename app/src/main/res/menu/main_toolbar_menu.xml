@@ -5,12 +5,12 @@
         android:icon="@drawable/ic_dashboard_24"
         android:title="@string/action_dashboard"
         android:visible="false"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_disconnect"
         android:icon="@drawable/ic_link_off_24"
         android:title="@string/action_disconnect"
         android:visible="false"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>

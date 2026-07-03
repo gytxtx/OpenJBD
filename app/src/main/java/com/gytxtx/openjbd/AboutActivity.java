@@ -31,7 +31,7 @@ public final class AboutActivity extends AppCompatActivity {
         SystemBars.applyAppBars(this);
 
         MaterialToolbar toolbar = findViewById(R.id.about_top_app_bar);
-        toolbar.setNavigationIconTint(getColor(R.color.text_primary));
+        toolbar.setNavigationIconTint(getColor(R.color.on_primary));
         toolbar.setOnMenuItemClickListener(new MaterialToolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {

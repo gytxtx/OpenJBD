@@ -16,7 +16,7 @@ final class SystemBars {
     static void applyAppBars(Activity activity) {
         Window window = activity.getWindow();
         boolean darkTheme = isDarkTheme(activity);
-        window.setStatusBarColor(activity.getColor(R.color.app_bg));
+        window.setStatusBarColor(activity.getColor(R.color.primary_dark));
         window.setNavigationBarColor(activity.getColor(R.color.surface));
         if (Build.VERSION.SDK_INT >= 29) {
             window.setStatusBarContrastEnforced(false);
@@ -25,9 +25,9 @@ final class SystemBars {
         if (Build.VERSION.SDK_INT >= 30) {
             WindowInsetsController controller = window.getDecorView().getWindowInsetsController();
             if (controller != null) {
-                int appearance = darkTheme ? 0
-                        : WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                        | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+                int appearance = darkTheme
+                        ? WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                        : WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
                 controller.setSystemBarsAppearance(appearance,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                                 | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
@@ -62,7 +62,7 @@ final class SystemBars {
 
     private static void applyLegacyBarIcons(Window window, boolean darkTheme) {
         int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        if (!darkTheme && Build.VERSION.SDK_INT >= 23) {
+        if (darkTheme && Build.VERSION.SDK_INT >= 23) {
             flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
         }
         if (!darkTheme && Build.VERSION.SDK_INT >= 26) {

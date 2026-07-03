@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -108,7 +109,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         SystemBars.applyAppBars(this);
 
         toolbar = findViewById(R.id.top_app_bar);
-        toolbar.setNavigationIconTint(getColor(R.color.text_primary));
+        toolbar.setNavigationIconTint(getColor(R.color.on_primary));
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -134,7 +135,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         for (int i = 0; i < toolbar.getMenu().size(); i++) {
             MenuItem toolbarItem = toolbar.getMenu().getItem(i);
             if (toolbarItem.getIcon() != null) {
-                toolbarItem.getIcon().setTint(getColor(R.color.text_primary));
+                toolbarItem.getIcon().setTint(getColor(R.color.on_primary));
             }
         }
 
@@ -162,8 +163,10 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         int previousPage = currentPage;
         currentPage = page;
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fragment_material_enter, R.anim.fragment_material_exit);
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (systemAnimationsEnabled()) {
+            transaction.setCustomAnimations(R.anim.fragment_material_enter, R.anim.fragment_material_exit);
+        }
         Fragment target = fragmentManager.findFragmentByTag(pageTag(page));
         if (target == null) {
             target = createPageFragment(page);
@@ -215,6 +218,11 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             return;
         }
         itemView.animate().cancel();
+        if (!systemAnimationsEnabled()) {
+            itemView.setScaleX(1f);
+            itemView.setScaleY(1f);
+            return;
+        }
         itemView.setScaleX(0.96f);
         itemView.setScaleY(0.96f);
         itemView.animate()
@@ -223,6 +231,18 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
                 .setDuration(PAGE_TRANSITION_MS)
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
+    }
+
+    static boolean animationsEnabled(float animatorDurationScale) {
+        return animatorDurationScale > 0f;
+    }
+
+    private boolean systemAnimationsEnabled() {
+        float animatorDurationScale = Settings.Global.getFloat(
+                getContentResolver(),
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f);
+        return animationsEnabled(animatorDurationScale);
     }
 
     private int navItemId(int page) {
@@ -249,7 +269,7 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         toolbar.setTitle(pageTitle());
         toolbar.setSubtitle(shouldShowDeviceSubtitle() ? connectedDeviceName : getString(R.string.toolbar_subtitle_local));
         toolbar.setNavigationIcon(R.drawable.ic_list_24);
-        toolbar.setNavigationIconTint(getColor(R.color.text_primary));
+        toolbar.setNavigationIconTint(getColor(R.color.on_primary));
         Menu menu = toolbar.getMenu();
         MenuItem disconnectItem = menu.findItem(R.id.action_disconnect);
         if (disconnectItem != null) {

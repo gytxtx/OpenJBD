@@ -2,7 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_bg"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -16,12 +15,8 @@
         android:paddingBottom="6dp"
         app:menu="@menu/main_toolbar_menu"
         app:navigationIcon="@drawable/ic_list_24"
-        app:navigationIconTint="@color/text_primary"
         app:subtitle="@string/toolbar_subtitle_local"
-        app:subtitleTextColor="@color/text_secondary"
-        app:title="OpenJBD"
-        app:titleTextColor="@color/text_primary"
-        app:itemIconTint="@color/text_primary" />
+        app:title="OpenJBD" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_fragment_container"

@@ -25,6 +25,8 @@
             <ImageView
                 android:layout_width="88dp"
                 android:layout_height="88dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_info_24"
                 app:tint="@color/icon_default" />
 
@@ -34,9 +36,9 @@
                 android:gravity="center"
                 android:paddingTop="18dp"
                 android:text="@string/parameters_placeholder_title"
+                android:textAppearance="@style/TextAppearance.OpenJbd.EmptyTitle"
                 android:textColor="@color/text_primary"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                />
 
             <TextView
                 android:layout_width="match_parent"
@@ -44,8 +46,8 @@
                 android:gravity="center"
                 android:paddingTop="6dp"
                 android:text="@string/parameters_placeholder_subtitle"
-                android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.EmptyBody"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
