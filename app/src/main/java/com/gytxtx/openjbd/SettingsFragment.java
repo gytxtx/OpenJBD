@@ -1,5 +1,6 @@
 package com.gytxtx.openjbd;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -181,10 +182,11 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
         connectionManager.connect(address, name.length() == 0 ? address : name);
     }
 
+    @SuppressLint("InflateParams")
     private void showMenu(View anchor, String current, String[] labels, String[] values, final ChoiceHandler handler) {
         LinearLayout menuView = (LinearLayout) LayoutInflater.from(requireContext()).inflate(R.layout.popup_setting_menu, null, false);
         PopupWindow popupWindow = new PopupWindow(menuView, dp(220), ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(requireContext().getColor(R.color.surface)));
+        popupWindow.setBackgroundDrawable(new ColorDrawable(requireContext().getColor(R.color.surface_elevation_8)));
         popupWindow.setOutsideTouchable(true);
         popupWindow.setElevation(dp(8));
         int selectedIndex = 0;

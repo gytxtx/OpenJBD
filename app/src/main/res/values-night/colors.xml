@@ -1,13 +1,23 @@
 <resources>
-    <color name="app_bg">#101418</color>
+    <color name="app_bg">#121212</color>
     <color name="primary">#8AB4F8</color>
     <color name="primary_dark">#5F8FD6</color>
     <color name="accent">#4AD6A0</color>
-    <color name="on_primary">#101418</color>
-    <color name="on_secondary">#101418</color>
+    <color name="accent_dark">#00A676</color>
+    <color name="on_primary">#121212</color>
+    <color name="on_secondary">#121212</color>
+    <color name="error">#FF8A80</color>
+    <color name="on_error">#121212</color>
     <color name="danger">#FF8A80</color>
-    <color name="surface">#1B2026</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="surface_elevation_1">#1E1E1E</color>
+    <color name="surface_elevation_2">#242424</color>
+    <color name="surface_elevation_4">#272727</color>
+    <color name="surface_elevation_8">#2D2D2D</color>
+    <color name="surface_elevation_12">#323232</color>
+    <color name="surface_elevation_16">#353535</color>
     <color name="card_stroke">#2A313A</color>
+    <color name="card_outline">#69737E</color>
     <color name="progress_track">#303842</color>
     <color name="text_primary">#E8EAED</color>
     <color name="text_secondary">#A8B0BA</color>

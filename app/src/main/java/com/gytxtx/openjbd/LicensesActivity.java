@@ -29,7 +29,7 @@ public final class LicensesActivity extends AppCompatActivity {
         SystemBars.applyAppBars(this);
 
         MaterialToolbar toolbar = findViewById(R.id.licenses_top_app_bar);
-        toolbar.setNavigationIconTint(getColor(R.color.text_primary));
+        toolbar.setNavigationIconTint(getColor(R.color.on_primary));
         toolbar.setNavigationOnClickListener(view -> finish());
 
         licenseItems = new LicenseItem[]{

@@ -5,12 +5,15 @@
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent_dark</item>
         <item name="android:colorBackground">@color/app_bg</item>
         <item name="colorSurface">@color/surface</item>
+        <item name="colorError">@color/error</item>
         <item name="colorOnPrimary">@color/on_primary</item>
         <item name="colorOnSecondary">@color/on_secondary</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnError">@color/on_error</item>
         <item name="colorControlNormal">@color/icon_default</item>
         <item name="android:windowBackground">@color/app_bg</item>
         <item name="android:windowLightStatusBar">false</item>

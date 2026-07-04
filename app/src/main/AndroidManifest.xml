@@ -16,12 +16,13 @@
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".DashboardActivity"
             android:exported="false"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/DashboardTheme" />
         <activity
             android:name=".DeviceListActivity"
             android:exported="false" />

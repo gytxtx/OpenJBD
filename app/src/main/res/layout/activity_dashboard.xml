@@ -1,46 +1,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
     android:keepScreenOn="true"
     android:orientation="vertical"
-    android:paddingStart="40dp"
-    android:paddingTop="24dp"
-    android:paddingEnd="40dp"
-    android:paddingBottom="28dp">
+    android:paddingStart="@dimen/space_40"
+    android:paddingTop="@dimen/space_24"
+    android:paddingEnd="@dimen/space_40"
+    android:paddingBottom="@dimen/space_28">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp">
+        android:layout_height="@dimen/touch_target_min">
 
         <ImageButton
             android:id="@+id/btn_dashboard_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
             android:layout_gravity="start|center_vertical"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_back"
-            android:padding="12dp"
+            android:padding="@dimen/space_12"
             android:src="@drawable/ic_arrow_back_24"
-            android:tint="#FFFFFFFF" />
+            app:tint="@color/dashboard_text_primary" />
 
         <TextView
             android:id="@+id/txt_dashboard_status"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:accessibilityLiveRegion="polite"
             android:gravity="center"
-            android:paddingStart="56dp"
-            android:paddingEnd="56dp"
+            android:paddingStart="@dimen/space_56"
+            android:paddingEnd="@dimen/space_56"
             android:text="@string/dashboard_waiting_data"
-            android:textColor="#8AFFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.OpenJbd.DashboardStatus" />
     </FrameLayout>
 
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="@dimen/space_18"
         android:layout_weight="1"
         android:alignmentMode="alignBounds"
         android:columnCount="2"
@@ -54,32 +53,27 @@
             android:layout_rowWeight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/space_12">
 
             <TextView
                 android:id="@+id/txt_dashboard_soc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="80sp"
-                android:autoSizeMinTextSize="42sp"
-                android:autoSizeStepGranularity="2sp"
-                android:autoSizeTextType="uniform"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="--%"
-                android:textColor="#FFFFFFFF"
-                android:textSize="80sp"
-                android:textStyle="bold" />
+                android:text="@string/placeholder_percent"
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardPrimaryValue"
+                app:autoSizeMaxTextSize="@dimen/dashboard_primary_value_size"
+                app:autoSizeMinTextSize="@dimen/dashboard_primary_value_min_size"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/state_of_charge"
-                android:textAllCaps="true"
-                android:textColor="#99FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardLabel" />
         </LinearLayout>
 
         <LinearLayout
@@ -89,32 +83,27 @@
             android:layout_rowWeight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/space_12">
 
             <TextView
                 android:id="@+id/txt_dashboard_voltage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="58sp"
-                android:autoSizeMinTextSize="32sp"
-                android:autoSizeStepGranularity="2sp"
-                android:autoSizeTextType="uniform"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="-- V"
-                android:textColor="#FFFFFFFF"
-                android:textSize="58sp"
-                android:textStyle="bold" />
+                android:text="@string/placeholder_voltage"
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardMetricValue"
+                app:autoSizeMaxTextSize="@dimen/dashboard_metric_value_size"
+                app:autoSizeMinTextSize="@dimen/dashboard_metric_value_min_size"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/metric_voltage"
-                android:textAllCaps="true"
-                android:textColor="#99FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardLabel" />
         </LinearLayout>
 
         <LinearLayout
@@ -124,32 +113,27 @@
             android:layout_rowWeight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/space_12">
 
             <TextView
                 android:id="@+id/txt_dashboard_current"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="58sp"
-                android:autoSizeMinTextSize="32sp"
-                android:autoSizeStepGranularity="2sp"
-                android:autoSizeTextType="uniform"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="-- A"
-                android:textColor="#FFFFFFFF"
-                android:textSize="58sp"
-                android:textStyle="bold" />
+                android:text="@string/placeholder_current"
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardMetricValue"
+                app:autoSizeMaxTextSize="@dimen/dashboard_metric_value_size"
+                app:autoSizeMinTextSize="@dimen/dashboard_metric_value_min_size"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/metric_current"
-                android:textAllCaps="true"
-                android:textColor="#99FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardLabel" />
         </LinearLayout>
 
         <LinearLayout
@@ -159,32 +143,27 @@
             android:layout_rowWeight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/space_12">
 
             <TextView
                 android:id="@+id/txt_dashboard_power"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="58sp"
-                android:autoSizeMinTextSize="32sp"
-                android:autoSizeStepGranularity="2sp"
-                android:autoSizeTextType="uniform"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="-- W"
-                android:textColor="#FFFFFFFF"
-                android:textSize="58sp"
-                android:textStyle="bold" />
+                android:text="@string/placeholder_power"
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardMetricValue"
+                app:autoSizeMaxTextSize="@dimen/dashboard_metric_value_size"
+                app:autoSizeMinTextSize="@dimen/dashboard_metric_value_min_size"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/metric_power"
-                android:textAllCaps="true"
-                android:textColor="#99FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.OpenJbd.DashboardLabel" />
         </LinearLayout>
     </GridLayout>
 </LinearLayout>

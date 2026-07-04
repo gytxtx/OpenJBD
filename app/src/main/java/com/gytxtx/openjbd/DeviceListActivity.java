@@ -106,7 +106,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_list);
         SystemBars.applyAppBars(this);
         toolbar = findViewById(R.id.device_top_app_bar);
-        toolbar.setNavigationIconTint(getColorCompat(R.color.text_primary));
+        toolbar.setNavigationIconTint(getColorCompat(R.color.on_primary));
         swipeRefresh = findViewById(R.id.device_swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.primary, R.color.accent);
         swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.surface);
@@ -140,7 +140,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         });
         MenuItem refreshIcon = toolbar.getMenu().findItem(R.id.action_refresh);
         if (refreshIcon != null && refreshIcon.getIcon() != null) {
-            refreshIcon.getIcon().setTint(getColorCompat(R.color.text_primary));
+            refreshIcon.getIcon().setTint(getColorCompat(R.color.on_primary));
         }
         showPlaceholder(getString(R.string.device_placeholder_scanning_title), scanningSubtitle());
         startScanWithPermissions();

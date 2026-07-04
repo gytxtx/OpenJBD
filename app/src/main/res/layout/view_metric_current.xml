@@ -22,6 +22,8 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="6dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_bolt_24"
                 app:tint="@color/primary" />
 
@@ -29,8 +31,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/metric_current"
+                android:textAppearance="@style/TextAppearance.OpenJbd.MetricLabel"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -39,9 +41,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
-            android:text="--"
+            android:text="@string/placeholder_value"
+            android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
             android:textColor="@color/text_primary"
-            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

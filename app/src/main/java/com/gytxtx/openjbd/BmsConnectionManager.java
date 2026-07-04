@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothStatusCodes;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -95,9 +96,10 @@ final class BmsConnectionManager {
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
+        @SuppressLint("MissingPermission")
         public void onConnectionStateChange(BluetoothGatt bluetoothGatt, int status, int newState) {
             if (gatt != bluetoothGatt) {
-                bluetoothGatt.close();
+                closeGattIfPermitted(bluetoothGatt);
                 return;
             }
             if (status != BluetoothGatt.GATT_SUCCESS && newState != BluetoothProfile.STATE_DISCONNECTED) {
@@ -105,6 +107,10 @@ final class BmsConnectionManager {
                 return;
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                if (!hasConnectPermission()) {
+                    failConnection(BmsStateStore.ConnectionState.PERMISSION_REQUIRED, getString(R.string.status_auto_connect_permission_required));
+                    return;
+                }
                 connected = true;
                 reconnectAttempts = 0;
                 updateState(BmsStateStore.getSnapshot().withConnectionState(BmsStateStore.ConnectionState.DISCOVERING_SERVICES, true, getString(R.string.status_connected_discovering)));
@@ -121,7 +127,7 @@ final class BmsConnectionManager {
                 handler.removeCallbacks(commandTimeoutRunnable);
                 frameAssembler.reset();
                 gatt = null;
-                bluetoothGatt.close();
+                closeGattIfPermitted(bluetoothGatt);
                 if (!intentionalDisconnect && shouldAutoReconnect()) {
                     scheduleReconnect(getString(R.string.status_connection_lost));
                 } else if (!intentionalDisconnect) {
@@ -177,9 +183,10 @@ final class BmsConnectionManager {
         }
 
         @Override
+        @SuppressLint("MissingPermission")
         public void onDescriptorWrite(BluetoothGatt bluetoothGatt, BluetoothGattDescriptor descriptor, int status) {
             if (gatt != bluetoothGatt) {
-                bluetoothGatt.close();
+                closeGattIfPermitted(bluetoothGatt);
                 return;
             }
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -238,7 +245,6 @@ final class BmsConnectionManager {
         }
     }
 
-    @SuppressLint("MissingPermission")
     void connect(String address, String name) {
         connectInternal(address, name, false);
     }
@@ -256,12 +262,12 @@ final class BmsConnectionManager {
             handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_UNAVAILABLE, getString(R.string.status_bluetooth_unavailable), reconnect);
             return;
         }
-        if (!adapter.isEnabled()) {
-            handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_OFF, getString(reconnect ? R.string.status_auto_connect_bluetooth_off : R.string.status_bluetooth_off), reconnect);
-            return;
-        }
         if (!hasConnectPermission()) {
             handleConnectPrecheckFailure(BmsStateStore.ConnectionState.PERMISSION_REQUIRED, getString(R.string.status_auto_connect_permission_required), reconnect);
+            return;
+        }
+        if (!adapter.isEnabled()) {
+            handleConnectPrecheckFailure(BmsStateStore.ConnectionState.BLUETOOTH_OFF, getString(reconnect ? R.string.status_auto_connect_bluetooth_off : R.string.status_bluetooth_off), reconnect);
             return;
         }
         disconnect(false);
@@ -307,8 +313,10 @@ final class BmsConnectionManager {
         handler.removeCallbacks(commandTimeoutRunnable);
         frameAssembler.reset();
         if (gatt != null) {
-            gatt.disconnect();
-            gatt.close();
+            if (hasConnectPermission()) {
+                gatt.disconnect();
+                gatt.close();
+            }
             gatt = null;
         }
         if (publishState) {
@@ -321,7 +329,17 @@ final class BmsConnectionManager {
     }
 
     @SuppressLint("MissingPermission")
+    private void closeGattIfPermitted(BluetoothGatt bluetoothGatt) {
+        if (hasConnectPermission()) {
+            bluetoothGatt.close();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private boolean enableNotifications(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic) {
+        if (!hasConnectPermission()) {
+            return false;
+        }
         if (!bluetoothGatt.setCharacteristicNotification(characteristic, true)) {
             return false;
         }
@@ -330,7 +348,7 @@ final class BmsConnectionManager {
             return false;
         }
         if (Build.VERSION.SDK_INT >= 33) {
-            return bluetoothGatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) == BluetoothGatt.GATT_SUCCESS;
+            return bluetoothGatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) == BluetoothStatusCodes.SUCCESS;
         }
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return bluetoothGatt.writeDescriptor(descriptor);
@@ -374,14 +392,14 @@ final class BmsConnectionManager {
 
     @SuppressLint("MissingPermission")
     private void sendCommand(CommandRequest request) {
-        if (gatt == null || writeCharacteristic == null || writeInFlight || currentCommand != null) {
+        if (gatt == null || writeCharacteristic == null || writeInFlight || currentCommand != null || !hasConnectPermission()) {
             return;
         }
         currentCommand = request;
         writeInFlight = true;
         boolean started;
         if (Build.VERSION.SDK_INT >= 33) {
-            started = gatt.writeCharacteristic(writeCharacteristic, request.command, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == BluetoothGatt.GATT_SUCCESS;
+            started = gatt.writeCharacteristic(writeCharacteristic, request.command, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS;
         } else {
             writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             writeCharacteristic.setValue(request.command);

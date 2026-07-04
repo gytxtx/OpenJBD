@@ -1,42 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="64dp"
+    android:minHeight="@dimen/touch_target_min"
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingTop="10dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="10dp">
+    android:paddingTop="@dimen/space_10"
+    android:paddingStart="@dimen/space_16"
+    android:paddingEnd="@dimen/space_16"
+    android:paddingBottom="@dimen/space_10">
 
     <ImageView
         android:id="@+id/img_setting_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="16dp" />
+        android:layout_width="@dimen/icon_size_24"
+        android:layout_height="@dimen/icon_size_24"
+        android:layout_marginEnd="@dimen/space_16"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginEnd="12dp"
+        android:layout_marginEnd="@dimen/space_12"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/txt_setting_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+            android:textAppearance="@style/TextAppearance.OpenJbd.ListItemTitle" />
 
         <TextView
             android:id="@+id/txt_setting_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="2dp"
-            android:textColor="@color/text_secondary"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+            android:paddingTop="@dimen/space_2"
+            android:textAppearance="@style/TextAppearance.OpenJbd.ListItemSubtitle" />
     </LinearLayout>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -48,7 +48,9 @@
 
     <ImageView
         android:id="@+id/img_setting_chevron"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="@dimen/icon_size_24"
+        android:layout_height="@dimen/icon_size_24"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
         android:visibility="gone" />
 </LinearLayout>
