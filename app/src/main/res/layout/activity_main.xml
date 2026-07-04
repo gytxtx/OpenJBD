@@ -8,14 +8,10 @@
         android:id="@+id/top_app_bar"
         style="@style/Widget.OpenJbd.Toolbar"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:paddingStart="16dp"
-        android:paddingTop="6dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="6dp"
+        android:layout_height="@dimen/top_app_bar_height"
         app:menu="@menu/main_toolbar_menu"
+        app:navigationContentDescription="@string/action_select_device"
         app:navigationIcon="@drawable/ic_list_24"
-        app:subtitle="@string/toolbar_subtitle_local"
         app:title="OpenJBD" />
 
     <androidx.fragment.app.FragmentContainerView

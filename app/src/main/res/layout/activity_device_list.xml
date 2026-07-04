@@ -8,12 +8,10 @@
         android:id="@+id/device_top_app_bar"
         style="@style/Widget.OpenJbd.Toolbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/list_top_app_bar_height"
-        android:paddingTop="@dimen/space_6"
-        android:paddingBottom="@dimen/space_6"
+        android:layout_height="@dimen/top_app_bar_height"
         app:menu="@menu/device_toolbar_menu"
+        app:navigationContentDescription="@string/action_back"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:subtitle="@string/toolbar_devices_subtitle"
         app:title="@string/toolbar_devices_title" />
 
     <TextView

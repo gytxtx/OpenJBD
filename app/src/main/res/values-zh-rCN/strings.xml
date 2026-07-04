@@ -10,6 +10,7 @@
     <string name="action_open">打开</string>
     <string name="action_dashboard">仪表盘</string>
     <string name="action_refresh">刷新</string>
+    <string name="action_select_device">选择设备</string>
     <string name="nav_overview">总览</string>
     <string name="nav_parameters">参数</string>
     <string name="nav_settings">设置</string>

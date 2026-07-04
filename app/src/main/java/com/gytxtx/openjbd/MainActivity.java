@@ -31,8 +31,6 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
     private static final String TAG_SETTINGS = "settings";
 
     private boolean connected;
-    private String connectedDeviceName;
-    private BmsStateStore.ConnectionState connectionState = BmsStateStore.ConnectionState.DISCONNECTED;
     private int currentPage = -1;
 
     private MaterialToolbar toolbar;
@@ -257,8 +255,6 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
 
     private void renderState(BmsStateStore.Snapshot snapshot) {
         connected = snapshot.connected;
-        connectedDeviceName = snapshot.deviceName;
-        connectionState = snapshot.connectionState;
         updateToolbar();
     }
 
@@ -267,7 +263,6 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
             return;
         }
         toolbar.setTitle(pageTitle());
-        toolbar.setSubtitle(shouldShowDeviceSubtitle() ? connectedDeviceName : getString(R.string.toolbar_subtitle_local));
         toolbar.setNavigationIcon(R.drawable.ic_list_24);
         toolbar.setNavigationIconTint(getColor(R.color.on_primary));
         Menu menu = toolbar.getMenu();
@@ -279,29 +274,6 @@ public final class MainActivity extends AppCompatActivity implements BmsStateSto
         if (dashboardItem != null) {
             dashboardItem.setVisible(currentPage == PAGE_OVERVIEW && connected);
         }
-    }
-
-    private boolean shouldShowDeviceSubtitle() {
-        if (connectedDeviceName == null || connectedDeviceName.length() == 0) {
-            return false;
-        }
-        return connected
-                || connectionState == BmsStateStore.ConnectionState.CONNECTING
-                || connectionState == BmsStateStore.ConnectionState.DISCOVERING_SERVICES
-                || connectionState == BmsStateStore.ConnectionState.ENABLING_NOTIFICATIONS
-                || connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT
-                || isDeviceScopedFailureState();
-    }
-
-    private boolean isDeviceScopedFailureState() {
-        return connectionState == BmsStateStore.ConnectionState.CONNECTION_FAILED
-                || connectionState == BmsStateStore.ConnectionState.SERVICE_DISCOVERY_FAILED
-                || connectionState == BmsStateStore.ConnectionState.SERVICE_NOT_FOUND
-                || connectionState == BmsStateStore.ConnectionState.CHARACTERISTICS_NOT_FOUND
-                || connectionState == BmsStateStore.ConnectionState.NOTIFICATIONS_FAILED
-                || connectionState == BmsStateStore.ConnectionState.INVALID_DEVICE
-                || connectionState == BmsStateStore.ConnectionState.ERROR
-                || connectionState == BmsStateStore.ConnectionState.PARSE_ERROR;
     }
 
     private String pageTitle() {

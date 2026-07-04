@@ -8,7 +8,8 @@
         android:id="@+id/licenses_top_app_bar"
         style="@style/Widget.OpenJbd.Toolbar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="@dimen/top_app_bar_height"
+        app:navigationContentDescription="@string/action_back"
         app:navigationIcon="@drawable/ic_arrow_back_24"
         app:title="@string/licenses_title" />
 

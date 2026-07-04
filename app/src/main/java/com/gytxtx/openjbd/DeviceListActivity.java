@@ -380,9 +380,6 @@ public final class DeviceListActivity extends AppCompatActivity {
 
     private void setStatus(String status) {
         statusText.setText(status);
-        if (toolbar != null) {
-            toolbar.setSubtitle(getString(R.string.toolbar_devices_subtitle));
-        }
     }
 
     private void toast(String message) {
