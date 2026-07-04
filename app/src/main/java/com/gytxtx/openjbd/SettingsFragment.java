@@ -211,7 +211,8 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 - dp(8)
                 - (selectedIndex * dp(48))
                 + ((anchor.getHeight() - dp(48)) / 2);
-        popupWindow.showAsDropDown(anchor, 0, verticalOffset);
+        int horizontalOffset = dp(24) + dp(16) + dp(16); // icon + margin, align popup text with row title
+        popupWindow.showAsDropDown(anchor, horizontalOffset, verticalOffset);
     }
 
     private SharedPreferences settings() {
