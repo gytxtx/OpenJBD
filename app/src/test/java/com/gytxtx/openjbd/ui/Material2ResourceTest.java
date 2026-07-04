@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 
 public final class Material2ResourceTest {
     private static final String ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android";
+    private static final String APP_NAMESPACE = "http://schemas.android.com/apk/res-auto";
 
     @Test
     public void appThemeDefinesCompleteMaterial2ColorRoles() throws Exception {
@@ -67,6 +68,70 @@ public final class Material2ResourceTest {
         assertItem(style, "android:background", "?attr/colorPrimary");
         assertItem(style, "titleTextColor", "?attr/colorOnPrimary");
         assertItem(style, "navigationIconTint", "?attr/colorOnPrimary");
+    }
+
+    @Test
+    public void appBarsUseStandardHeightInsetsAndNavigationDescriptions() throws Exception {
+        assertToolbar(
+                "layout/activity_main.xml",
+                "top_app_bar",
+                "@dimen/top_app_bar_height",
+                "@string/action_select_device");
+        assertToolbar(
+                "layout/activity_device_list.xml",
+                "device_top_app_bar",
+                "@dimen/top_app_bar_height",
+                "@string/action_back");
+        assertToolbar(
+                "layout/activity_about.xml",
+                "about_top_app_bar",
+                "@dimen/top_app_bar_height",
+                "@string/action_back");
+        assertToolbar(
+                "layout/activity_licenses.xml",
+                "licenses_top_app_bar",
+                "@dimen/top_app_bar_height",
+                "@string/action_back");
+
+        assertViewOmitsAndroidAttribute("layout/activity_main.xml", "top_app_bar", "paddingStart");
+        assertViewOmitsAndroidAttribute("layout/activity_main.xml", "top_app_bar", "paddingEnd");
+        assertViewOmitsAppAttribute("layout/activity_main.xml", "top_app_bar", "subtitle");
+        assertViewOmitsAppAttribute("layout/activity_device_list.xml", "device_top_app_bar", "subtitle");
+    }
+
+    @Test
+    public void devicePermissionErrorDefinesLocalizedRecoveryAction() throws Exception {
+        Element button = elementById(
+                parse("layout/activity_device_list.xml"),
+                "btn_device_permission_action");
+        assertEquals("gone", button.getAttributeNS(ANDROID_NAMESPACE, "visibility"));
+        assertEquals(
+                "@style/Widget.MaterialComponents.Button.TextButton",
+                button.getAttribute("style"));
+
+        assertString("values/strings.xml", "action_select_device", "Select device");
+        assertString("values/strings.xml", "action_grant_permission", "Grant permission");
+        assertString("values/strings.xml", "action_open_app_settings", "Open app settings");
+        assertString(
+                "values/strings.xml",
+                "device_placeholder_permission_denied_title",
+                "Bluetooth permission required");
+        assertString(
+                "values/strings.xml",
+                "device_placeholder_permission_denied_subtitle",
+                "Allow Bluetooth permission to scan for nearby BMS devices.");
+
+        assertString("values-zh-rCN/strings.xml", "action_select_device", "选择设备");
+        assertString("values-zh-rCN/strings.xml", "action_grant_permission", "授予权限");
+        assertString("values-zh-rCN/strings.xml", "action_open_app_settings", "打开应用设置");
+        assertString(
+                "values-zh-rCN/strings.xml",
+                "device_placeholder_permission_denied_title",
+                "需要蓝牙权限");
+        assertString(
+                "values-zh-rCN/strings.xml",
+                "device_placeholder_permission_denied_subtitle",
+                "授予蓝牙权限后才能扫描附近的 BMS 设备。");
     }
 
     @Test
@@ -198,6 +263,45 @@ public final class Material2ResourceTest {
         return factory.newDocumentBuilder().parse(file);
     }
 
+    private static void assertToolbar(
+            String relativePath,
+            String id,
+            String expectedHeight,
+            String expectedNavigationDescription) throws Exception {
+        Element toolbar = elementById(parse(relativePath), id);
+        assertEquals(expectedHeight, toolbar.getAttributeNS(ANDROID_NAMESPACE, "layout_height"));
+        assertEquals(
+                expectedNavigationDescription,
+                toolbar.getAttributeNS(APP_NAMESPACE, "navigationContentDescription"));
+    }
+
+    private static void assertViewOmitsAndroidAttribute(
+            String relativePath,
+            String id,
+            String attribute) throws Exception {
+        Element view = elementById(parse(relativePath), id);
+        assertEquals("", view.getAttributeNS(ANDROID_NAMESPACE, attribute));
+    }
+
+    private static void assertViewOmitsAppAttribute(
+            String relativePath,
+            String id,
+            String attribute) throws Exception {
+        Element view = elementById(parse(relativePath), id);
+        assertEquals("", view.getAttributeNS(APP_NAMESPACE, attribute));
+    }
+
+    private static Element elementById(Document document, String id) {
+        NodeList elements = document.getElementsByTagName("*");
+        for (int index = 0; index < elements.getLength(); index++) {
+            Element element = (Element) elements.item(index);
+            if (("@+id/" + id).equals(element.getAttributeNS(ANDROID_NAMESPACE, "id"))) {
+                return element;
+            }
+        }
+        throw new AssertionError("Missing view: " + id);
+    }
+
     private static Element style(Document document, String name) {
         for (Element element : elements(document, "style")) {
             if (name.equals(element.getAttribute("name"))) {
@@ -226,6 +330,23 @@ public final class Material2ResourceTest {
 
     private static void assertColor(String relativePath, String name, String expectedValue) throws Exception {
         assertEquals("Unexpected value for color " + name, expectedValue, colorValue(relativePath, name));
+    }
+
+    private static void assertString(
+            String relativePath,
+            String name,
+            String expectedValue) throws Exception {
+        Document document = parse(relativePath);
+        for (Element string : elements(document, "string")) {
+            if (name.equals(string.getAttribute("name"))) {
+                assertEquals(
+                        "Unexpected value for string " + name,
+                        expectedValue,
+                        string.getTextContent().trim());
+                return;
+            }
+        }
+        throw new AssertionError("Missing string " + name + " in " + relativePath);
     }
 
     private static void assertDimen(String relativePath, String name, String expectedValue) throws Exception {
