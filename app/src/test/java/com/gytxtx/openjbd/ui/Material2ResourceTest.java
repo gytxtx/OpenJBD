@@ -255,6 +255,33 @@ public final class Material2ResourceTest {
         assertFileDoesNotContain("layout/fragment_overview.xml", "android:background=\"@color/app_bg\"");
     }
 
+    @Test
+    public void settingsScreenUsesLightweightGroupsWithoutOutlinedCards() throws Exception {
+        Document document = parse("layout/fragment_settings.xml");
+
+        assertTextViewExists(document, "@string/settings_group_interface");
+        assertTextViewExists(document, "@string/settings_group_device");
+        assertTextViewExists(document, "@string/settings_group_other");
+
+        assertLinearLayoutList(document, "list_settings_interface");
+        assertLinearLayoutList(document, "list_settings_device");
+        assertLinearLayoutList(document, "list_settings_other");
+
+        assertFileDoesNotContain("layout/fragment_settings.xml", "style=\"@style/OpenJbdOutlinedCard\"");
+        assertFileDoesNotContain("layout/fragment_settings.xml", "<com.google.android.material.card.MaterialCardView");
+    }
+
+    @Test
+    public void settingsRowKeepsTouchTargetAndPaddingAfterGroupSimplification() throws Exception {
+        assertSettingsRowSpacing(
+                "layout/row_setting_item.xml",
+                "@dimen/touch_target_min",
+                "@dimen/space_16",
+                "@dimen/space_10",
+                "@dimen/space_16",
+                "@dimen/space_10");
+    }
+
     private static Document parse(String relativePath) throws Exception {
         File file = new File("src/main/res", relativePath);
         assertEquals("Resource file must exist", true, file.isFile());
@@ -300,6 +327,40 @@ public final class Material2ResourceTest {
             }
         }
         throw new AssertionError("Missing view: " + id);
+    }
+
+    private static void assertTextViewExists(
+            Document document,
+            String expectedText) {
+        for (Element textView : elements(document, "TextView")) {
+            if (expectedText.equals(textView.getAttributeNS(ANDROID_NAMESPACE, "text"))) {
+                return;
+            }
+        }
+        throw new AssertionError("Missing TextView text: " + expectedText);
+    }
+
+    private static void assertLinearLayoutList(Document document, String id) {
+        Element list = elementById(document, id);
+        assertEquals("LinearLayout", list.getTagName());
+        assertEquals("vertical", list.getAttributeNS(ANDROID_NAMESPACE, "orientation"));
+        assertEquals("middle", list.getAttributeNS(ANDROID_NAMESPACE, "showDividers"));
+        assertEquals("@drawable/divider_card_stroke", list.getAttributeNS(ANDROID_NAMESPACE, "divider"));
+    }
+
+    private static void assertSettingsRowSpacing(
+            String relativePath,
+            String expectedMinHeight,
+            String expectedPaddingStart,
+            String expectedPaddingTop,
+            String expectedPaddingEnd,
+            String expectedPaddingBottom) throws Exception {
+        Element row = parse(relativePath).getDocumentElement();
+        assertEquals(expectedMinHeight, row.getAttributeNS(ANDROID_NAMESPACE, "minHeight"));
+        assertEquals(expectedPaddingStart, row.getAttributeNS(ANDROID_NAMESPACE, "paddingStart"));
+        assertEquals(expectedPaddingTop, row.getAttributeNS(ANDROID_NAMESPACE, "paddingTop"));
+        assertEquals(expectedPaddingEnd, row.getAttributeNS(ANDROID_NAMESPACE, "paddingEnd"));
+        assertEquals(expectedPaddingBottom, row.getAttributeNS(ANDROID_NAMESPACE, "paddingBottom"));
     }
 
     private static Element style(Document document, String name) {
