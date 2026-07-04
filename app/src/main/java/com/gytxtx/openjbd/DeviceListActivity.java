@@ -14,11 +14,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -45,6 +48,11 @@ public final class DeviceListActivity extends AppCompatActivity {
     public static final String EXTRA_DEVICE_NAME = "com.gytxtx.openjbd.DEVICE_NAME";
 
     private static final int REQUEST_BLE_PERMISSIONS = 200;
+
+    static boolean shouldOpenAppSettings(boolean canShowAnyPermissionRationale) {
+        return !canShowAnyPermissionRationale;
+    }
+
     private static final long SCAN_MS = 8000L;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -53,6 +61,7 @@ public final class DeviceListActivity extends AppCompatActivity {
     private BluetoothAdapter adapter;
     private BluetoothLeScanner scanner;
     private boolean scanning;
+    private boolean waitingForAppSettings;
     private int scanCallbackCount;
     private LinearLayout deviceList;
     private LinearLayout placeholderDevices;
@@ -60,6 +69,7 @@ public final class DeviceListActivity extends AppCompatActivity {
     private TextView placeholderTitle;
     private TextView placeholderSubtitle;
     private TextView statusText;
+    private MaterialButton permissionActionButton;
     private MaterialToolbar toolbar;
     private SwipeRefreshLayout swipeRefresh;
 
@@ -122,6 +132,8 @@ public final class DeviceListActivity extends AppCompatActivity {
         placeholderIcon = findViewById(R.id.img_device_placeholder);
         placeholderTitle = findViewById(R.id.txt_device_placeholder_title);
         placeholderSubtitle = findViewById(R.id.txt_device_placeholder_subtitle);
+        permissionActionButton = findViewById(R.id.btn_device_permission_action);
+        permissionActionButton.setOnClickListener(view -> recoverBlePermission());
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,6 +162,21 @@ public final class DeviceListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopScan();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!waitingForAppSettings) {
+            return;
+        }
+        waitingForAppSettings = false;
+        if (hasBlePermissions()) {
+            startScanWithPermissions();
+        } else {
+            setStatus(getString(R.string.status_ble_permission_denied));
+            showPermissionDeniedPlaceholder();
+        }
     }
 
     private void startScanWithPermissions() {
@@ -267,9 +294,48 @@ public final class DeviceListActivity extends AppCompatActivity {
         placeholderIcon.setImageResource(iconRes);
         placeholderTitle.setText(title);
         placeholderSubtitle.setText(subtitle);
+        permissionActionButton.setVisibility(View.GONE);
         placeholderDevices.setVisibility(View.VISIBLE);
         deviceList.setVisibility(View.GONE);
         deviceList.removeAllViews();
+    }
+
+    private void showPermissionDeniedPlaceholder() {
+        showPlaceholder(
+                getString(R.string.device_placeholder_permission_denied_title),
+                getString(R.string.device_placeholder_permission_denied_subtitle),
+                R.drawable.ic_bluetooth_disabled_24);
+        boolean canShowAnyRationale = canShowAnyPermissionRationale();
+        boolean openSettings = shouldOpenAppSettings(canShowAnyRationale);
+        permissionActionButton.setText(openSettings
+                ? R.string.action_open_app_settings
+                : R.string.action_grant_permission);
+        permissionActionButton.setTag(Boolean.valueOf(openSettings));
+        permissionActionButton.setVisibility(View.VISIBLE);
+    }
+
+    private boolean canShowAnyPermissionRationale() {
+        for (String permission : requiredPermissions()) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
+                    && shouldShowRequestPermissionRationale(permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void recoverBlePermission() {
+        boolean openSettings = Boolean.TRUE.equals(permissionActionButton.getTag());
+        if (openSettings) {
+            waitingForAppSettings = true;
+            Intent intent = new Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+            return;
+        }
+        setStatus(getString(R.string.status_requesting_permissions));
+        requestPermissions(requiredPermissions(), REQUEST_BLE_PERMISSIONS);
     }
 
     private String scanningSubtitle() {
@@ -363,6 +429,7 @@ public final class DeviceListActivity extends AppCompatActivity {
             setRefreshing(false);
             toast(getString(R.string.toast_ble_permission_denied));
             setStatus(getString(R.string.status_ble_permission_denied));
+            showPermissionDeniedPlaceholder();
         }
     }
 

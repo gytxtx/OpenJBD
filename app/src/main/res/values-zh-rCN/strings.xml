@@ -11,6 +11,8 @@
     <string name="action_dashboard">仪表盘</string>
     <string name="action_refresh">刷新</string>
     <string name="action_select_device">选择设备</string>
+    <string name="action_grant_permission">授予权限</string>
+    <string name="action_open_app_settings">打开应用设置</string>
     <string name="nav_overview">总览</string>
     <string name="nav_parameters">参数</string>
     <string name="nav_settings">设置</string>
@@ -144,6 +146,8 @@
     <string name="device_placeholder_location_off_subtitle">Android 6–11 需要开启定位服务才能扫描 BLE。打开定位后，再点击刷新。</string>
     <string name="device_placeholder_no_devices_title">未找到设备</string>
     <string name="device_placeholder_no_devices_subtitle">靠近电池、唤醒 BMS 后，再点击刷新。</string>
+    <string name="device_placeholder_permission_denied_title">需要蓝牙权限</string>
+    <string name="device_placeholder_permission_denied_subtitle">授予蓝牙权限后才能扫描附近的 BMS 设备。</string>
     <string name="status_scanning">正在扫描…</string>
     <string name="status_scan_failed">扫描失败：%1$d</string>
     <string name="status_found_devices">找到 %1$d 个设备，回调 %2$d 次。</string>

@@ -12,6 +12,8 @@
     <string name="action_dashboard">Dashboard</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_select_device">Select device</string>
+    <string name="action_grant_permission">Grant permission</string>
+    <string name="action_open_app_settings">Open app settings</string>
     <string name="nav_overview">Overview</string>
     <string name="nav_parameters">Parameters</string>
     <string name="nav_settings">Settings</string>
@@ -145,6 +147,8 @@
     <string name="device_placeholder_location_off_subtitle">Android 6–11 requires location service for BLE scanning. Turn on location, then tap refresh.</string>
     <string name="device_placeholder_no_devices_title">No devices found</string>
     <string name="device_placeholder_no_devices_subtitle">Move closer to the battery, wake the BMS, then tap refresh.</string>
+    <string name="device_placeholder_permission_denied_title">Bluetooth permission required</string>
+    <string name="device_placeholder_permission_denied_subtitle">Allow Bluetooth permission to scan for nearby BMS devices.</string>
     <string name="status_scanning">Scanning…</string>
     <string name="status_scan_failed">Scan failed: %1$d</string>
     <string name="status_found_devices">Found %1$d device(s), callbacks %2$d.</string>

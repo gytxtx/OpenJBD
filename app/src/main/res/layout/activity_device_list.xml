@@ -79,6 +79,16 @@
                         android:paddingTop="@dimen/space_6"
                         android:text="@string/device_placeholder_scanning_subtitle"
                         android:textAppearance="@style/TextAppearance.OpenJbd.EmptyBody" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_device_permission_action"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_16"
+                        android:minHeight="@dimen/touch_target_min"
+                        android:text="@string/action_grant_permission"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <LinearLayout
