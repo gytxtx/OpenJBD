@@ -33,10 +33,10 @@ public final class LicensesActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(view -> finish());
 
         licenseItems = new LicenseItem[]{
-                new LicenseItem(getString(R.string.license_item_openjbd), getString(R.string.license_mit), getString(R.string.license_detail_openjbd)),
-                new LicenseItem(getString(R.string.license_item_androidx_fragment), getString(R.string.license_apache_2), getString(R.string.license_detail_androidx_fragment)),
-                new LicenseItem(getString(R.string.license_item_material_components), getString(R.string.license_apache_2), getString(R.string.license_detail_material_components)),
-                new LicenseItem(getString(R.string.license_item_swiperefreshlayout), getString(R.string.license_apache_2), getString(R.string.license_detail_swiperefreshlayout))
+                new LicenseItem(getString(R.string.license_item_openjbd), getString(R.string.license_mit), R.raw.license_mit),
+                new LicenseItem(getString(R.string.license_item_androidx_fragment), getString(R.string.license_apache_2), R.raw.license_apache_20),
+                new LicenseItem(getString(R.string.license_item_material_components), getString(R.string.license_apache_2), R.raw.license_apache_20),
+                new LicenseItem(getString(R.string.license_item_swiperefreshlayout), getString(R.string.license_apache_2), R.raw.license_apache_20)
         };
         renderLicenseList();
     }
@@ -81,11 +81,28 @@ public final class LicensesActivity extends AppCompatActivity {
     }
 
     private void showLicenseDetail(LicenseItem licenseItem) {
+        String text = readRawText(licenseItem.rawResId);
         new MaterialAlertDialogBuilder(this)
                 .setTitle(licenseItem.name)
-                .setMessage(licenseItem.detail)
+                .setMessage(text)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
+    }
+
+    private String readRawText(int resId) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            java.io.InputStream is = getResources().openRawResource(resId);
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line).append('\n');
+            }
+            reader.close();
+        } catch (java.io.IOException ignored) {
+            return builder.length() > 0 ? builder.toString() : "";
+        }
+        return builder.toString();
     }
 
     private int dp(int value) {
@@ -95,12 +112,12 @@ public final class LicensesActivity extends AppCompatActivity {
     private static final class LicenseItem {
         final String name;
         final String licenseName;
-        final String detail;
+        final int rawResId;
 
-        LicenseItem(String name, String licenseName, String detail) {
+        LicenseItem(String name, String licenseName, int rawResId) {
             this.name = name;
             this.licenseName = licenseName;
-            this.detail = detail;
+            this.rawResId = rawResId;
         }
     }
 }
