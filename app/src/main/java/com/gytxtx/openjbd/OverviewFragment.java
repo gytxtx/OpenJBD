@@ -2,8 +2,7 @@ package com.gytxtx.openjbd;
 
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.graphics.Color;
-import android.graphics.Typeface;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -245,7 +244,7 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         float span = Math.max(0.001f, max - min);
         int scaled = Math.max(80, Math.min(1000, (int) (1000f * ((voltage - min) / span))));
         progress.setProgressCompat(scaled, false);
-        int color = voltage == max ? Color.rgb(0, 166, 118) : voltage == min ? Color.rgb(21, 101, 192) : Color.rgb(117, 125, 138);
+        int color = voltage == max ? requireContext().getColor(R.color.accent) : voltage == min ? requireContext().getColor(R.color.primary) : requireContext().getColor(R.color.cell_voltage_normal);
         progress.setIndicatorColor(color);
     }
 
@@ -260,7 +259,6 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         chip.setChipStrokeWidth(dp(1));
         chip.setChipMinHeight(dp(36));
         chip.setTextSize(14);
-        chip.setEnsureMinTouchTargetSize(false);
         return chip;
     }
 
@@ -294,7 +292,10 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
 
     private void showEmptyCells() {
         cellList.removeAllViews();
-        TextView emptyCells = text(getString(R.string.empty_cells), 15, Color.rgb(92, 101, 112), Typeface.NORMAL);
+        TextView emptyCells = new TextView(requireContext());
+        emptyCells.setText(getString(R.string.empty_cells));
+        emptyCells.setTextAppearance(R.style.TextAppearance_OpenJbd_EmptyBody);
+        emptyCells.setGravity(android.view.Gravity.CENTER);
         emptyCells.setPadding(dp(14), dp(14), dp(14), dp(14));
         cellList.addView(wrapCard(emptyCells, 8));
     }
@@ -309,22 +310,13 @@ public final class OverviewFragment extends Fragment implements BmsStateStore.Li
         placeholderConnect.setVisibility(View.VISIBLE);
     }
 
-    private TextView text(String value, int sp, int color, int style) {
-        TextView view = new TextView(requireContext());
-        view.setText(value);
-        view.setTextSize(sp);
-        view.setTextColor(color);
-        view.setTypeface(Typeface.DEFAULT, style);
-        return view;
-    }
-
     private MaterialCardView wrapCard(View child, int bottomMarginDp) {
         MaterialCardView card = new MaterialCardView(requireContext());
         card.setCardBackgroundColor(requireContext().getColor(R.color.surface));
-        card.setRadius(dp(8));
+        card.setRadius(getResources().getDimensionPixelSize(R.dimen.space_4));
         card.setStrokeColor(requireContext().getColor(R.color.card_outline));
         card.setStrokeWidth(1);
-        card.setCardElevation(dp(2));
+        card.setCardElevation(0f);
         card.setUseCompatPadding(true);
         card.addView(child);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

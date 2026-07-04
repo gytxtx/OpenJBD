@@ -50,6 +50,11 @@
     <string name="param_manufacturer">电池制造商</string>
     <string name="param_bms_model">BMS 型号</string>
     <string name="param_unread">暂未读取</string>
+    <string name="parameters_group_connection">连接</string>
+    <string name="parameters_group_identity">电池信息</string>
+    <string name="parameters_group_capacity">容量</string>
+    <string name="parameters_group_electrical">电气参数</string>
+    <string name="parameters_group_status">状态保护</string>
     <string name="state_of_charge">剩余电量</string>
     <string name="local_ble_note">SOC 由 BMS 估算，可能不准确。建议结合电压判断。</string>
     <string name="metric_voltage">电压</string>

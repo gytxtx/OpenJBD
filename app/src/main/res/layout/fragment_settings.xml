@@ -8,13 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="18dp">
+        android:paddingTop="@dimen/space_8"
+        android:paddingBottom="@dimen/space_18">
 
         <TextView
             style="@style/OpenJbdSectionTitle"
+            android:paddingStart="@dimen/space_16"
+            android:paddingEnd="@dimen/space_16"
             android:text="@string/settings_group_interface" />
 
         <LinearLayout
@@ -28,6 +28,8 @@
 
         <TextView
             style="@style/OpenJbdSectionTitle"
+            android:paddingStart="@dimen/space_16"
+            android:paddingEnd="@dimen/space_16"
             android:text="@string/settings_group_device" />
 
         <LinearLayout
@@ -41,6 +43,8 @@
 
         <TextView
             style="@style/OpenJbdSectionTitle"
+            android:paddingStart="@dimen/space_16"
+            android:paddingEnd="@dimen/space_16"
             android:text="@string/settings_group_other" />
 
         <LinearLayout

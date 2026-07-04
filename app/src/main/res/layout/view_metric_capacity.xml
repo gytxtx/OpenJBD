@@ -3,14 +3,14 @@
     style="@style/OpenJbdMaterialCard"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="4dp"
+    android:layout_marginEnd="@dimen/space_4"
     android:layout_weight="1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="@dimen/space_14">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,9 +19,9 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginEnd="6dp"
+                android:layout_width="@dimen/icon_size_18"
+                android:layout_height="@dimen/icon_size_18"
+                android:layout_marginEnd="@dimen/space_6"
                 android:contentDescription="@null"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_dashboard_24"
@@ -40,7 +40,7 @@
             android:id="@+id/txt_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/space_6"
             android:text="@string/placeholder_value"
             android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue"
             android:textColor="@color/text_primary"

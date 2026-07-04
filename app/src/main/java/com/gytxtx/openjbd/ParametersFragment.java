@@ -13,14 +13,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.card.MaterialCardView;
 import com.gytxtx.openjbd.protocol.JbdBasicInfo;
 import com.gytxtx.openjbd.protocol.JbdDeviceInfo;
 
 public final class ParametersFragment extends Fragment implements BmsStateStore.Listener {
+    private static final int[][] PARAMETER_GROUPS = {
+            {0, 1},                                  // Connection
+            {2, 3, 19, 17, 18, 15, 16},             // Battery Info
+            {4, 5, 20, 6, 7},                       // Capacity
+            {12, 13, 14, 8, 9, 10, 11},             // Electrical
+            {21, 22, 23, 24, 25}                    // Status
+    };
+
     private LinearLayout placeholderParameters;
-    private MaterialCardView parametersCard;
-    private LinearLayout parametersList;
+    private LinearLayout sectionParametersContent;
+    private LinearLayout connectionList;
+    private LinearLayout identityList;
+    private LinearLayout capacityList;
+    private LinearLayout electricalList;
+    private LinearLayout statusList;
     private ParametersAdapter parametersAdapter;
     private BmsStateStore.Snapshot snapshot;
     private boolean lastRenderedHasData;
@@ -38,8 +49,12 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         placeholderParameters = view.findViewById(R.id.placeholder_parameters);
-        parametersCard = view.findViewById(R.id.card_parameters);
-        parametersList = view.findViewById(R.id.list_parameters);
+        sectionParametersContent = view.findViewById(R.id.section_parameters_content);
+        connectionList = view.findViewById(R.id.list_parameters_connection);
+        identityList = view.findViewById(R.id.list_parameters_identity);
+        capacityList = view.findViewById(R.id.list_parameters_capacity);
+        electricalList = view.findViewById(R.id.list_parameters_electrical);
+        statusList = view.findViewById(R.id.list_parameters_status);
         parametersAdapter = new ParametersAdapter();
         snapshot = BmsStateStore.getSnapshot();
         updateParametersPage();
@@ -77,7 +92,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
     }
 
     private void updateParametersPage() {
-        if (placeholderParameters == null || parametersCard == null || parametersAdapter == null) {
+        if (placeholderParameters == null || sectionParametersContent == null || parametersAdapter == null) {
             return;
         }
         boolean hasData = snapshot != null && snapshot.basicInfo != null;
@@ -96,19 +111,28 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
         lastRenderedDeviceName = deviceName;
         lastRenderedDeviceAddress = deviceAddress;
         placeholderParameters.setVisibility(hasData ? View.GONE : View.VISIBLE);
-        parametersCard.setVisibility(hasData ? View.VISIBLE : View.GONE);
+        sectionParametersContent.setVisibility(hasData ? View.VISIBLE : View.GONE);
         renderParameterRows();
     }
 
     private void renderParameterRows() {
-        while (parametersList.getChildCount() < parametersAdapter.getCount()) {
-            parametersList.addView(parametersAdapter.getView(parametersList.getChildCount(), null, parametersList));
-        }
-        while (parametersList.getChildCount() > parametersAdapter.getCount()) {
-            parametersList.removeViewAt(parametersList.getChildCount() - 1);
-        }
-        for (int i = 0; i < parametersAdapter.getCount(); i++) {
-            parametersAdapter.getView(i, parametersList.getChildAt(i), parametersList);
+        LinearLayout[] groupLists = {
+                connectionList, identityList, capacityList, electricalList, statusList
+        };
+
+        for (int g = 0; g < PARAMETER_GROUPS.length; g++) {
+            int[] positions = PARAMETER_GROUPS[g];
+            LinearLayout groupList = groupLists[g];
+
+            while (groupList.getChildCount() < positions.length) {
+                groupList.addView(parametersAdapter.getView(positions[groupList.getChildCount()], null, groupList));
+            }
+            while (groupList.getChildCount() > positions.length) {
+                groupList.removeViewAt(groupList.getChildCount() - 1);
+            }
+            for (int i = 0; i < positions.length; i++) {
+                parametersAdapter.getView(positions[i], groupList.getChildAt(i), groupList);
+            }
         }
     }
 
@@ -145,6 +169,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             settingSwitch.setVisibility(View.GONE);
             icon.setImageResource(parameterIcon(position));
             icon.setColorFilter(requireContext().getColor(R.color.icon_default));
+            icon.setContentDescription(getString(parameterTitle(position)));
             title.setText(parameterTitle(position));
             setTextIfChanged(subtitle, parameterValue(position));
             return row;
@@ -163,7 +188,7 @@ public final class ParametersFragment extends Fragment implements BmsStateStore.
             if (position == 10 || position == 11) {
                 return R.drawable.ic_bolt_24;
             }
-            if (position == 12 || position == 13 || position == 14 || position == 25) {
+            if (position == 12 || position == 13 || position == 14) {
                 return R.drawable.ic_dashboard_24;
             }
             return R.drawable.ic_info_24;

@@ -63,6 +63,7 @@ public final class LicensesActivity extends AppCompatActivity {
 
         icon.setImageResource(R.drawable.ic_description_outline_24);
         icon.setColorFilter(getColor(R.color.icon_default));
+        icon.setContentDescription(licenseItem.name);
         title.setText(licenseItem.name);
         subtitle.setText(licenseItem.licenseName);
         subtitle.setVisibility(View.VISIBLE);

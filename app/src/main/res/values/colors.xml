@@ -22,7 +22,8 @@
     <color name="text_primary">#17202A</color>
     <color name="text_secondary">#5C6570</color>
     <color name="icon_default">#34404A</color>
-    <color name="dashboard_background">#000000</color>
+    <color name="cell_voltage_normal">#757D8A</color>
+    <color name="dashboard_background">#121212</color>
     <color name="dashboard_text_primary">#FFFFFFFF</color>
     <color name="dashboard_text_secondary">#99FFFFFF</color>
     <color name="dashboard_status">#8AFFFFFF</color>

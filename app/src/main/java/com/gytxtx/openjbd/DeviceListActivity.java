@@ -269,6 +269,7 @@ public final class DeviceListActivity extends AppCompatActivity {
         TextView title = row.findViewById(R.id.txt_device_title);
         TextView subtitle = row.findViewById(R.id.txt_device_subtitle);
         icon.setImageResource(display ? R.drawable.ic_monitor_24 : R.drawable.ic_battery_4_bar_24);
+        icon.setContentDescription(display ? getString(R.string.device_type_display) : getString(R.string.device_type_battery));
         icon.setColorFilter(getColorCompat(R.color.icon_default));
         title.setText(name);
         subtitle.setText(getString(R.string.device_row_subtitle, display ? getString(R.string.device_type_display) : getString(R.string.device_type_battery), address, result.getRssi()));

@@ -125,7 +125,7 @@
                 style="@style/OpenJbdMaterialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="@dimen/space_8">
 
                 <TextView
                     android:id="@+id/txt_status"
@@ -186,7 +186,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/space_8"
                 android:orientation="horizontal">
 
                 <include layout="@layout/view_metric_voltage" />
@@ -196,7 +196,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/space_8"
                 android:orientation="horizontal">
 
                 <include layout="@layout/view_metric_power" />
@@ -206,7 +206,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/space_8"
                 android:orientation="horizontal">
 
                 <include layout="@layout/view_metric_capacity" />
@@ -217,13 +217,13 @@
                 style="@style/OpenJbdMaterialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="@dimen/space_8">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="14dp">
+                    android:padding="@dimen/space_14">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -232,9 +232,9 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_width="@dimen/icon_size_18"
+                            android:layout_height="@dimen/icon_size_18"
+                            android:layout_marginEnd="@dimen/space_6"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_widgets_outline_24"
@@ -250,7 +250,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="@dimen/space_12"
                     style="@style/Widget.OpenJbd.SecondaryPanel"
                     android:orientation="vertical"
                     >
@@ -273,7 +273,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/space_8"
                         android:baselineAligned="false"
                         android:orientation="horizontal">
 
@@ -332,13 +332,13 @@
                 style="@style/OpenJbdMaterialCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="@dimen/space_8">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="14dp">
+                    android:padding="@dimen/space_14">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -347,9 +347,9 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_marginEnd="6dp"
+                            android:layout_width="@dimen/icon_size_18"
+                            android:layout_height="@dimen/icon_size_18"
+                            android:layout_marginEnd="@dimen/space_6"
                             android:contentDescription="@null"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_thermostat_24"
@@ -366,7 +366,7 @@
                         android:id="@+id/txt_temperatures"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="6dp"
+                        android:paddingTop="@dimen/space_6"
                         android:text="@string/placeholder_value"
                         android:textAppearance="@style/TextAppearance.OpenJbd.StatusValue" />
 
@@ -374,7 +374,7 @@
                         android:id="@+id/chips_temperatures"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/space_8"
                         android:visibility="gone"
                         app:chipSpacingHorizontal="8dp"
                         app:chipSpacingVertical="8dp"
@@ -396,21 +396,21 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="@dimen/space_8"
                     android:orientation="horizontal">
 
                     <com.google.android.material.card.MaterialCardView
                         style="@style/OpenJbdMaterialCard"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="@dimen/space_4"
                         android:layout_weight="1">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="14dp">
+                            android:padding="@dimen/space_14">
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -422,7 +422,7 @@
                                 android:id="@+id/txt_cell_min"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:paddingTop="6dp"
+                                android:paddingTop="@dimen/space_6"
                                 android:text="@string/placeholder_value"
                                 android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue" />
                         </LinearLayout>
@@ -432,14 +432,14 @@
                         style="@style/OpenJbdMaterialCard"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_marginStart="@dimen/space_4"
                         android:layout_weight="1">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="14dp">
+                            android:padding="@dimen/space_14">
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -451,7 +451,7 @@
                                 android:id="@+id/txt_cell_max"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:paddingTop="6dp"
+                                android:paddingTop="@dimen/space_6"
                                 android:text="@string/placeholder_value"
                                 android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue" />
                         </LinearLayout>
@@ -461,21 +461,21 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="@dimen/space_8"
                     android:orientation="horizontal">
 
                     <com.google.android.material.card.MaterialCardView
                         style="@style/OpenJbdMaterialCard"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="@dimen/space_4"
                         android:layout_weight="1">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="14dp">
+                            android:padding="@dimen/space_14">
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -487,7 +487,7 @@
                                 android:id="@+id/txt_cell_delta"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:paddingTop="6dp"
+                                android:paddingTop="@dimen/space_6"
                                 android:text="@string/placeholder_value"
                                 android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue" />
                         </LinearLayout>
@@ -497,14 +497,14 @@
                         style="@style/OpenJbdMaterialCard"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_marginStart="@dimen/space_4"
                         android:layout_weight="1">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="14dp">
+                            android:padding="@dimen/space_14">
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -516,7 +516,7 @@
                                 android:id="@+id/txt_cell_average"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:paddingTop="6dp"
+                                android:paddingTop="@dimen/space_6"
                                 android:text="@string/placeholder_value"
                                 android:textAppearance="@style/TextAppearance.OpenJbd.MetricValue" />
                         </LinearLayout>

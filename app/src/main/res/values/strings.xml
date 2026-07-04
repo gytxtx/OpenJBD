@@ -51,6 +51,11 @@
     <string name="param_manufacturer">Manufacturer</string>
     <string name="param_bms_model">BMS model</string>
     <string name="param_unread">Not read yet</string>
+    <string name="parameters_group_connection">Connection</string>
+    <string name="parameters_group_identity">Battery Info</string>
+    <string name="parameters_group_capacity">Capacity</string>
+    <string name="parameters_group_electrical">Electrical</string>
+    <string name="parameters_group_status">Status</string>
     <string name="state_of_charge">State of charge</string>
     <string name="local_ble_note">SOC is reported by the BMS and may be inaccurate. Use voltage as a sanity check.</string>
     <string name="metric_voltage">Voltage</string>

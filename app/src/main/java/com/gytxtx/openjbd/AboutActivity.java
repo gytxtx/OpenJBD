@@ -63,6 +63,7 @@ public final class AboutActivity extends AppCompatActivity {
         ImageView chevron = item.findViewById(R.id.img_about_item_chevron);
         icon.setImageResource(iconRes);
         icon.setColorFilter(getColor(R.color.icon_default));
+        icon.setContentDescription(titleText);
         title.setText(titleText);
         if (subtitleText == null || subtitleText.length() == 0) {
             subtitle.setVisibility(View.GONE);

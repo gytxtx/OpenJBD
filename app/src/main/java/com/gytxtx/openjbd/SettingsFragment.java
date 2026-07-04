@@ -296,14 +296,17 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
             SharedPreferences prefs = settings();
             if (position == 0) {
                 icon.setImageResource(R.drawable.ic_brightness_medium_24);
+                icon.setContentDescription(getString(R.string.setting_dark_theme));
                 title.setText(R.string.setting_dark_theme);
                 subtitle.setText(themeLabel(AppSettings.themeValue(requireContext())));
             } else if (position == 1) {
                 icon.setImageResource(R.drawable.ic_language_24);
+                icon.setContentDescription(getString(R.string.setting_language));
                 title.setText(R.string.setting_language);
                 subtitle.setText(languageLabel(AppSettings.languageValue(requireContext())));
             } else if (position == 2) {
                 icon.setImageResource(R.drawable.ic_thermostat_24);
+                icon.setContentDescription(getString(R.string.setting_temperature_unit));
                 title.setText(R.string.setting_temperature_unit);
                 subtitle.setText(tempUnitLabel(prefs.getString(AppSettings.PREF_TEMP_UNIT, AppSettings.VALUE_C)));
             } else if (position == 3 || position == 4) {
@@ -313,6 +316,7 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                 if (position == 4) {
                     boolean autoConnectEnabled = AppSettings.autoConnectEnabled(requireContext());
                     icon.setImageResource(R.drawable.ic_bluetooth_searching_24);
+                    icon.setContentDescription(getString(R.string.setting_auto_connect));
                     title.setText(R.string.setting_auto_connect);
                     subtitle.setText(autoConnectLabel(autoConnectEnabled));
                     settingSwitch.setChecked(autoConnectEnabled);
@@ -321,9 +325,12 @@ public final class SettingsFragment extends Fragment implements BmsStateStore.Li
                         setAutoConnectEnabled(checked, false);
                     });
                     settingSwitch.setVisibility(View.VISIBLE);
+                } else {
+                    icon.setContentDescription(getString(R.string.setting_refresh_interval));
                 }
             } else {
                 icon.setImageResource(R.drawable.ic_info_24);
+                icon.setContentDescription(getString(R.string.setting_about));
                 title.setText(R.string.setting_about);
                 subtitle.setText(R.string.setting_about_subtitle);
                 chevron.setImageResource(R.drawable.ic_chevron_right_24);
