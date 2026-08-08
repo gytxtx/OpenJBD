@@ -11,15 +11,26 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.gytxtx.openjbd.data.BmsRepository
+import com.gytxtx.openjbd.data.BmsUiState
+import com.gytxtx.openjbd.data.ConnectionState
 import com.gytxtx.openjbd.protocol.JbdBasicInfo
 import com.gytxtx.openjbd.protocol.JbdCellVoltages
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.Locale
+import javax.inject.Inject
 
-class OverviewFragment : Fragment(), BmsStateStore.Listener {
+@AndroidEntryPoint
+class OverviewFragment : Fragment() {
+    @Inject lateinit var repository: BmsRepository
+    @Inject lateinit var connectionManager: BmsConnectionManager
     private lateinit var placeholderConnect: LinearLayout
     private lateinit var connectedOverviewContent: LinearLayout
     private lateinit var cellStatsGrid: LinearLayout
@@ -69,7 +80,7 @@ class OverviewFragment : Fragment(), BmsStateStore.Listener {
         statusText = view.findViewById(R.id.txt_status)
         val cancelReconnectButton = view.findViewById<View>(R.id.btn_cancel_reconnect)
         cancelReconnectButton.setOnClickListener {
-            BmsConnectionManager.getInstance(requireContext()).cancelReconnect()
+            connectionManager.cancelReconnect()
         }
         socText = view.findViewById(R.id.txt_soc)
         socProgress = view.findViewById(R.id.progress_soc)
@@ -96,25 +107,22 @@ class OverviewFragment : Fragment(), BmsStateStore.Listener {
 
     override fun onStart() {
         super.onStart()
-        BmsStateStore.addListener(this)
-        renderState(BmsStateStore.getSnapshot())
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                repository.uiState.collect { renderState(it) }
+            }
+        }
     }
 
     override fun onStop() {
-        BmsStateStore.removeListener(this)
         super.onStop()
     }
 
-    override fun onBmsStateChanged(snapshot: BmsStateStore.Snapshot) {
-        if (activity == null) return
-        renderState(snapshot)
-    }
-
-    private fun renderState(snapshot: BmsStateStore.Snapshot) {
+    private fun renderState(snapshot: BmsUiState) {
         if (!::statusText.isInitialized) return
         if (snapshot.basicInfo == null) {
             val showReconnectBanner =
-                snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT
+                snapshot.connectionState == ConnectionState.WAITING_RECONNECT
             val showOverview =
                 showReconnectBanner || snapshot.connected || snapshot.deviceName != null
             val bannerVisibleOrExiting =
@@ -347,9 +355,9 @@ class OverviewFragment : Fragment(), BmsStateStore.Listener {
         statusText.setTextIfChanged(status)
     }
 
-    private fun renderReconnectAction(snapshot: BmsStateStore.Snapshot) {
+    private fun renderReconnectAction(snapshot: BmsUiState) {
         showReconnectBanner(
-            snapshot.connectionState == BmsStateStore.ConnectionState.WAITING_RECONNECT,
+            snapshot.connectionState == ConnectionState.WAITING_RECONNECT,
             snapshot.status
         )
     }

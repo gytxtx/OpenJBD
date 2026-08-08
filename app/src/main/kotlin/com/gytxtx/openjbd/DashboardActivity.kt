@@ -6,13 +6,23 @@ import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.gytxtx.openjbd.data.BmsRepository
+import com.gytxtx.openjbd.data.BmsUiState
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DashboardActivity : AppCompatActivity(), BmsStateStore.Listener {
+@AndroidEntryPoint
+class DashboardActivity : AppCompatActivity() {
     private lateinit var socValue: TextView
     private lateinit var voltageValue: TextView
     private lateinit var currentValue: TextView
     private lateinit var powerValue: TextView
     private lateinit var statusValue: TextView
+
+    @Inject lateinit var repository: BmsRepository
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppSettings.preferredContext(newBase))
@@ -29,36 +39,31 @@ class DashboardActivity : AppCompatActivity(), BmsStateStore.Listener {
         currentValue = findViewById(R.id.txt_dashboard_current)
         powerValue = findViewById(R.id.txt_dashboard_power)
         statusValue = findViewById(R.id.txt_dashboard_status)
-        val backButton = findViewById<ImageButton>(R.id.btn_dashboard_back)
-        backButton.setOnClickListener { finish() }
+        findViewById<ImageButton>(R.id.btn_dashboard_back).setOnClickListener { finish() }
         SystemBars.applyFullscreen(this)
-        render(BmsStateStore.getSnapshot())
+        render(repository.getSnapshot())
     }
 
     override fun onStart() {
         super.onStart()
         SystemBars.applyFullscreen(this)
-        BmsStateStore.addListener(this)
-        render(BmsStateStore.getSnapshot())
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                repository.uiState.collect { render(it) }
+            }
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            SystemBars.applyFullscreen(this)
-        }
+        if (hasFocus) SystemBars.applyFullscreen(this)
     }
 
     override fun onStop() {
-        BmsStateStore.removeListener(this)
         super.onStop()
     }
 
-    override fun onBmsStateChanged(snapshot: BmsStateStore.Snapshot) {
-        runOnUiThread { render(snapshot) }
-    }
-
-    private fun render(snapshot: BmsStateStore.Snapshot?) {
+    private fun render(snapshot: BmsUiState?) {
         val info = snapshot?.basicInfo
         if (info == null) {
             socValue.setText(R.string.placeholder_percent)
@@ -66,9 +71,7 @@ class DashboardActivity : AppCompatActivity(), BmsStateStore.Listener {
             currentValue.setText(R.string.placeholder_current)
             powerValue.setText(R.string.placeholder_power)
             val status = snapshot?.status
-            statusValue.setText(
-                if (status.isNullOrEmpty()) getString(R.string.dashboard_waiting_data) else status
-            )
+            statusValue.setText(if (status.isNullOrEmpty()) getString(R.string.dashboard_waiting_data) else status)
             return
         }
         socValue.text = getString(R.string.format_value_percent, info.soc)
