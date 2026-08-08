@@ -54,6 +54,7 @@ OpenJBD 的取舍不同：
 - 支持 Android 13+ 每应用语言设置。
 - 支持摄氏度 / 华氏度切换。
 - 支持状态刷新频率切换。
+- 开源许可证页面覆盖全部运行时依赖。
 
 ## 与原版 App 的不同
 
@@ -116,10 +117,13 @@ Android 13 及以上系统也可以在系统设置的“应用语言”中单独
 环境：
 
 - Android Gradle Plugin 9.0.1
-- `compileSdk 34`
+- Kotlin 2.3.21
+- Gradle 9.1.0 (Kotlin DSL + version catalog)
+- `compileSdk 36`
 - `minSdk 23`
-- `targetSdk 33`
-- Java
+- `targetSdk 36`
+- Hilt 2.60.1 (KSP)
+- Jetpack Compose M2 (build dependency)
 - Material Components 1.10.0
 
 构建 debug APK：
@@ -155,17 +159,35 @@ GitHub Actions workflow 位于：
 ## 项目结构
 
 ```text
-app/src/main/java/com/gytxtx/openjbd/
-  MainActivity.java              主界面与底部导航
-  OverviewFragment.java          实时总览
-  ParametersFragment.java        只读参数页
-  SettingsFragment.java          设置页
-  DeviceListActivity.java        BLE 设备扫描与选择
-  DashboardActivity.java         横屏大字 Dashboard
-  BmsConnectionManager.java      BLE 连接、通知、轮询与自动重连
-  BmsStateStore.java             连接和 BMS 状态分发
-  protocol/                      JBD 帧封装与解析
+app/src/main/kotlin/com/gytxtx/openjbd/
+  MainActivity.kt                 主界面与底部导航 (Kotlin)
+  OverviewFragment.kt             实时总览 (Kotlin Fragment)
+  ParametersFragment.kt           只读参数页 (Kotlin Fragment)
+  SettingsFragment.kt             设置页 (Kotlin Fragment)
+  DeviceListActivity.kt           BLE 设备扫描与选择 (Kotlin)
+  DashboardActivity.kt            横屏大字 Dashboard (Kotlin)
+  AboutActivity.kt                关于页面 (Kotlin)
+  LicensesActivity.kt             开源许可证页 (Kotlin)
+  BmsConnectionManager.kt         BLE 连接、通知、轮询与自动重连 (Kotlin)
+  AppSettings.kt                  设置存储 (Kotlin)
+  SystemBars.kt                   系统栏工具 (Kotlin)
+  Ext.kt                          扩展函数 (Kotlin)
+  OpenJbdApplication.kt           Application (Kotlin, Hilt)
+  data/
+    BmsRepository.kt              BMS 状态仓库 (StateFlow + Hilt)
+  protocol/                       JBD 帧封装与解析 (Kotlin)
+  ble/
+    BleConstants.kt               BLE UUID 常量 (Kotlin)
 ```
+
+## 架构
+
+- **语言**: 全部 Kotlin
+- **DI**: Hilt (`@Singleton`, `@HiltViewModel`, `@Inject constructor`)
+- **状态管理**: `BmsRepository` 暴露 `StateFlow<BmsUiState>`，替换旧的 `BmsStateStore` singleton
+- **连接状态**: 18 种状态，由 `ConnectionState` 枚举定义
+- **UI**: View-based（Fragment + Activity + XML 布局），Material Components 主题
+- **测试**: JUnit 4 + kotlinx-coroutines-test
 
 ## 当前限制
 
