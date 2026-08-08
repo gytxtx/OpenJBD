@@ -21,6 +21,10 @@
         <item name="toolbarStyle">@style/Widget.OpenJbd.Toolbar</item>
         <item name="materialCardViewStyle">@style/OpenJbdMaterialCard</item>
         <item name="bottomNavigationStyle">@style/Widget.OpenJbd.BottomNavigation</item>
+        <!-- API 35+: opt out of enforced edge-to-edge. Ignored on older platforms, so it must live
+             in the base theme rather than a values-v35 override, which would replace this whole
+             style (resource styles are not merged across configurations). -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
     <style name="DashboardTheme" parent="AppTheme">

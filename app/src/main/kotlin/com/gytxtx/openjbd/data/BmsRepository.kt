@@ -30,35 +30,12 @@ data class BmsUiState(
     val basicInfo: JbdBasicInfo?,
     val cellVoltages: JbdCellVoltages?,
     val deviceInfo: JbdDeviceInfo?,
+    // Emission version: MutableStateFlow suppresses values equal to the current one, and this field
+    // is bumped by every with* mutation so that re-emissions always propagate (refreshLocalizedStatus
+    // depends on it to re-emit even when nothing else changed). Never remove it without replacing
+    // that mechanism.
     val updatedAtMillis: Long
 ) {
-    constructor(
-        connected: Boolean,
-        deviceName: String?,
-        deviceAddress: String?,
-        status: String?,
-        basicInfo: JbdBasicInfo?,
-        cellVoltages: JbdCellVoltages?,
-        updatedAtMillis: Long
-    ) : this(
-        connected,
-        if (connected) ConnectionState.READY else ConnectionState.DISCONNECTED,
-        deviceName,
-        deviceAddress,
-        status,
-        basicInfo,
-        cellVoltages,
-        null,
-        updatedAtMillis
-    )
-
-    fun withStatus(connected: Boolean, status: String?): BmsUiState =
-        withConnectionState(
-            if (connected) ConnectionState.READY else ConnectionState.DISCONNECTED,
-            connected,
-            status
-        )
-
     fun withConnectionState(
         connectionState: ConnectionState,
         connected: Boolean,

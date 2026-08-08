@@ -372,7 +372,10 @@ class DeviceListActivity : AppCompatActivity() {
     private fun deviceName(result: ScanResult): String {
         val name = result.scanRecord?.deviceName
         if (!name.isNullOrEmpty()) return name
-        return result.device.name.ifEmpty { getString(R.string.device_unnamed) }
+        // BluetoothDevice.name is a nullable platform type: devices without a name in the
+        // advertisement and without a cached/bonded name report null, so null-check before use.
+        val fallback = result.device.name
+        return if (fallback.isNullOrEmpty()) getString(R.string.device_unnamed) else fallback
     }
 
     private fun hasBlePermissions(): Boolean {

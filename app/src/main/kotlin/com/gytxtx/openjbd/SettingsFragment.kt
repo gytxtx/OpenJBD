@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.gytxtx.openjbd.data.BmsRepository
-import com.gytxtx.openjbd.data.ConnectionState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -90,7 +89,6 @@ class SettingsFragment : Fragment() {
                 arrayOf(getString(R.string.setting_temp_celsius), getString(R.string.setting_temp_fahrenheit)),
                 arrayOf(AppSettings.VALUE_C, AppSettings.VALUE_F)) {
                 settings().edit().putString(AppSettings.PREF_TEMP_UNIT, it).apply(); renderSettingsRows()
-                repository.update(repository.getSnapshot())
             }
             3 -> showMenu(settingsRow(position), AppSettings.refreshIntervalValue(requireContext()),
                 arrayOf(getString(R.string.setting_refresh_1s), getString(R.string.setting_refresh_2s), getString(R.string.setting_refresh_5s), getString(R.string.setting_refresh_10s)),

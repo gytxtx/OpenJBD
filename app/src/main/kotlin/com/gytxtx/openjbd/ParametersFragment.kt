@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.gytxtx.openjbd.data.BmsRepository
 import com.gytxtx.openjbd.data.BmsUiState
-import com.gytxtx.openjbd.data.ConnectionState
 import com.gytxtx.openjbd.protocol.JbdBasicInfo
 import com.gytxtx.openjbd.protocol.JbdDeviceInfo
 import dagger.hilt.android.AndroidEntryPoint

@@ -180,31 +180,45 @@ class OverviewFragment : Fragment() {
         val ctx = requireContext()
         protectionText.setTextIfChanged(ctx.protectionSummary(info))
         balanceText.setTextIfChanged(ctx.balanceSummary(info))
-        temperaturesText.visibility = View.GONE
-        temperaturesChipGroup.removeAllViews()
-        temperaturesChipGroup.visibility = View.VISIBLE
-        temperaturesChipGroup.addView(
-            temperatureChip(
-                getString(
-                    R.string.temperature_mos_item,
-                    AppSettings.displayTemperature(ctx, info.temperaturesC[0]),
-                    AppSettings.temperatureUnitLabel(ctx)
-                ),
-                true
-            )
-        )
-        for (i in info.temperaturesC.indices) {
-            temperaturesChipGroup.addView(
-                temperatureChip(
-                    getString(
-                        R.string.temperature_probe_item,
-                        i + 1,
-                        AppSettings.displayTemperature(ctx, info.temperaturesC[i]),
-                        AppSettings.temperatureUnitLabel(ctx)
-                    ),
-                    false
+        val unitLabel = AppSettings.temperatureUnitLabel(ctx)
+        // Rebuild the chip group only when the raw temperatures or the unit label actually changed;
+        // StateFlow delivers a fresh JbdBasicInfo instance on every poll, so identity checks won't do.
+        if (info.temperaturesC != lastRenderedTemps || unitLabel != lastUnitLabel) {
+            lastRenderedTemps = info.temperaturesC
+            lastUnitLabel = unitLabel
+            if (info.temperaturesC.isEmpty()) {
+                temperaturesChipGroup.removeAllViews()
+                temperaturesChipGroup.visibility = View.GONE
+                temperaturesText.visibility = View.VISIBLE
+                temperaturesText.setText(R.string.temperature_none)
+            } else {
+                temperaturesText.visibility = View.GONE
+                temperaturesChipGroup.removeAllViews()
+                temperaturesChipGroup.visibility = View.VISIBLE
+                temperaturesChipGroup.addView(
+                    temperatureChip(
+                        getString(
+                            R.string.temperature_mos_item,
+                            AppSettings.displayTemperature(ctx, info.temperaturesC[0]),
+                            unitLabel
+                        ),
+                        true
+                    )
                 )
-            )
+                for (i in info.temperaturesC.indices) {
+                    temperaturesChipGroup.addView(
+                        temperatureChip(
+                            getString(
+                                R.string.temperature_probe_item,
+                                i + 1,
+                                AppSettings.displayTemperature(ctx, info.temperaturesC[i]),
+                                unitLabel
+                            ),
+                            false
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -280,6 +294,7 @@ class OverviewFragment : Fragment() {
         socNoteText.setText(R.string.local_ble_note)
         protectionText.text = "--"
         balanceText.text = "--"
+        temperaturesText.text = "--"
         temperaturesText.visibility = View.VISIBLE
         temperaturesChipGroup.removeAllViews()
         temperaturesChipGroup.visibility = View.GONE
@@ -289,6 +304,8 @@ class OverviewFragment : Fragment() {
         cellAverageText.text = "--"
         cellStatsGrid.visibility = View.GONE
         lastRenderedBasicInfo = null
+        lastRenderedTemps = null
+        lastUnitLabel = null
         showEmptyCells()
         setStatus(getString(R.string.status_select_bms))
     }

@@ -91,7 +91,7 @@ class BmsConnectionManager @Inject constructor(
                 }
                 connected = true
                 reconnectAttempts = 0
-                updateState(repository.getSnapshot().withConnectionState(ConnectionState.DISCOVERING_SERVICES, true, getString(R.string.status_connected_discovering)))
+                updateState { it.withConnectionState(ConnectionState.DISCOVERING_SERVICES, true, getString(R.string.status_connected_discovering)) }
                 if (!bluetoothGatt.discoverServices()) {
                     failConnection(ConnectionState.SERVICE_DISCOVERY_FAILED, getString(R.string.status_service_discovery_start_failed))
                 }
@@ -122,7 +122,7 @@ class BmsConnectionManager @Inject constructor(
             if (writeCharacteristic == null || notifyCharacteristic == null) {
                 failConnection(ConnectionState.CHARACTERISTICS_NOT_FOUND, getString(R.string.status_jbd_characteristics_not_found)); return
             }
-            updateState(repository.getSnapshot().withConnectionState(ConnectionState.ENABLING_NOTIFICATIONS, true, getString(R.string.status_enabling_notifications)))
+            updateState { it.withConnectionState(ConnectionState.ENABLING_NOTIFICATIONS, true, getString(R.string.status_enabling_notifications)) }
             if (!enableNotifications(bluetoothGatt, notifyCharacteristic)) {
                 failConnection(ConnectionState.NOTIFICATIONS_FAILED, getString(R.string.status_notifications_failed))
             }
@@ -152,8 +152,7 @@ class BmsConnectionManager @Inject constructor(
     }
 
     fun refreshLocalizedStatus() {
-        val snapshot = repository.getSnapshot()
-        updateState(snapshot.withConnectionState(snapshot.connectionState, snapshot.connected, localizedStatus(snapshot)))
+        updateState { it.withConnectionState(it.connectionState, it.connected, localizedStatus(it)) }
     }
 
     fun isConnected(): Boolean = connected
@@ -221,7 +220,7 @@ class BmsConnectionManager @Inject constructor(
     }
 
     private fun startReading() {
-        updateState(repository.getSnapshot().withConnectionState(ConnectionState.READY, true, getString(R.string.status_ready_reading)))
+        updateState { it.withConnectionState(ConnectionState.READY, true, getString(R.string.status_ready_reading)) }
         handler.removeCallbacks(pollRunnable); handler.postDelayed(pollRunnable, 500L)
     }
 
@@ -267,20 +266,18 @@ class BmsConnectionManager @Inject constructor(
                     when (frame.command) {
                         JbdCommands.CMD_BASIC_INFO.toInt() and 0xFF -> {
                             val info = JbdParser.parseBasicInfo(frame)
-                            updateState(repository.getSnapshot().withBasicInfo(info, getString(R.string.status_ready_reading)))
+                            updateState { it.withBasicInfo(info, getString(R.string.status_ready_reading)) }
                         }
                         JbdCommands.CMD_CELL_VOLTAGE.toInt() and 0xFF -> {
                             val voltages = JbdParser.parseCellVoltages(frame)
-                            val current = repository.getSnapshot()
-                            updateState(current.withCellVoltages(voltages, current.status))
+                            updateState { it.withCellVoltages(voltages, it.status) }
                         }
                         else -> handleDeviceInfoFrame(frame)
                     }
                     val respCmd = currentCommand?.responseCommand?.toInt()?.and(0xFF)
                     if (respCmd != null && frame.command == respCmd) completeCurrentCommand()
                 } catch (e: JbdParseException) {
-                    val current = repository.getSnapshot()
-                    updateState(current.withConnectionState(ConnectionState.PARSE_ERROR, connected, getString(R.string.status_parse_error, e.message)))
+                    updateState { it.withConnectionState(ConnectionState.PARSE_ERROR, connected, getString(R.string.status_parse_error, e.message)) }
                     val respCmd2 = currentCommand?.responseCommand?.toInt()?.and(0xFF)
                     if (respCmd2 != null && frame.command == respCmd2) completeCurrentCommand()
                 }
@@ -292,18 +289,19 @@ class BmsConnectionManager @Inject constructor(
     private fun handleDeviceInfoFrame(frame: JbdFrame) {
         val cmd = currentCommand ?: return
         if (frame.command != (cmd.responseCommand.toInt() and 0xFF)) return
-        val snapshot = repository.getSnapshot()
-        var info: JbdDeviceInfo = snapshot.deviceInfo ?: JbdDeviceInfo.EMPTY
-        when (cmd.kind) {
-            CommandKind.SERIAL_NUMBER -> info = info.withSerialNumber(JbdParser.parseSerialNumber(frame))
-            CommandKind.BARCODE -> info = info.withBarcode(JbdParser.parseText(frame))
-            CommandKind.MANUFACTURER -> info = info.withManufacturer(JbdParser.parseText(frame))
-            CommandKind.BATTERY_MODEL -> info = info.withBatteryModel(JbdParser.parseText(frame))
-            CommandKind.EXT_RATINGS, CommandKind.EXT_BMS_ADDRESS, CommandKind.EXT_BMS_MODEL ->
-                info = applyExtendedParams(info, JbdParser.parseExtendedParams(frame))
-            else -> {}
+        updateState { snapshot ->
+            var info: JbdDeviceInfo = snapshot.deviceInfo ?: JbdDeviceInfo.EMPTY
+            when (cmd.kind) {
+                CommandKind.SERIAL_NUMBER -> info = info.withSerialNumber(JbdParser.parseSerialNumber(frame))
+                CommandKind.BARCODE -> info = info.withBarcode(JbdParser.parseText(frame))
+                CommandKind.MANUFACTURER -> info = info.withManufacturer(JbdParser.parseText(frame))
+                CommandKind.BATTERY_MODEL -> info = info.withBatteryModel(JbdParser.parseText(frame))
+                CommandKind.EXT_RATINGS, CommandKind.EXT_BMS_ADDRESS, CommandKind.EXT_BMS_MODEL ->
+                    info = applyExtendedParams(info, JbdParser.parseExtendedParams(frame))
+                else -> {}
+            }
+            if (info.hasAnyField()) snapshot.withDeviceInfo(info, snapshot.status) else snapshot
         }
-        if (info.hasAnyField()) updateState(snapshot.withDeviceInfo(info, snapshot.status))
     }
 
     private fun applyExtendedParams(info: JbdDeviceInfo, params: JbdParser.ExtendedParams): JbdDeviceInfo {
@@ -370,7 +368,24 @@ class BmsConnectionManager @Inject constructor(
         else -> snapshot.status ?: ""
     }
 
-    private fun updateState(snapshot: BmsUiState) = repository.update(snapshot)
+    /**
+     * Applies a state change, serializing the read-modify-write on the main looper.
+     * GATT callbacks run on binder threads (no Handler was passed to connectGatt), so posting here
+     * keeps StateFlow writers single-threaded and prevents a stale snapshot read from overwriting
+     * a newer state written in between.
+     */
+    private fun updateState(snapshot: BmsUiState) {
+        if (Looper.myLooper() == Looper.getMainLooper()) repository.update(snapshot)
+        else handler.post { repository.update(snapshot) }
+    }
+
+    private fun updateState(transform: (BmsUiState) -> BmsUiState) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            repository.update(transform(repository.getSnapshot()))
+        } else {
+            handler.post { repository.update(transform(repository.getSnapshot())) }
+        }
+    }
 
     private enum class CommandKind { BASIC_INFO, CELL_VOLTAGES, FACTORY_MODE, CLOSE_FACTORY_MODE, SERIAL_NUMBER, BARCODE, MANUFACTURER, BATTERY_MODEL, EXT_RATINGS, EXT_BMS_ADDRESS, EXT_BMS_MODEL }
 
