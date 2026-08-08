@@ -3,7 +3,7 @@ package com.gytxtx.openjbd
 import android.os.Handler
 import android.os.Looper
 
-internal object BmsStateStore {
+object BmsStateStore {
     private val listeners = mutableListOf<Listener>()
     private val mainHandler = Handler(Looper.getMainLooper())
     @Volatile

@@ -1,6 +1,6 @@
 package com.gytxtx.openjbd
 
-internal object BmsDashboardStore {
+object BmsDashboardStore {
     @Volatile
     private var _snapshot: Snapshot? = null
     private val listeners = mutableListOf<Listener>()
