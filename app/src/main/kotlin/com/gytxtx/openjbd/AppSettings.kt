@@ -73,7 +73,7 @@ internal object AppSettings {
 
     @JvmStatic
     fun refreshIntervalValue(context: Context): String =
-        java.lang.Long.toString(refreshIntervalMs(context))
+        refreshIntervalMs(context).toString()
 
     @JvmStatic
     fun setRefreshIntervalMs(context: Context, value: Long) {

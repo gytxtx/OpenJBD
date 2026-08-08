@@ -59,26 +59,22 @@ class DashboardActivity : AppCompatActivity(), BmsStateStore.Listener {
     }
 
     private fun render(snapshot: BmsStateStore.Snapshot?) {
-        if (snapshot == null || snapshot.basicInfo == null) {
+        val info = snapshot?.basicInfo
+        if (info == null) {
             socValue.setText(R.string.placeholder_percent)
             voltageValue.setText(R.string.placeholder_voltage)
             currentValue.setText(R.string.placeholder_current)
             powerValue.setText(R.string.placeholder_power)
+            val status = snapshot?.status
             statusValue.setText(
-                if (snapshot != null && !snapshot.status.isNullOrEmpty())
-                    snapshot.status
-                else
-                    getString(R.string.dashboard_waiting_data)
+                if (status.isNullOrEmpty()) getString(R.string.dashboard_waiting_data) else status
             )
             return
         }
-        socValue.text = getString(R.string.format_value_percent, snapshot.basicInfo!!.soc)
-        voltageValue.text = getString(R.string.format_value_voltage_2, snapshot.basicInfo!!.totalVoltage)
-        currentValue.text = getString(R.string.format_value_current_2, snapshot.basicInfo!!.current)
-        powerValue.text = getString(
-            R.string.format_value_power_1,
-            snapshot.basicInfo!!.totalVoltage * snapshot.basicInfo!!.current
-        )
+        socValue.text = getString(R.string.format_value_percent, info.soc)
+        voltageValue.text = getString(R.string.format_value_voltage_2, info.totalVoltage)
+        currentValue.text = getString(R.string.format_value_current_2, info.current)
+        powerValue.text = getString(R.string.format_value_power_1, info.totalVoltage * info.current)
         statusValue.setText(R.string.dashboard_live)
     }
 }

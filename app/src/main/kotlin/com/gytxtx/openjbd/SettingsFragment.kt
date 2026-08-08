@@ -202,22 +202,23 @@ class SettingsFragment : Fragment(), BmsStateStore.Listener {
         values: Array<String>,
         handler: (String) -> Unit
     ) {
+        val ctx = requireContext()
         val menuView =
-            LayoutInflater.from(requireContext()).inflate(R.layout.popup_setting_menu, null, false) as LinearLayout
-        val popupWindow = PopupWindow(menuView, dp(220), ViewGroup.LayoutParams.WRAP_CONTENT, true)
-        popupWindow.setBackgroundDrawable(ColorDrawable(requireContext().getColor(R.color.surface_elevation_8)))
+            LayoutInflater.from(ctx).inflate(R.layout.popup_setting_menu, null, false) as LinearLayout
+        val popupWindow = PopupWindow(menuView, ctx.dp(220), ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        popupWindow.setBackgroundDrawable(ColorDrawable(ctx.getColor(R.color.surface_elevation_8)))
         popupWindow.isOutsideTouchable = true
-        popupWindow.elevation = dp(8).toFloat()
+        popupWindow.elevation = ctx.dp(8).toFloat()
         var selectedIndex = 0
         for (i in values.indices) {
             val value = values[i]
-            val item = LayoutInflater.from(requireContext())
+            val item = LayoutInflater.from(ctx)
                 .inflate(R.layout.row_setting_menu_item, menuView, false) as TextView
             item.text = labels[i]
             if (value == current) {
                 selectedIndex = i
                 item.setBackgroundResource(R.drawable.setting_menu_item_selected)
-                item.setTextColor(requireContext().getColor(R.color.primary))
+                item.setTextColor(ctx.getColor(R.color.primary))
             }
             item.setOnClickListener {
                 popupWindow.dismiss()
@@ -227,11 +228,8 @@ class SettingsFragment : Fragment(), BmsStateStore.Listener {
             }
             menuView.addView(item)
         }
-        val verticalOffset = -anchor.height
-                - dp(8)
-                - (selectedIndex * dp(48))
-                + ((anchor.height - dp(48)) / 2)
-        val horizontalOffset = dp(24) + dp(16) + dp(16)
+        val verticalOffset = -anchor.height - ctx.dp(8) - (selectedIndex * ctx.dp(48)) + ((anchor.height - ctx.dp(48)) / 2)
+        val horizontalOffset = ctx.dp(24) + ctx.dp(16) + ctx.dp(16)
         popupWindow.showAsDropDown(anchor, horizontalOffset, verticalOffset)
     }
 
@@ -263,8 +261,6 @@ class SettingsFragment : Fragment(), BmsStateStore.Listener {
     private fun autoConnectLabel(value: Boolean): String =
         if (value) getString(R.string.setting_auto_connect_on)
         else getString(R.string.setting_auto_connect_off)
-
-    private fun dp(value: Int): Int = Math.round(value * resources.displayMetrics.density)
 
     private inner class SettingsAdapter : BaseAdapter() {
         override fun getCount(): Int = 6

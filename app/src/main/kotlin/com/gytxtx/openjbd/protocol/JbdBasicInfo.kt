@@ -26,10 +26,6 @@ class JbdBasicInfo(
     @JvmField val hasBalanceCurrent: Boolean,
     @JvmField val balanceCurrentA: Float
 ) {
-    fun learnedOrNominalAh(): Float =
-        if (hasLearnCapacity && learnCapacityAh > 0f) learnCapacityAh else nominalAh
-
-    fun hasActiveProtection(): Boolean = protectionStates.any { it }
-
-    fun hasActiveBalance(): Boolean = balanceStates.any { it }
+    val learnedOrNominalAh: Float
+        get() = if (hasLearnCapacity && learnCapacityAh > 0f) learnCapacityAh else nominalAh
 }

@@ -145,7 +145,7 @@ class DeviceListActivity : AppCompatActivity() {
     }
 
     private fun startScanWithPermissions() {
-        if (adapter == null || adapter!!.isEnabled == false) {
+        if (adapter?.isEnabled != true) {
             setRefreshing(false)
             toast(getString(R.string.toast_bluetooth_off))
             setStatus(getString(R.string.status_bluetooth_off))
@@ -177,7 +177,7 @@ class DeviceListActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun startScan() {
         if (scanner == null) {
-            scanner = adapter!!.bluetoothLeScanner
+            scanner = adapter?.bluetoothLeScanner
         }
         if (scanner == null) {
             setRefreshing(false)
@@ -204,7 +204,7 @@ class DeviceListActivity : AppCompatActivity() {
                 .setServiceUuid(ParcelUuid(BleConstants.SERVICE_UUID))
                 .build()
         )
-        scanner!!.startScan(filters, settings, scanCallback)
+        scanner?.startScan(filters, settings, scanCallback)
         handler.postDelayed(stopScanRunnable, SCAN_MS)
     }
 
@@ -294,7 +294,7 @@ class DeviceListActivity : AppCompatActivity() {
         permissionActionButton.setText(
             if (openSettings) R.string.action_open_app_settings else R.string.action_grant_permission
         )
-        permissionActionButton.tag = java.lang.Boolean.valueOf(openSettings)
+        permissionActionButton.tag = openSettings
         permissionActionButton.visibility = View.VISIBLE
     }
 
@@ -310,7 +310,7 @@ class DeviceListActivity : AppCompatActivity() {
     }
 
     private fun recoverBlePermission() {
-        val openSettings = java.lang.Boolean.TRUE == permissionActionButton.tag
+        val openSettings = (permissionActionButton.tag as? Boolean) == true
         if (openSettings) {
             waitingForAppSettings = true
             val intent = Intent(
@@ -370,14 +370,9 @@ class DeviceListActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun deviceName(result: ScanResult): String {
-        var name: String? = null
-        if (result.scanRecord != null) {
-            name = result.scanRecord!!.deviceName
-        }
-        if (name.isNullOrEmpty()) {
-            name = result.device.name
-        }
-        return if (name.isNullOrEmpty()) getString(R.string.device_unnamed) else name!!
+        val name = result.scanRecord?.deviceName
+        if (!name.isNullOrEmpty()) return name
+        return result.device.name.ifEmpty { getString(R.string.device_unnamed) }
     }
 
     private fun hasBlePermissions(): Boolean {
@@ -439,9 +434,5 @@ class DeviceListActivity : AppCompatActivity() {
         swipeRefresh.isRefreshing = refreshing
     }
 
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density + 0.5f).toInt()
-
-    private fun getColorCompat(colorRes: Int): Int =
-        if (Build.VERSION.SDK_INT >= 23) getColor(colorRes) else resources.getColor(colorRes)
+    private fun getColorCompat(colorRes: Int): Int = getColor(colorRes)
 }

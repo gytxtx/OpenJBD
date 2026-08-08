@@ -16,11 +16,6 @@ class JbdDeviceInfo(
         val EMPTY: JbdDeviceInfo = JbdDeviceInfo("", "", "", "", "", "", 0f, 0f, 0f)
     }
 
-    init {
-        // clean() was removed; parser already trims via JbdParser.parseText/parseSerialNumber.
-        // Manual construction paths use pre-cleaned values or copy from parser-produced instances.
-    }
-
     fun withSerialNumber(value: String) = copy(serialNumber = value)
 
     fun withBarcode(value: String) = copy(barcode = value)

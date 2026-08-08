@@ -234,10 +234,7 @@ internal class BmsConnectionManager private constructor(private val context: Con
 
     fun refreshLocalizedStatus() {
         val snapshot = BmsStateStore.getSnapshot()
-        val status = localizedStatus(snapshot)
-        if (status != null) {
-            updateState(snapshot.withConnectionState(snapshot.connectionState, snapshot.connected, status))
-        }
+        updateState(snapshot.withConnectionState(snapshot.connectionState, snapshot.connected, localizedStatus(snapshot)))
     }
 
     fun isConnected(): Boolean = connected
@@ -487,17 +484,15 @@ internal class BmsConnectionManager private constructor(private val context: Con
         }
         currentCommand = request
         writeInFlight = true
-        val started: Boolean
-        if (Build.VERSION.SDK_INT >= 33) {
-            started = gatt!!.writeCharacteristic(
-                writeCharacteristic!!,
-                request.command,
-                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-            ) == BluetoothStatusCodes.SUCCESS
+        val g = gatt!!
+        val wc = writeCharacteristic!!
+        val started = if (Build.VERSION.SDK_INT >= 33) {
+            g.writeCharacteristic(wc, request.command, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
         } else {
-            writeCharacteristic!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-            writeCharacteristic!!.value = request.command
-            started = gatt!!.writeCharacteristic(writeCharacteristic!!)
+            @Suppress("DEPRECATION")
+            wc.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            wc.value = request.command
+            g.writeCharacteristic(wc)
         }
         if (!started) {
             writeInFlight = false
@@ -525,7 +520,8 @@ internal class BmsConnectionManager private constructor(private val context: Con
                     } else {
                         handleDeviceInfoFrame(frame)
                     }
-                    if (currentCommand != null && frame.command == (currentCommand!!.responseCommand.toInt() and 0xFF)) {
+                    val respCmd = currentCommand?.responseCommand?.toInt()?.and(0xFF)
+                    if (respCmd != null && frame.command == respCmd) {
                         completeCurrentCommand()
                     }
                 } catch (e: JbdParseException) {
@@ -537,7 +533,8 @@ internal class BmsConnectionManager private constructor(private val context: Con
                             getString(R.string.status_parse_error, e.message)
                         )
                     )
-                    if (currentCommand != null && frame.command == (currentCommand!!.responseCommand.toInt() and 0xFF)) {
+                    val respCmd2 = currentCommand?.responseCommand?.toInt()?.and(0xFF)
+                    if (respCmd2 != null && frame.command == respCmd2) {
                         completeCurrentCommand()
                     }
                 }
@@ -547,12 +544,11 @@ internal class BmsConnectionManager private constructor(private val context: Con
 
     @Throws(JbdParseException::class)
     private fun handleDeviceInfoFrame(frame: JbdFrame) {
-        if (currentCommand == null || frame.command != (currentCommand!!.responseCommand.toInt() and 0xFF)) {
-            return
-        }
+        val cmd = currentCommand ?: return
+        if (frame.command != (cmd.responseCommand.toInt() and 0xFF)) return
         val snapshot = BmsStateStore.getSnapshot()
         var info: JbdDeviceInfo = snapshot.deviceInfo ?: JbdDeviceInfo.EMPTY
-        when (currentCommand!!.kind) {
+        when (cmd.kind) {
             CommandKind.SERIAL_NUMBER -> info = info.withSerialNumber(JbdParser.parseSerialNumber(frame))
             CommandKind.BARCODE -> info = info.withBarcode(JbdParser.parseText(frame))
             CommandKind.MANUFACTURER -> info = info.withManufacturer(JbdParser.parseText(frame))
@@ -568,9 +564,9 @@ internal class BmsConnectionManager private constructor(private val context: Con
 
     private fun applyExtendedParams(info: JbdDeviceInfo, params: JbdParser.ExtendedParams): JbdDeviceInfo {
         if (params.start == EXT_RATINGS_START && params.data.size >= 8) {
-            val dischargeCurrent = u16(params.data, 2).toFloat()
-            val chargeCurrent = u16(params.data, 4).toFloat()
-            val dischargePower = u16(params.data, 6).toFloat()
+            val dischargeCurrent = JbdParser.u16(params.data, 2).toFloat()
+            val chargeCurrent = JbdParser.u16(params.data, 4).toFloat()
+            val dischargePower = JbdParser.u16(params.data, 6).toFloat()
             return info.withRatings(chargeCurrent, dischargeCurrent, dischargePower)
         }
         if (params.start == EXT_BMS_ADDRESS_START) {
@@ -581,9 +577,6 @@ internal class BmsConnectionManager private constructor(private val context: Con
         }
         return info
     }
-
-    private fun u16(data: ByteArray, offset: Int): Int =
-        ((data[offset].toInt() and 0xFF) shl 8) or (data[offset + 1].toInt() and 0xFF)
 
     private fun completeCurrentCommand() {
         handler.removeCallbacks(commandTimeoutRunnable)
@@ -612,7 +605,6 @@ internal class BmsConnectionManager private constructor(private val context: Con
             connectedDeviceName = null
             connectedDeviceAddress = null
         }
-        BmsDashboardStore.update(null)
         updateState(
             BmsStateStore.Snapshot.withConnectionState(
                 state,
@@ -639,7 +631,7 @@ internal class BmsConnectionManager private constructor(private val context: Con
     }
 
     private fun shouldAutoReconnect(): Boolean =
-        autoReconnectEnabled && autoReconnectAddress != null && autoReconnectAddress!!.isNotEmpty()
+        autoReconnectEnabled && !autoReconnectAddress.isNullOrEmpty()
 
     private fun scheduleReconnect(reason: String) {
         if (reconnectScheduled) {
@@ -651,7 +643,6 @@ internal class BmsConnectionManager private constructor(private val context: Con
         connectedDeviceAddress = autoReconnectAddress
         connectedDeviceName =
             if (autoReconnectName.isNullOrEmpty()) autoReconnectAddress else autoReconnectName
-        BmsDashboardStore.update(null)
         updateState(
             BmsStateStore.Snapshot.withConnectionState(
                 BmsStateStore.ConnectionState.WAITING_RECONNECT,
@@ -698,16 +689,6 @@ internal class BmsConnectionManager private constructor(private val context: Con
 
     private fun updateState(snapshot: BmsStateStore.Snapshot) {
         BmsStateStore.update(snapshot)
-        if (snapshot.basicInfo != null) {
-            BmsDashboardStore.update(
-                BmsDashboardStore.Snapshot(
-                    snapshot.basicInfo!!.soc,
-                    snapshot.basicInfo!!.totalVoltage,
-                    snapshot.basicInfo!!.current,
-                    snapshot.basicInfo!!.totalVoltage * snapshot.basicInfo!!.current
-                )
-            )
-        }
     }
 
     private enum class CommandKind {
