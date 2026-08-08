@@ -1,0 +1,15 @@
+[versions]
+agp = "9.0.1"
+fragment = "1.6.2"
+material = "1.10.0"
+swiperefreshlayout = "1.1.0"
+junit = "4.13.2"
+
+[libraries]
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
