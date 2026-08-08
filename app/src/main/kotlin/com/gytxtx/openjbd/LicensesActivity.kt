@@ -35,12 +35,52 @@ class LicensesActivity : AppCompatActivity() {
                 R.raw.license_mit
             ),
             LicenseItem(
-                getString(R.string.license_item_androidx_fragment),
+                getString(R.string.license_item_compose),
                 getString(R.string.license_apache_2),
                 R.raw.license_apache_20
             ),
             LicenseItem(
                 getString(R.string.license_item_material_components),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_navigation),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_lifecycle),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_hilt),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_core_ktx),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_appcompat),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_datastore),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_kotlinx_serialization),
+                getString(R.string.license_apache_2),
+                R.raw.license_apache_20
+            ),
+            LicenseItem(
+                getString(R.string.license_item_fragment),
                 getString(R.string.license_apache_2),
                 R.raw.license_apache_20
             ),
